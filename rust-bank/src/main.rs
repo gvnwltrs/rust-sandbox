@@ -84,6 +84,11 @@ impl Bank {
 
 }
 
+#[derive(Debug)]
+struct PhonyAccount {
+    balance: i32,
+}
+
 #[test]
 fn test_account_init() {
     let accnt = Account::new(1, 0, String::from("Dan"));
@@ -116,6 +121,18 @@ fn test_update_account_deposit_withdraw() {
 fn main() {
     println!("Welcome to the Bank!");
     let mut bank = Bank::new(); 
+    let mut phony : Vec<PhonyAccount> = vec![
+        PhonyAccount { balance: 0 }, 
+        PhonyAccount { balance: 10 },
+    ];
+
+    match phony.first_mut() {
+        Some(phony) => {
+            phony.balance += 1;
+            println!("{:#?}", phony);
+        },
+        None => println!("No account found")
+    }
 
     bank.add_account(30000, String::from("George M"));
     println!("Added account.");
