@@ -11,6 +11,7 @@ enum Media {
 }
 
 impl Media {
+    // TODO: Implement way to create ANY media with new() 
     fn description<W: fmt::Write>(&self, w: &mut W)  -> fmt::Result { // sink pattern
         match self {
             Media::Book { title, author } => 
