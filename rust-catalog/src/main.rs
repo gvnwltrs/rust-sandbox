@@ -159,6 +159,17 @@ mod tests {
         assert_eq!(query, &expect);
     }
 
+    #[test]
+    fn test_build_new_media() {
+        let book = Media::new_book("Fear and Loathing in Las Vegas", "Hunter S. Thompson");
+        let expect = Media::Book { 
+            title: "Fear and Loathing in Las Vegas", 
+            author: "Hunter S. Thompson"
+        };
+
+        assert_eq!(book, expect);
+    }
+
 }
 
 fn main() {
