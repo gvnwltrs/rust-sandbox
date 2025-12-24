@@ -12,6 +12,24 @@ enum Media {
 
 impl Media {
     // TODO: Implement way to create ANY media with new() 
+
+    // Naive approach to TODO
+    fn new_book(title: &'static str, author: &'static str) -> Self {
+        Self::Book { title, author }
+    }
+
+    fn new_movie(title: &'static str, director: &'static str) -> Self {
+        Self::Movie { title, director }
+    }
+
+    fn new_audiobook(title: &'static str) -> Self {
+        Self::Audiobook { title }
+    }
+
+    fn new_podcast(episode_number: u32) -> Self {
+        Self::Podcast { episode_number }
+    }
+
     fn description<W: fmt::Write>(&self, w: &mut W)  -> fmt::Result { // sink pattern
         match self {
             Media::Book { title, author } => 
