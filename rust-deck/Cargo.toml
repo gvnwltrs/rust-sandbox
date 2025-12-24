@@ -1,0 +1,9 @@
+[package]
+name = "rust-deck"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+ferris-says = "0.3.1"
+rand = "0.9.2"
+random = "0.14.1"
