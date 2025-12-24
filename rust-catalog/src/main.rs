@@ -58,13 +58,20 @@ impl Catalog {
             .expect("Catalog index out of range")
     }
 
-    fn get_by_index_variant<'a>(&'a self, index: usize) -> MightHaveAValue<'a> {
+    fn get_by_index_variant_1<'a>(&'a self, index: usize) -> MightHaveAValue<'a> {
         if index < self.media.len() {
             // Good! We have something to return
             MightHaveAValue::ThereIsAValue(&self.media[index])
         } else {
             // Bad! We don't have anything to return!!!
             MightHaveAValue::NoValueAvailable
+        }
+    }
+
+    fn get_by_index_variant_2<'a>(&'a self, index: usize) -> MightHaveAValue<'a> {
+        match self.media.get(index) {
+            Some(m) => MightHaveAValue::ThereIsAValue(m),
+            None => MightHaveAValue::NoValueAvailable,
         }
     }
 }
