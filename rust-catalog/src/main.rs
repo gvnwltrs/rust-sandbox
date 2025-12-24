@@ -176,14 +176,15 @@ fn main() {
     let mut audiobook = Media::new_audiobook("The 48 Laws of Power");
     let mut book = Media::new_book("The Art of War", "Sun Tzu");
     let mut movie = Media::new_movie("Batman", "Christopher Nolan");
+    let mut library = Catalog::new();
+    let mut query;
 
     audiobook.print_media();
     book.print_media();
     audiobook.print_media();
 
-    let mut library = Catalog::new();
     library.add(book);
-    let mut query = library.media.get(0);
+    query = library.media.get(0);
     println!("Media query: {:?}", query);
 
     library.add(movie);
