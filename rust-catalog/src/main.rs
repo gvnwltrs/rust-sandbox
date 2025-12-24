@@ -71,7 +71,7 @@ impl Catalog {
 
 // Helpers
 #[derive(Debug)]
-enum MightHaveAValue<'a> { // Variants to return if something is or isn't there 
+enum MightHaveAValue<'a> { // Variant of Option to return if something is or isn't there 
     ThereIsAValue(&'a Media), // Ref to some media thing; means we have a value
     NoValueAvailable,
 } // we use the "'a" for a lifetime annotation 
