@@ -173,19 +173,9 @@ mod tests {
 }
 
 fn main() {
-    let mut audiobook = Media::Audiobook { 
-        title: "The 48 Laws of Power",
-    };
-
-    let mut book = Media::Book {
-        title: "The Art of War",
-        author: "Sun Tzu",
-    };
-
-    let mut movie = Media::Movie {
-        title: "Batman", 
-        director: "Christopher Nolan",
-    };
+    let mut audiobook = Media::new_audiobook("The 48 Laws of Power");
+    let mut book = Media::new_book("The Art of War", "Sun Tzu");
+    let mut movie = Media::new_movie("Batman", "Christopher Nolan");
 
     audiobook.print_media();
     book.print_media();
