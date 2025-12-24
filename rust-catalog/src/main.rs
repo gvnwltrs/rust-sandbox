@@ -52,13 +52,25 @@ impl Catalog {
     fn try_get_by_index(&self, index: usize) -> Option<&Media> {
         self.media.get(index)
     }
+
     fn get_by_index(&self, index: usize) -> &Media {
         self.try_get_by_index(index)
             .expect("Catalog index out of range")
     }
+
+    fn get_by_index_variant<'a>(&'a self, index: usize) -> MightHaveAValue<'a> {
+        if index < self.media.len() {
+            // Good! We have something to return
+            MightHaveAValue::ThereIsAValue(&self.media[index])
+        } else {
+            // Bad! We don't have anything to return!!!
+            MightHaveAValue::NoValueAvailable
+        }
+    }
 }
 
 // Helpers
+#[derive(Debug)]
 enum MightHaveAValue<'a> { // Variants to return if something is or isn't there 
     ThereIsAValue(&'a Media), // Ref to some media thing; means we have a value
     NoValueAvailable,
