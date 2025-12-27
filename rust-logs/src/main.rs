@@ -41,13 +41,12 @@ mod tests {
 }
 
 fn main() -> Result<(), std::io::Error> {
+    // Stack-based log
     const SIZE: usize = 2048;
     let mut file_buf = FileBuf::<SIZE>::new();
 
     file_buf.read_to_buf("logs.txt")?;
 
-    let heap_log = fs::read_to_string("logs.txt")?;
-    println!("Heap log: {:#?}", heap_log);
     
     let full_log = file_buf.extract_all()?;
     println!("Log: {:#?}", full_log);
@@ -57,6 +56,10 @@ fn main() -> Result<(), std::io::Error> {
 
     println!("Errors: {:#?}", errors);   
     println!("Warnings: {:#?}", warnings);
+
+    // Compare to heap-based log
+    let heap_log = fs::read_to_string("logs.txt")?;
+    println!("Heap log: {:#?}", heap_log);
 
     Ok(())
 }
