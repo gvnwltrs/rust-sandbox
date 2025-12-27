@@ -1,6 +1,5 @@
 use std::fs;
 use std::io::Error;
-use std::io::ErrorKind;
 
 mod file_string;
 use file_string::file::FileBuf;
