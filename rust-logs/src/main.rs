@@ -71,16 +71,16 @@ fn main() {
             return;
         }
     };
-    let string = match file_buf.extract_string_from_buf() {
+    let log = match file_buf.extract_all() {
         Ok(string) => string,
         Err(e) => {
             println!("Error: {:#?}", e);
             return;
         }
     };
-    println!("String: {:#?}", string);
+    println!("String: {:#?}", log);
 
-    let errors = match file_buf.extract_errors_from_buf() {
+    let errors = match file_buf.extract_errors() {
         Ok(errors) => errors,
         Err(e) => {
             println!("Error: {:#?}", e);
