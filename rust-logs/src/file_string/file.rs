@@ -83,6 +83,8 @@ pub fn read_to_stack_string<const N: usize>(path: &str) -> io::Result<String<N>>
         .map_err(|_| io::Error::new(io::ErrorKind::InvalidData, "invalid UTF-8"))?;
 
     let mut out = String::<N>::new();
-    out.push_str(text).unwrap(); // safe: we just checked the size
+    out.push_str(text)
+        .map_err(|_| io::Error::new(io::ErrorKind::InvalidInput, "file too large"))?; // safe: we just checked the size
+
     Ok(out)
 }
