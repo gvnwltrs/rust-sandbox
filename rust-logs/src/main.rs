@@ -1,5 +1,4 @@
 use std::fs;
-use std::io::Error;
 
 mod file_string;
 use file_string::file::FileBuf;
@@ -58,7 +57,8 @@ fn main() -> Result<(), std::io::Error> {
 
     // Compare to heap-based log
     let heap_log = fs::read_to_string("logs.txt")?;
-    println!("Heap log: {:#?}", heap_log);
+    let heap_errors = extract_errors(&heap_log);
+    println!("Heap errors: {:#?}", heap_errors);
 
     Ok(())
 }
