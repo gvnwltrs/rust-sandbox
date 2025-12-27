@@ -105,3 +105,4 @@ println!("Struct size in memory: {} bytes", std::mem::size_of_val(&logs));
 
 This will show you all four different measurements clearly!
 
+
