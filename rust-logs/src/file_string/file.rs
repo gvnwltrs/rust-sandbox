@@ -37,7 +37,8 @@ impl<const N: usize> FileBuf<N> {
         let text = std::str::from_utf8(&self.buf[..self.len]) // from 0 to len
             .map_err(|_| io::Error::new(io::ErrorKind::InvalidData, "invalid UTF-8"))?;
         let mut out = String::<N>::new();
-        out.push_str(text).unwrap(); // safe: we just checked the size
+        out.push_str(text)
+            .map_err(|_| io::Error::new(io::ErrorKind::InvalidInput, "file too long"))?; // safe: we just checked the size
         Ok(out)
     }
 
