@@ -1,7 +1,6 @@
 use std::fs;
 
 mod file_string;
-use file_string::file::read_to_stack_string;
 use file_string::file::FileBuf;
 
 /* 
@@ -52,16 +51,6 @@ fn main() {
             println!("Error: {:#?}", e);
         }
     }
-
-    match read_to_stack_string::<SIZE>("logs.txt") {
-        Ok(file) => {
-            let errors = extract_errors(&file);
-            println!("Errors: {:#?}", errors);
-        }
-        Err(e) => {
-            println!("Error: {:#?}", e);
-        }
-    }
     
     let mut file_buf = FileBuf::<SIZE>::new();
     let buf = match file_buf.read_to_buf("logs.txt") {
@@ -88,4 +77,13 @@ fn main() {
         }
     };
     println!("Errors: {:#?}", errors);
+
+    let warnings = match file_buf.extract_warnings() {
+        Ok(warnings) => warnings,
+        Err(e) => {
+            println!("Error: {:#?}", e);
+            return;
+        }
+    };
+    println!("Warnings: {:#?}", warnings);
 }

@@ -61,30 +61,16 @@ impl<const N: usize> FileBuf<N> {
         }
         Ok(errors)
     }
-}
 
-pub fn read_to_stack_string<const N: usize>(path: &str) -> io::Result<String<N>> {
-    let mut file = File::open(path)?;
-    let mut buf = [0u8; N]; // reading byte characters into buffer of size N
-    let mut len = 0;
-
-    // Check lenght of file and read into buffer
-    loop {
-        if len == N {
-            return Err(io::Error::new(io::ErrorKind::InvalidData, "file too large"));
+    pub fn extract_warnings<'a>(&'a self) -> io::Result<Vec<&'a str>> {
+        let text = self.as_str()
+            .map_err(|_| io::Error::new(io::ErrorKind::InvalidData, "invalid UTF-8"))?;
+        let mut warnings = Vec::<&str>::new();
+        for line in text.lines() {
+            if line.starts_with("WARNING") {
+                warnings.push(line);
+            }
         }
-        let n = file.read(&mut buf[len..])?;
-        if n == 0 { break; }
-        len += n;
+        Ok(warnings)
     }
-
-    // Converting bytes characters to string
-    let text = std::str::from_utf8(&buf[..len]) // from 0 to len
-        .map_err(|_| io::Error::new(io::ErrorKind::InvalidData, "invalid UTF-8"))?;
-
-    let mut out = String::<N>::new();
-    out.push_str(text)
-        .map_err(|_| io::Error::new(io::ErrorKind::InvalidInput, "file too large"))?; // safe: we just checked the size
-
-    Ok(out)
 }
