@@ -1,6 +1,10 @@
 use std::fs;
 use std::io::Error;
 
+mod file_string;
+use file_string::file::read_to_stack_string;
+use file_string::file::read_to_buf;
+
 /* 
 function extract_errors(log: string) -> list of strings: 
     split log by newline characters into lines
@@ -12,39 +16,52 @@ function extract_errors(log: string) -> list of strings:
 
     return result list
 */
-fn extract_errors(logs: &String) -> Result<Vec<String>, Error> {
-    let mut logged_errors = Vec::new();
-    for line in logs.lines() {
+fn extract_errors(logs: &str) -> Vec<&str> {
+    let split_text = logs.split("\n");
+    let mut results = vec![];
+
+    for line in split_text {
         if line.starts_with("ERROR") {
-            logged_errors.push(line.into());
+            results.push(line);
         }
     }
-    Ok(logged_errors)
+    results
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_extract_errors() {
+        let file = fs::read_to_string("logs.txt").unwrap();
+        let errors = extract_errors(&file);
+        assert_eq!(errors[0], "ERROR 14:33:45 Failed to connect to the database.");
+    }
 }
 
 fn main() {
-    let mut file = String::new();
-
     // TODO: reading into a heap-based String; change to stack
-    match fs::read_to_string("logs.txt")  {
-        Ok(contents) => {
-            println!("SUCCESS: file read -- {:#?}", contents);
-            file = contents.into();
+    match fs::read_to_string("logs.txt") { // returns Result<String, Error>
+        Ok(file) => { 
+            let errors = extract_errors(&file);
+            println!("Errors: {:#?}", errors);
         }
-        Err(failure) => {
-            println!("ERROR: {:#?}", failure); 
-        } 
+        Err(e) => {
+            println!("Error: {:#?}", e);
+        }
     }
 
-    match fs::read_to_string("logs2.txt")  {
-        Ok(contents) => println!("SUCCESS: file read -- {:#?}", contents), 
-        Err(failure) => {
-            println!("ERROR: {:#?}", failure); 
-        } 
+    const SIZE: usize = 2048;
+    match read_to_stack_string::<SIZE>("logs.txt") {
+        Ok(file) => {
+            let errors = extract_errors(&file);
+            println!("Errors: {:#?}", errors);
+        }
+        Err(e) => {
+            println!("Error: {:#?}", e);
+        }
     }
 
-    match extract_errors(&file) {
-        Ok(errors) => println!("SUCCESS: errors extracted -- {:#?}", errors),
-        Err(failure) => println!("ERROR: {:#?}", failure),
-    }
+    read_to_buf::<SIZE>("logs.txt");
 }

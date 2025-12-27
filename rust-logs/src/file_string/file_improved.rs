@@ -4,30 +4,6 @@ use std::fs::File;
 use std::io::{self, Read};
 use heapless::String;
 
-/// Improved: Eliminates redundant copy by constructing String directly from buffer
-pub fn read_to_stack_string_v2<const N: usize>(path: &str) -> io::Result<String<N>> {
-    let mut file = File::open(path)?;
-    let mut buf = [0u8; N];
-    let mut len = 0;
-
-    loop {
-        if len == N {
-            return Err(io::Error::new(io::ErrorKind::InvalidData, "file too large"));
-        }
-        let n = file.read(&mut buf[len..])?;
-        if n == 0 { break; }
-        len += n;
-    }
-
-    // Convert buffer directly to string - no intermediate copy
-    let text = core::str::from_utf8(&buf[..len])
-        .map_err(|_| io::Error::new(io::ErrorKind::InvalidData, "invalid UTF-8"))?;
-    
-    // Use unsafe to construct directly from buffer (safe because we validated UTF-8)
-    // This avoids the copy that push_str would do
-    Ok(unsafe { String::from_utf8_unchecked(heapless::Vec::from_slice(&buf[..len]).unwrap()) })
-}
-
 /// Alternative: For embedded, use Read trait (works with no_std readers)
 pub fn read_to_stack_string_from_reader<const N: usize, R: Read>(
     reader: &mut R,
@@ -50,31 +26,6 @@ pub fn read_to_stack_string_from_reader<const N: usize, R: Read>(
     let mut out = String::<N>::new();
     out.push_str(text).map_err(|_| io::Error::new(io::ErrorKind::InvalidData, "string too long"))?;
     Ok(out)
-}
-
-/// Stream processing approach - better for large files or memory-constrained systems
-/// Processes line by line without loading entire file
-pub fn process_logs_streaming<const BUF_SIZE: usize, F>(
-    path: &str,
-    mut processor: F,
-) -> io::Result<()>
-where
-    F: FnMut(&str) -> Result<(), io::Error>,
-{
-    use std::io::{BufRead, BufReader};
-    
-    let file = File::open(path)?;
-    let reader = BufReader::new(file);
-    let mut line_buf = heapless::String::<BUF_SIZE>::new();
-    
-    for line_result in reader.lines() {
-        let line = line_result?;
-        
-        // Process line by line - only buffer what you need
-        processor(&line)?;
-    }
-    
-    Ok(())
 }
 
 // For true embedded (no_std), you'd use something like:
