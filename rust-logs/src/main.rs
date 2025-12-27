@@ -49,11 +49,13 @@ fn main() -> Result<(), std::io::Error> {
     let full_log = file_buf.extract_all()?;
     println!("Log: {:#?}", full_log);
 
-    let errors = file_buf.extract_errors()?;
+    let infos = file_buf.extract_infos()?;
     let warnings = file_buf.extract_warnings()?;
+    let errors = file_buf.extract_errors()?;
 
-    println!("Errors: {:#?}", errors);   
+    println!("Infos: {:#?}", infos);
     println!("Warnings: {:#?}", warnings);
+    println!("Errors: {:#?}", errors);
 
     // Compare to heap-based log
     let heap_log = fs::read_to_string("logs.txt")?;

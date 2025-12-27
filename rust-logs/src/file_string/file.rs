@@ -73,4 +73,16 @@ impl<const N: usize> FileBuf<N> {
         }
         Ok(warnings)
     }
+
+    pub fn extract_infos<'a>(&'a self) -> io::Result<Vec<&'a str>> {
+        let text = self.as_str()
+            .map_err(|_| io::Error::new(io::ErrorKind::InvalidData, "invalid UTF-8"))?;
+        let mut infos = Vec::<&str>::new();
+        for line in text.lines() {
+            if line.starts_with("INFO") {
+                infos.push(line);
+            }
+        }
+        Ok(infos)
+    }
 }
