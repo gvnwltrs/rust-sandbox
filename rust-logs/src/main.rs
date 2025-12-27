@@ -1,10 +1,8 @@
 use std::fs;
-use std::io::Error;
 
 mod file_string;
 use file_string::file::read_to_stack_string;
-use file_string::file::read_to_buf;
-use file_string::file::extract_string_from_buf;
+use file_string::file::FileBuf;
 
 /* 
 function extract_errors(log: string) -> list of strings: 
@@ -64,18 +62,30 @@ fn main() {
             println!("Error: {:#?}", e);
         }
     }
-
-    let logs = match read_to_buf::<SIZE>("logs.txt") {
-        Ok(buf) => {
-            let logs = extract_string_from_buf::<SIZE>(buf, 1024);
-            println!("Logs: {:#?}", logs);
-            logs
-        }
+    
+    let mut file_buf = FileBuf::<SIZE>::new();
+    let buf = match file_buf.read_to_buf("logs.txt") {
+        Ok(buf) => buf,
         Err(e) => {
             println!("Error: {:#?}", e);
             return;
         }
     };
+    let string = match file_buf.extract_string_from_buf() {
+        Ok(string) => string,
+        Err(e) => {
+            println!("Error: {:#?}", e);
+            return;
+        }
+    };
+    println!("String: {:#?}", string);
 
-    println!("String outside of match: {:#?}", logs);
+    let errors = match file_buf.extract_errors_from_buf() {
+        Ok(errors) => errors,
+        Err(e) => {
+            println!("Error: {:#?}", e);
+            return;
+        }
+    };
+    println!("Errors: {:#?}", errors);
 }

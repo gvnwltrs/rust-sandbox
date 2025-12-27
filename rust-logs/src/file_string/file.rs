@@ -2,53 +2,46 @@ use std::fs::File;
 use std::io::{self, Read};
 use heapless::String;
 
-<<<<<<< HEAD
-pub fn read_to_stack_string<const N: usize>(path: &str) -> io::Result<String<N>> {
-=======
 // TODO: add struct with length and buf
+pub struct FileBuf<const N: usize> {
+    buf: [u8; N],
+    len: usize,
+}
 
-// TODO: add read to buf here and wrap in struct with length
-pub fn read_to_buf<const N: usize>(path: &str) -> io::Result<[u8; N]> {
->>>>>>> origin/lenovo
-    let mut file = File::open(path)?;
-    let mut buf = [0u8; N];
-    let mut len = 0;
-
-    loop {
-        if len == N {
-            return Err(io::Error::new(io::ErrorKind::InvalidData, "file too large"));
-        }
-        let n = file.read(&mut buf[len..])?;
-        if n == 0 { break; }
-        len += n;
+impl<const N: usize> FileBuf<N> {
+    pub fn new() -> Self {
+        Self { buf: [0u8; N], len: 0 }
     }
 
-<<<<<<< HEAD
-    let text = std::str::from_utf8(&buf[..len])
-=======
-    Ok(buf)
-}
+    pub fn read_to_buf(&mut self, path: &str) -> Result<[u8; N], io::Error> {
+        let mut file = File::open(path)?;
+        let n = file.read(&mut self.buf[self.len..])?;
+        self.len += n;
+        Ok(self.buf)
+    }
 
-// TODO: add extract string from buf here
-pub fn extract_string_from_buf<const N: usize>(buf: [u8; N], len: usize) -> io::Result<String<N>> {
-    let text = std::str::from_utf8(&buf[..len]) // from 0 to len
-        .map_err(|_| io::Error::new(io::ErrorKind::InvalidData, "invalid UTF-8"))?;
-    let mut out = String::<N>::new();
-    out.push_str(text).unwrap(); // safe: we just checked the size
-    Ok(out)
-}
+    pub fn extract_string_from_buf(&self) -> Result<String<N>, io::Error> {
+        let text = std::str::from_utf8(&self.buf[..self.len]) // from 0 to len
+            .map_err(|_| io::Error::new(io::ErrorKind::InvalidData, "invalid UTF-8"))?;
+        let mut out = String::<N>::new();
+        out.push_str(text).unwrap(); // safe: we just checked the size
+        Ok(out)
+    }
 
-// pub fn extract_errors_from_buf<const N: usize>(buf: [u8; N], len: usize) -> io::Result<Vec<String<N>>> {
-//     let text = std::str::from_utf8(&buf[..len]) // from 0 to len
-//         .map_err(|_| io::Error::new(io::ErrorKind::InvalidData, "invalid UTF-8"))?;
-//     let mut errors = Vec::<String<N>>::new();
-//     for line in text.lines() {
-//         if line.starts_with("ERROR") {
-//             errors.push(String::<N>::from(line));
-//         }
-//     }
-//         Ok(errors)
-// }
+    pub fn extract_errors_from_buf(&self) -> Result<Vec<String<N>>, io::Error> {
+        let text = self.extract_string_from_buf()?;
+        let mut errors = Vec::<String<N>>::new();
+        let split_text = text.as_str().split("\n");
+        for line in split_text {
+            if line.starts_with("ERROR") {
+                let mut error_string = String::<N>::new();
+                error_string.push_str(line).map_err(|_| io::Error::new(io::ErrorKind::InvalidData, "line too long"))?;
+                errors.push(error_string);
+            }   
+        }
+        Ok(errors)
+    }
+}
 
 pub fn read_to_stack_string<const N: usize>(path: &str) -> io::Result<String<N>> {
     let mut file = File::open(path)?;
@@ -67,7 +60,6 @@ pub fn read_to_stack_string<const N: usize>(path: &str) -> io::Result<String<N>>
 
     // Converting bytes characters to string
     let text = std::str::from_utf8(&buf[..len]) // from 0 to len
->>>>>>> origin/lenovo
         .map_err(|_| io::Error::new(io::ErrorKind::InvalidData, "invalid UTF-8"))?;
 
     let mut out = String::<N>::new();
