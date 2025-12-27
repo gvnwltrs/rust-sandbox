@@ -46,8 +46,9 @@ impl<const N: usize> FileBuf<N> {
         &self.buf[..self.len]
     }
 
-    pub fn as_str(&self) -> Result<&str, std::str::Utf8Error> {
-        std::str::from_utf8(&self.as_bytes())
+    pub fn as_str(&self) -> io::Result<&str> {
+        std::str::from_utf8(self.as_bytes())
+            .map_err(|_| io::Error::new(io::ErrorKind::InvalidData, "invalid UTF-8"))
     }
 
     pub fn extract_errors<'a>(&'a self) -> io::Result<Vec<&'a str>> {

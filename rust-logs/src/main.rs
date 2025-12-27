@@ -1,4 +1,6 @@
 use std::fs;
+use std::io::Error;
+use std::io::ErrorKind;
 
 mod file_string;
 use file_string::file::FileBuf;
@@ -38,52 +40,23 @@ mod tests {
     }
 }
 
-fn main() {
+fn main() -> Result<(), std::io::Error> {
     const SIZE: usize = 2048;
-
-    // TODO: reading into a heap-based String; change to stack
-    match fs::read_to_string("logs.txt") { // returns Result<String, Error>
-        Ok(file) => { 
-            let errors = extract_errors(&file);
-            println!("Errors: {:#?}", errors);
-        }
-        Err(e) => {
-            println!("Error: {:#?}", e);
-        }
-    }
-    
     let mut file_buf = FileBuf::<SIZE>::new();
-    let buf = match file_buf.read_to_buf("logs.txt") {
-        Ok(buf) => buf,
-        Err(e) => {
-            println!("Error: {:#?}", e);
-            return;
-        }
-    };
-    let log = match file_buf.extract_all() {
-        Ok(string) => string,
-        Err(e) => {
-            println!("Error: {:#?}", e);
-            return;
-        }
-    };
-    println!("String: {:#?}", log);
 
-    let errors = match file_buf.extract_errors() {
-        Ok(errors) => errors,
-        Err(e) => {
-            println!("Error: {:#?}", e);
-            return;
-        }
-    };
-    println!("Errors: {:#?}", errors);
+    file_buf.read_to_buf("logs.txt")?;
 
-    let warnings = match file_buf.extract_warnings() {
-        Ok(warnings) => warnings,
-        Err(e) => {
-            println!("Error: {:#?}", e);
-            return;
-        }
-    };
+    let heap_log = fs::read_to_string("logs.txt")?;
+    println!("Heap log: {:#?}", heap_log);
+    
+    let full_log = file_buf.extract_all()?;
+    println!("Log: {:#?}", full_log);
+
+    let errors = file_buf.extract_errors()?;
+    let warnings = file_buf.extract_warnings()?;
+
+    println!("Errors: {:#?}", errors);   
     println!("Warnings: {:#?}", warnings);
+
+    Ok(())
 }
