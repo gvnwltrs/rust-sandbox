@@ -4,6 +4,7 @@ use std::fs::File;
 use std::io::{self, Read};
 use heapless::String;
 
+<<<<<<< HEAD
 /// Improved: Eliminates redundant copy by constructing String directly from buffer
 pub fn read_to_stack_string_v2<const N: usize>(path: &str) -> io::Result<String<N>> {
     let mut file = File::open(path)?;
@@ -28,6 +29,8 @@ pub fn read_to_stack_string_v2<const N: usize>(path: &str) -> io::Result<String<
     Ok(unsafe { String::from_utf8_unchecked(heapless::Vec::from_slice(&buf[..len]).unwrap()) })
 }
 
+=======
+>>>>>>> origin/lenovo
 /// Alternative: For embedded, use Read trait (works with no_std readers)
 pub fn read_to_stack_string_from_reader<const N: usize, R: Read>(
     reader: &mut R,
@@ -52,6 +55,7 @@ pub fn read_to_stack_string_from_reader<const N: usize, R: Read>(
     Ok(out)
 }
 
+<<<<<<< HEAD
 /// Stream processing approach - better for large files or memory-constrained systems
 /// Processes line by line without loading entire file
 pub fn process_logs_streaming<const BUF_SIZE: usize, F>(
@@ -77,6 +81,8 @@ where
     Ok(())
 }
 
+=======
+>>>>>>> origin/lenovo
 // For true embedded (no_std), you'd use something like:
 // use embedded_io::Read;
 // pub fn read_to_stack_string_embedded<const N: usize, R: embedded_io::Read>(
