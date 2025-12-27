@@ -2,7 +2,6 @@ use std::fs::File;
 use std::io::{self, Read};
 use heapless::String;
 
-// TODO: add struct with length and buf
 pub struct FileBuf<const N: usize> {
     buf: [u8; N],
     len: usize,
