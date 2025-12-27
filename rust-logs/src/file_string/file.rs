@@ -31,6 +31,18 @@ pub fn extract_string_from_buf<const N: usize>(buf: [u8; N], len: usize) -> io::
     Ok(out)
 }
 
+// pub fn extract_errors_from_buf<const N: usize>(buf: [u8; N], len: usize) -> io::Result<Vec<String<N>>> {
+//     let text = std::str::from_utf8(&buf[..len]) // from 0 to len
+//         .map_err(|_| io::Error::new(io::ErrorKind::InvalidData, "invalid UTF-8"))?;
+//     let mut errors = Vec::<String<N>>::new();
+//     for line in text.lines() {
+//         if line.starts_with("ERROR") {
+//             errors.push(String::<N>::from(line));
+//         }
+//     }
+//         Ok(errors)
+// }
+
 pub fn read_to_stack_string<const N: usize>(path: &str) -> io::Result<String<N>> {
     let mut file = File::open(path)?;
     let mut buf = [0u8; N]; // reading byte characters into buffer of size N

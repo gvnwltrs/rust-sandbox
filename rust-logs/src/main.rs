@@ -4,6 +4,7 @@ use std::io::Error;
 mod file_string;
 use file_string::file::read_to_stack_string;
 use file_string::file::read_to_buf;
+use file_string::file::extract_string_from_buf;
 
 /* 
 function extract_errors(log: string) -> list of strings: 
@@ -41,6 +42,8 @@ mod tests {
 }
 
 fn main() {
+    const SIZE: usize = 2048;
+
     // TODO: reading into a heap-based String; change to stack
     match fs::read_to_string("logs.txt") { // returns Result<String, Error>
         Ok(file) => { 
@@ -52,7 +55,6 @@ fn main() {
         }
     }
 
-    const SIZE: usize = 2048;
     match read_to_stack_string::<SIZE>("logs.txt") {
         Ok(file) => {
             let errors = extract_errors(&file);
@@ -63,5 +65,17 @@ fn main() {
         }
     }
 
-    read_to_buf::<SIZE>("logs.txt");
+    let logs = match read_to_buf::<SIZE>("logs.txt") {
+        Ok(buf) => {
+            let logs = extract_string_from_buf::<SIZE>(buf, 1024);
+            println!("Logs: {:#?}", logs);
+            logs
+        }
+        Err(e) => {
+            println!("Error: {:#?}", e);
+            return;
+        }
+    };
+
+    println!("String outside of match: {:#?}", logs);
 }
