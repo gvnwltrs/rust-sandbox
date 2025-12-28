@@ -1,1 +1,0 @@
-StringInner<usize, heapless::vec::storage::VecStorageInner<[MaybeUninit<u8>; 2048]>>
