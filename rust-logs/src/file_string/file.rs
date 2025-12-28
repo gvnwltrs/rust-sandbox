@@ -1,7 +1,7 @@
+use std::fs;
 use std::fs::File;
 use std::io::{self, Read};
 use heapless::String;
-use std::fs::write;
 
 pub struct FileBuf<const N: usize> {
     buf: [u8; N],
@@ -32,7 +32,9 @@ impl<const N: usize> FileBuf<N> {
         Ok(())
     }
 
-    // map_err will iterate over the result and identify if there is a non-UTF-8 error
+    // `map_err` will iterate over the result and identify if there is a non-UTF-8 error.
+    // In this case, where are returning a copy of string to the caller
+    // so that the caller takes ownership of the string.
     pub fn extract_all(&self) -> io::Result<String<N>> {
         let text = std::str::from_utf8(&self.buf[..self.len]) // from 0 to len
             .map_err(|_| io::Error::new(io::ErrorKind::InvalidData, "invalid UTF-8"))?;
@@ -42,15 +44,20 @@ impl<const N: usize> FileBuf<N> {
         Ok(out)
     }
 
+    // Returing a reference to byte.
     pub fn as_bytes(&self) -> &[u8] {
         &self.buf[..self.len]
     }
 
+    // Returning a reference to the string that is owned by FileBuf.
+    // The caller get's to borrow the string (read-only).
     pub fn as_str(&self) -> io::Result<&str> {
         std::str::from_utf8(self.as_bytes())
             .map_err(|_| io::Error::new(io::ErrorKind::InvalidData, "invalid UTF-8"))
     }
 
+    // Returing a Result<T, E> with reference to the vector of a strings (tokens) to the caller. 
+    // FileBuf owns, caller borrows (read-only).
     pub fn extract_errors<'a>(&'a self) -> io::Result<Vec<&'a str>> {
         let text = self.as_str()
             .map_err(|_| io::Error::new(io::ErrorKind::InvalidData, "invalid UTF-8"))?;
@@ -63,6 +70,8 @@ impl<const N: usize> FileBuf<N> {
         Ok(errors)
     }
 
+    // Returning Result<T, E> with a reference to a vector of strings to a caller. 
+    // FileBuf still owns the vector of strings, and the caller borrows.
     pub fn extract_warnings<'a>(&'a self) -> io::Result<Vec<&'a str>> {
         let text = self.as_str()
             .map_err(|_| io::Error::new(io::ErrorKind::InvalidData, "invalid UTF-8"))?;
@@ -75,6 +84,8 @@ impl<const N: usize> FileBuf<N> {
         Ok(warnings)
     }
 
+    // Returning Result<T, E> with a reference to a vector of strings to a caller. 
+    // FileBuf still owns the vector of strings, and the caller borrows.
     pub fn extract_infos<'a>(&'a self) -> io::Result<Vec<&'a str>> {
         let text = self.as_str()
             .map_err(|_| io::Error::new(io::ErrorKind::InvalidData, "invalid UTF-8"))?;
@@ -89,7 +100,7 @@ impl<const N: usize> FileBuf<N> {
 
     pub fn export_to_file(&self, logs: &Vec<&str>, path: &str) -> io::Result<()> {
         let data = logs.join("\n");
-        write(path, data)?;
+        fs::write(path, data)?;
         println!("Exported to file: {}", path);
         Ok(())
     }
