@@ -1,6 +1,6 @@
 use std::io::Error;
 
-fn string_test(a: String, b: &String, c: &str) -> Result<(String, String, String), Error> {
+fn string_test() -> Result<(String, String, String), Error> {
     // heap allocated strings
     let a = std::any::type_name::<String>();
 
@@ -15,11 +15,7 @@ fn string_test(a: String, b: &String, c: &str) -> Result<(String, String, String
 fn main() {
     println!("Now running string_test...");
 
-    match string_test(
-        String::from("Hello, world!"), 
-        &String::from("Hello, world!"), 
-        "Hello, world!"
-    ) {
+    match string_test() {
         Ok((a, b, c)) => {
             println!("a: {:#?}", a);
             println!("b: {:#?}", b);
