@@ -33,6 +33,23 @@ impl<const N: usize> FileBuf<N> {
         Ok(())
     }
 
+    // Returing a reference to byte.
+    pub fn as_bytes(&self) -> &[u8] {
+        &self.buf[..self.len]
+    }
+
+    // Returning a reference to the string that is owned by FileBuf.
+    // The caller get's to borrow the string (read-only).
+    pub fn as_str(&self) -> io::Result<&str> {
+        std::str::from_utf8(self.as_bytes())
+            .map_err(|_| io::Error::new(io::ErrorKind::InvalidData, "invalid UTF-8"))
+    }
+
+    pub fn tokenize<'a>(&self, s: &'a str) -> impl Iterator<Item = &'a str> {
+        s.split('\n')
+        // or s.lines()
+    }
+
     // `map_err` will iterate over the result and identify if there is a non-UTF-8 error.
     // In this case, where are returning a copy of string to the caller
     // so that the caller takes ownership of the string.
@@ -50,18 +67,6 @@ impl<const N: usize> FileBuf<N> {
             out.push('\n');
         }
         Ok(out)
-    }
-
-    // Returing a reference to byte.
-    pub fn as_bytes(&self) -> &[u8] {
-        &self.buf[..self.len]
-    }
-
-    // Returning a reference to the string that is owned by FileBuf.
-    // The caller get's to borrow the string (read-only).
-    pub fn as_str(&self) -> io::Result<&str> {
-        std::str::from_utf8(self.as_bytes())
-            .map_err(|_| io::Error::new(io::ErrorKind::InvalidData, "invalid UTF-8"))
     }
 
     // Returing a Result<T, E> with reference to the vector of a strings (tokens) to the caller. 
@@ -118,10 +123,6 @@ impl<const N: usize> FileBuf<N> {
         Ok(result)
     }
 
-    pub fn tokenize<'a>(&self, s: &'a str) -> impl Iterator<Item = &'a str> {
-        s.split('\n')
-        // or s.lines()
-    }
 
     pub fn print_all<T: AsRef<str> + std::fmt::Debug>(&self, tag: &str, log: &T) { 
         match tag {
