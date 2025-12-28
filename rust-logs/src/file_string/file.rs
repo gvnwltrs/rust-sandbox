@@ -1,8 +1,9 @@
+use std::fs;
 use std::fs::File;
 use std::io::{self, Read};
 use heapless::String;
-use std::fs::write;
 
+#[derive(Debug)]
 pub struct FileBuf<const N: usize> {
     buf: [u8; N],
     len: usize,
@@ -32,25 +33,44 @@ impl<const N: usize> FileBuf<N> {
         Ok(())
     }
 
-    // map_err will iterate over the result and identify if there is a non-UTF-8 error
-    pub fn extract_all(&self) -> io::Result<String<N>> {
-        let text = std::str::from_utf8(&self.buf[..self.len]) // from 0 to len
-            .map_err(|_| io::Error::new(io::ErrorKind::InvalidData, "invalid UTF-8"))?;
-        let mut out = String::<N>::new();
-        out.push_str(text)
-            .map_err(|_| io::Error::new(io::ErrorKind::InvalidInput, "file too long"))?; // safe: we just checked the size
-        Ok(out)
-    }
-
+    // Returing a reference to byte.
     pub fn as_bytes(&self) -> &[u8] {
         &self.buf[..self.len]
     }
 
+    // Returning a reference to the string that is owned by FileBuf.
+    // The caller get's to borrow the string (read-only).
     pub fn as_str(&self) -> io::Result<&str> {
         std::str::from_utf8(self.as_bytes())
             .map_err(|_| io::Error::new(io::ErrorKind::InvalidData, "invalid UTF-8"))
     }
 
+    pub fn tokenize<'a>(&self, s: &'a str) -> impl Iterator<Item = &'a str> {
+        s.split('\n')
+        // or s.lines()
+    }
+
+    // `map_err` will iterate over the result and identify if there is a non-UTF-8 error.
+    // In this case, where are returning a copy of string to the caller
+    // so that the caller takes ownership of the string.
+    pub fn extract_all(&self) -> io::Result<String<N>> {
+        // Check that the buffer contains valid UTF-8 data.
+        let text = std::str::from_utf8(&self.buf[..self.len]) // from 0 to len
+            .map_err(|_| io::Error::new(io::ErrorKind::InvalidData, "invalid UTF-8"))?;
+
+        // Create a heapless String and copy the text into it.
+        let mut out = String::<N>::new();
+        // Safe to unwrap here because we have already checked the size.
+        for line in text.lines() {
+            out.push_str(line)
+                .map_err(|_| io::Error::new(io::ErrorKind::InvalidData, "string too large"))?;
+            out.push('\n');
+        }
+        Ok(out)
+    }
+
+    // Returing a Result<T, E> with reference to the vector of a strings (tokens) to the caller. 
+    // FileBuf owns, caller borrows (read-only).
     pub fn extract_errors<'a>(&'a self) -> io::Result<Vec<&'a str>> {
         let text = self.as_str()
             .map_err(|_| io::Error::new(io::ErrorKind::InvalidData, "invalid UTF-8"))?;
@@ -63,6 +83,8 @@ impl<const N: usize> FileBuf<N> {
         Ok(errors)
     }
 
+    // Returning Result<T, E> with a reference to a vector of strings to a caller. 
+    // FileBuf still owns the vector of strings, and the caller borrows.
     pub fn extract_warnings<'a>(&'a self) -> io::Result<Vec<&'a str>> {
         let text = self.as_str()
             .map_err(|_| io::Error::new(io::ErrorKind::InvalidData, "invalid UTF-8"))?;
@@ -75,6 +97,8 @@ impl<const N: usize> FileBuf<N> {
         Ok(warnings)
     }
 
+    // Returning Result<T, E> with a reference to a vector of strings to a caller. 
+    // FileBuf still owns the vector of strings, and the caller borrows.
     pub fn extract_infos<'a>(&'a self) -> io::Result<Vec<&'a str>> {
         let text = self.as_str()
             .map_err(|_| io::Error::new(io::ErrorKind::InvalidData, "invalid UTF-8"))?;
@@ -87,10 +111,52 @@ impl<const N: usize> FileBuf<N> {
         Ok(infos)
     }
 
-    pub fn export_to_file(&self, logs: &Vec<&str>, path: &str) -> io::Result<()> {
+    pub fn export_to_file(&self, logs: &Vec<&str>, path: &str) -> Result<(), std::io::Error> {
         let data = logs.join("\n");
-        write(path, data)?;
+        let result = match fs::write(path, data) {
+            Ok(..) => println!("Wrote to file successfully."),
+            Err(e) => {
+                println!("Failed to write to file: {}", e);
+            },
+        };
         println!("Exported to file: {}", path);
-        Ok(())
+        Ok(result)
     }
+
+    pub fn print_all<T: AsRef<str> + std::fmt::Debug>(&self, tag: &str, log: &T) { 
+        match tag {
+            "FULL_LOG" => { 
+                println!("================== {} ==================", tag.to_uppercase());
+            }
+            "ALL" => { 
+                println!("================== {} ==================", tag.to_uppercase()) 
+            }
+            _ => {
+                println!("<Tag not recognized. TAGS: FULL_LOG, ALL>");
+                println!("================== LOG ==================");
+                return; // prevents breaking non non-full log prints
+            }
+        }
+        self.tokenize(log.as_ref()).for_each(|line| println!("{}", line));
+    }
+
+    pub fn print_log<T: std::fmt::Debug>(&self, tag: &str, log: &T) { 
+        match tag {
+            "INFOS" => { 
+                println!("================== {} ==================", tag.to_uppercase()) 
+            }
+            "WARNINGS" => { 
+                println!("================== {} ==================", tag.to_uppercase()) 
+            }
+            "ERRORS" => { 
+                println!("================== {} ==================", tag.to_uppercase()) 
+            }
+            _ => {
+                println!("<Tag not recognized. TAGS: INFOS, WARNINGS, ERRORS>");
+                println!("================== LOG ==================");
+            }
+        }
+        println!("{:?}: {:#?}", tag.to_uppercase(), log);
+    }
+
 }
