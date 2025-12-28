@@ -123,7 +123,6 @@ impl<const N: usize> FileBuf<N> {
         Ok(result)
     }
 
-
     pub fn print_all<T: AsRef<str> + std::fmt::Debug>(&self, tag: &str, log: &T) { 
         match tag {
             "FULL_LOG" => { 
@@ -135,7 +134,7 @@ impl<const N: usize> FileBuf<N> {
             _ => {
                 println!("<Tag not recognized. TAGS: FULL_LOG, ALL>");
                 println!("================== LOG ==================");
-                return;
+                return; // prevents breaking non non-full log prints
             }
         }
         self.tokenize(log.as_ref()).for_each(|line| println!("{}", line));
