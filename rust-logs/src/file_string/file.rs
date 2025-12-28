@@ -3,6 +3,7 @@ use std::fs::File;
 use std::io::{self, Read};
 use heapless::String;
 
+#[derive(Debug)]
 pub struct FileBuf<const N: usize> {
     buf: [u8; N],
     len: usize,
@@ -100,8 +101,18 @@ impl<const N: usize> FileBuf<N> {
 
     pub fn export_to_file(&self, logs: &Vec<&str>, path: &str) -> io::Result<()> {
         let data = logs.join("\n");
-        fs::write(path, data)?;
+        match fs::write(path, data) {
+            Ok(..) => println!("Wrote to file successfully."),
+            Err(e) => {
+                println!("Failed to write to file: {}", e);
+            },
+        }
         println!("Exported to file: {}", path);
         Ok(())
     }
+
+    pub fn print_log<T: std::fmt::Debug>(&self, tag: &str, log: &T) {
+        println!("{:?}: {:#?}", tag.to_uppercase(), log);
+    }
+
 }
