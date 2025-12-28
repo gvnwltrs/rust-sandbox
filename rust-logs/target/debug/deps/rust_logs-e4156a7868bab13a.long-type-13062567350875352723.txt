@@ -1,1 +1,0 @@
-Result<StringInner<usize, heapless::vec::storage::VecStorageInner<[MaybeUninit<u8>; N]>>, std::io::Error>
