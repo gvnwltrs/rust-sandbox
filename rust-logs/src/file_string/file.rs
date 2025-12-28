@@ -1,6 +1,7 @@
 use std::fs::File;
 use std::io::{self, Read};
 use heapless::String;
+use std::fs::write;
 
 pub struct FileBuf<const N: usize> {
     buf: [u8; N],
@@ -84,5 +85,12 @@ impl<const N: usize> FileBuf<N> {
             }
         }
         Ok(infos)
+    }
+
+    pub fn export_to_file(&self, logs: &Vec<&str>, path: &str) -> io::Result<()> {
+        let data = logs.join("\n");
+        write(path, data)?;
+        println!("Exported to file: {}", path);
+        Ok(())
     }
 }

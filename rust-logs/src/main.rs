@@ -50,8 +50,13 @@ fn main() -> Result<(), std::io::Error> {
     println!("Log: {:#?}", full_log);
 
     let infos = file_buf.extract_infos()?;
+    file_buf.export_to_file(&infos, "info_logs.txt")?;
+
     let warnings = file_buf.extract_warnings()?;
+    file_buf.export_to_file(&warnings, "warning_logs.txt")?;
+
     let errors = file_buf.extract_errors()?;
+    file_buf.export_to_file(&errors, "error_logs.txt")?;
 
     println!("Infos: {:#?}", infos);
     println!("Warnings: {:#?}", warnings);
