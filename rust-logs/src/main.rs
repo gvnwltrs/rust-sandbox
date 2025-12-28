@@ -1,5 +1,7 @@
 use std::fs;
-use std::io::Error;
+
+mod file_string;
+use file_string::file::FileBuf;
 
 /* 
 function extract_errors(log: string) -> list of strings: 
@@ -12,39 +14,53 @@ function extract_errors(log: string) -> list of strings:
 
     return result list
 */
-fn extract_errors(logs: &String) -> Result<Vec<String>, Error> {
-    let mut logged_errors = Vec::new();
-    for line in logs.lines() {
+fn extract_errors(logs: &str) -> Vec<&str> {
+    let split_text = logs.split("\n");
+    let mut results = vec![];
+
+    for line in split_text {
         if line.starts_with("ERROR") {
-            logged_errors.push(line.into());
+            results.push(line);
         }
     }
-    Ok(logged_errors)
+    results
 }
 
-fn main() {
-    let mut file = String::new();
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-    // TODO: reading into a heap-based String; change to stack
-    match fs::read_to_string("logs.txt")  {
-        Ok(contents) => {
-            println!("SUCCESS: file read -- {:#?}", contents);
-            file = contents.into();
-        }
-        Err(failure) => {
-            println!("ERROR: {:#?}", failure); 
-        } 
+    #[test]
+    fn test_extract_errors() {
+        let file = fs::read_to_string("logs.txt").unwrap();
+        let errors = extract_errors(&file);
+        assert_eq!(errors[0], "ERROR 14:33:45 Failed to connect to the database.");
     }
+}
 
-    match fs::read_to_string("logs2.txt")  {
-        Ok(contents) => println!("SUCCESS: file read -- {:#?}", contents), 
-        Err(failure) => {
-            println!("ERROR: {:#?}", failure); 
-        } 
-    }
+fn main() -> Result<(), std::io::Error> {
+    // Stack-based log
+    const SIZE: usize = 2048;
+    let mut file_buf = FileBuf::<SIZE>::new();
 
-    match extract_errors(&file) {
-        Ok(errors) => println!("SUCCESS: errors extracted -- {:#?}", errors),
-        Err(failure) => println!("ERROR: {:#?}", failure),
-    }
+    file_buf.read_to_buf("logs.txt")?;
+
+    
+    let full_log = file_buf.extract_all()?;
+    println!("Log: {:#?}", full_log);
+
+    let infos = file_buf.extract_infos()?;
+    let warnings = file_buf.extract_warnings()?;
+    let errors = file_buf.extract_errors()?;
+
+    println!("Infos: {:#?}", infos);
+    println!("Warnings: {:#?}", warnings);
+    println!("Errors: {:#?}", errors);
+
+    // Compare to heap-based log
+    let heap_log = fs::read_to_string("logs.txt")?;
+    let heap_errors = extract_errors(&heap_log);
+    println!("Heap errors: {:#?}", heap_errors);
+
+    Ok(())
 }
