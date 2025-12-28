@@ -37,11 +37,18 @@ impl<const N: usize> FileBuf<N> {
     // In this case, where are returning a copy of string to the caller
     // so that the caller takes ownership of the string.
     pub fn extract_all(&self) -> io::Result<String<N>> {
+        // Check that the buffer contains valid UTF-8 data.
         let text = std::str::from_utf8(&self.buf[..self.len]) // from 0 to len
             .map_err(|_| io::Error::new(io::ErrorKind::InvalidData, "invalid UTF-8"))?;
+
+        // Create a heapless String and copy the text into it.
         let mut out = String::<N>::new();
-        out.push_str(text)
-            .map_err(|_| io::Error::new(io::ErrorKind::InvalidInput, "file too long"))?; // safe: we just checked the size
+        // Safe to unwrap here because we have already checked the size.
+        for line in text.lines() {
+            out.push_str(line)
+                .map_err(|_| io::Error::new(io::ErrorKind::InvalidData, "string too large"))?;
+            out.push('\n');
+        }
         Ok(out)
     }
 
@@ -99,19 +106,56 @@ impl<const N: usize> FileBuf<N> {
         Ok(infos)
     }
 
-    pub fn export_to_file(&self, logs: &Vec<&str>, path: &str) -> io::Result<()> {
+    pub fn export_to_file(&self, logs: &Vec<&str>, path: &str) -> Result<(), std::io::Error> {
         let data = logs.join("\n");
-        match fs::write(path, data) {
+        let result = match fs::write(path, data) {
             Ok(..) => println!("Wrote to file successfully."),
             Err(e) => {
                 println!("Failed to write to file: {}", e);
             },
-        }
+        };
         println!("Exported to file: {}", path);
-        Ok(())
+        Ok(result)
     }
 
-    pub fn print_log<T: std::fmt::Debug>(&self, tag: &str, log: &T) {
+    pub fn tokenize<'a>(&self, s: &'a str) -> impl Iterator<Item = &'a str> {
+        s.split('\n')
+        // or s.lines()
+    }
+
+    pub fn print_all<T: AsRef<str> + std::fmt::Debug>(&self, tag: &str, log: &T) { 
+        match tag {
+            "FULL_LOG" => { 
+                println!("================== {} ==================", tag.to_uppercase());
+            }
+            "ALL" => { 
+                println!("================== {} ==================", tag.to_uppercase()) 
+            }
+            _ => {
+                println!("<Tag not recognized. TAGS: FULL_LOG, ALL>");
+                println!("================== LOG ==================");
+                return;
+            }
+        }
+        self.tokenize(log.as_ref()).for_each(|line| println!("{}", line));
+    }
+
+    pub fn print_log<T: std::fmt::Debug>(&self, tag: &str, log: &T) { 
+        match tag {
+            "INFOS" => { 
+                println!("================== {} ==================", tag.to_uppercase()) 
+            }
+            "WARNINGS" => { 
+                println!("================== {} ==================", tag.to_uppercase()) 
+            }
+            "ERRORS" => { 
+                println!("================== {} ==================", tag.to_uppercase()) 
+            }
+            _ => {
+                println!("<Tag not recognized. TAGS: INFOS, WARNINGS, ERRORS>");
+                println!("================== LOG ==================");
+            }
+        }
         println!("{:?}: {:#?}", tag.to_uppercase(), log);
     }
 

@@ -47,7 +47,7 @@ fn main() -> Result<(), std::io::Error> {
 
     
     let full_log = file_buf.extract_all()?;
-    file_buf.print_log("FULL LOG", &full_log);
+    file_buf.print_all("FULL_LOG", &full_log);
 
     let infos = file_buf.extract_infos()?;
     file_buf.print_log("INFOS", &infos);
@@ -62,7 +62,8 @@ fn main() -> Result<(), std::io::Error> {
     file_buf.export_to_file(&errors, "error_logs.txt")?;
 
     // Compare to heap-based log
-    let heap_log = fs::read_to_string("logs.txt")?;
+    let heap_log = fs::read_to_string("logs.txt")
+        .expect("Failed to read log file");
     let heap_errors = extract_errors(&heap_log);
     println!("Heap errors: {:#?}", heap_errors);
 
