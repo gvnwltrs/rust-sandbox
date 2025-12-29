@@ -1,5 +1,25 @@
 
 
+fn print_elements(elements: &Vec<String>) {
+    let mut iter = elements.iter();
+    loop {
+        match iter.next() {
+            Some(cur) => println!("{:#?}", cur),
+            None => break, 
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_something() {
+
+    }
+}
+
 fn main() {
     let colors = vec![
         String::from("red"),
@@ -7,10 +27,5 @@ fn main() {
         String::from("blue"),
     ];
 
-    let mut colors_iter = colors.iter();
-
-    println!("{:#?}", colors_iter.next());
-    println!("{:#?}", colors_iter.next());
-    println!("{:#?}", colors_iter.next());
-    println!("{:#?}", colors_iter.next());
+    print_elements(&colors);
 }
