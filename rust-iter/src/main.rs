@@ -1,6 +1,6 @@
 
-
-fn print_elements(elements: &Vec<String>) {
+// Using $[String] to allow for passing a slice of a string versus a Vector
+fn print_elements(elements: &[String]) {
 
     // Instructor's version:
     //
@@ -41,22 +41,41 @@ fn print_elements(elements: &Vec<String>) {
 
 }
 
+fn shorten_strings(elements: &mut Vec<String>) {
+    elements.iter_mut()
+        .for_each(|x| x.truncate(1));
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
-    fn test_something() {
+    fn test_shorten_strings() {
+        let mut color = vec![String::from("blue")];
+        let expect = vec![String::from("b")];
+        shorten_strings(&mut color);
+
+        assert_eq!(color, expect);
 
     }
 }
 
 fn main() {
-    let colors = vec![
+    let mut colors = vec![
         String::from("red"),
         String::from("green"),
         String::from("blue"),
     ];
 
-    print_elements(&colors);
+    print_elements(&colors[0..3]);
+
+    let mut color = String::from("blue");
+    println!("{}", color);
+
+    color.truncate(1); // slicing to first letter
+    println!("{}", color);
+
+    shorten_strings(&mut colors);
+    print_elements(&colors[..]);
 }
