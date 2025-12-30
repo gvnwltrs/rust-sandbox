@@ -47,18 +47,23 @@ fn main() -> Result<(), std::io::Error> {
 
     
     let full_log = file_buf.extract_all()?;
-    println!("Log: {:#?}", full_log);
+    file_buf.print_all("FULL_LOG", &full_log);
 
     let infos = file_buf.extract_infos()?;
-    let warnings = file_buf.extract_warnings()?;
-    let errors = file_buf.extract_errors()?;
+    file_buf.print_log("INFOS", &infos);
+    file_buf.export_to_file(&infos, "info_logs.txt")?;
 
-    println!("Infos: {:#?}", infos);
-    println!("Warnings: {:#?}", warnings);
-    println!("Errors: {:#?}", errors);
+    let warnings = file_buf.extract_warnings()?;
+    file_buf.print_log("WARNINGS", &warnings);
+    file_buf.export_to_file(&warnings, "warning_logs.txt")?;
+
+    let errors = file_buf.extract_errors()?;
+    file_buf.print_log("ERRORS", &errors);
+    file_buf.export_to_file(&errors, "error_logs.txt")?;
 
     // Compare to heap-based log
-    let heap_log = fs::read_to_string("logs.txt")?;
+    let heap_log = fs::read_to_string("logs.txt")
+        .expect("Failed to read log file");
     let heap_errors = extract_errors(&heap_log);
     println!("Heap errors: {:#?}", heap_errors);
 

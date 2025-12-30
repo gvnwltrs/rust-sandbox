@@ -1,0 +1,8 @@
+# Rust
+/target/
+**/target/
+*.rs.bk
+
+# Optional: editor / OS noise
+.DS_Store
+.vscode/

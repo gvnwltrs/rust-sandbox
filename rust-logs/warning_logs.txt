@@ -1,0 +1,5 @@
+WARNING 14:32:10 Missing configuration defaults to 'standard mode'.
+WARNING 14:37:50 Unable to find user profile, using guest settings.
+WARNING 14:42:30 Low disk space on the backup drive.
+WARNING 14:47:12 Configuration file not found, using default configuration.
+WARNING 14:54:42 Failed to stop background services.
