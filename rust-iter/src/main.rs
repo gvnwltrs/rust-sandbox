@@ -74,6 +74,12 @@ fn peek(strings: &mut [String], target: &str) -> Option<()> {
         }
 }
 
+fn move_elements(source: Vec<String>, destination: &mut Vec<String>) {
+    source
+        .into_iter()
+        .for_each(|s| destination.push(s.clone()))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -120,6 +126,27 @@ mod tests {
 
         assert!(result.is_some());
     }
+
+    #[test]
+    fn test_move_elements() {
+        let mut colors = vec![
+            String::from("red"),
+            String::from("green"),
+            String::from("blue"),
+        ];
+        // By not passing colors as a reference, we are essentially 
+        // saying: you are gonna have a new owner now -- godspeed
+        let mut copied_colors = Vec::<String>::new();
+        move_elements(colors, &mut copied_colors);
+
+        let mut expected = vec![
+            String::from("red"),
+            String::from("green"),
+            String::from("blue"),
+        ];
+        assert_eq!(copied_colors, expected);
+    }
+
 }
 
 fn main() {
@@ -150,6 +177,7 @@ fn main() {
     print_elements(&_colors);
 
     peek(&mut _colors, "GREEN");
-
+    move_elements(colors, &mut _colors);
+    print_elements(&_colors);
 
 }
