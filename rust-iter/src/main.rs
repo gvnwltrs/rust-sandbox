@@ -41,7 +41,8 @@ fn print_elements(elements: &[String]) {
 
 }
 
-fn shorten_strings(elements: &mut Vec<String>) {
+// Changed mutable slice for Vector of strings
+fn shorten_strings(elements: &mut [String]) {
     elements.iter_mut()
         .for_each(|x| x.truncate(1));
 }
@@ -54,7 +55,7 @@ mod tests {
     fn test_shorten_strings() {
         let mut color = vec![String::from("blue")];
         let expect = vec![String::from("b")];
-        shorten_strings(&mut color);
+        shorten_strings(&mut color[..]);
 
         assert_eq!(color, expect);
 
@@ -68,7 +69,7 @@ fn main() {
         String::from("blue"),
     ];
 
-    print_elements(&colors[0..3]);
+    print_elements(&colors);
 
     let mut color = String::from("blue");
     println!("{}", color);
