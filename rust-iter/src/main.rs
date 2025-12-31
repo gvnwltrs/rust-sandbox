@@ -1,6 +1,8 @@
 // use std::path::Iter;
 
 
+// NOTE: Setup iter traint (extension) to implement a "drain"
+// consumer that returns nothing, but allows iter adapters to execute
 trait IteratorExt: Iterator {
     fn drain(mut self) 
     where
@@ -12,22 +14,6 @@ trait IteratorExt: Iterator {
 
 impl<I: Iterator> IteratorExt for I {}
 
-// Instructor's version:
-//
-// for element in elements {
-//      println!("{}", element);  
-//}
-//
-// Version without using .next()
-// elements.iter().for_each(|el| println!("{:#?}", el));
-//
-// Versions demonstrating iterator adapters
-// let map = elements.iter().map(|item| format!("{:#?}", item));
-// map.for_each(|el| println!("{:#?}", el));
-//
-// Using map and for_each
-// elements.iter().map(|x| format!("{}", x)).for_each(|x| println!("{}", x));
-//
 // Using $[String] to allow for passing a slice of a string versus a Vector
 // Below is what's actually happening under the hood:
 fn print_elements(elements: &[String]) {
