@@ -41,6 +41,15 @@ fn print_elements(elements: &[String]) {
     }
 }
 
+fn print_nested_elements(elements: &Vec<Vec<String>>) {
+    elements.iter()
+        .for_each(|inner_vec| {
+            inner_vec.iter()
+                .for_each(|el| print!("{:#?},", el));
+                    println!();
+    });
+}
+
 // Changed mutable slice for Vector of strings
 fn shorten_strings(elements: &mut [String]) {
     elements.iter_mut()
@@ -64,6 +73,13 @@ fn to_uppercase_in_place(strings: &mut [String]) {
         .drain();
 }
 
+fn to_lowercase_in_place(strings: &mut [String]) {
+    strings
+        .iter_mut()
+        .map(|s| *s = s.to_lowercase())
+        .drain();
+}
+
 fn peek(strings: &mut [String], target: &str) -> Option<()> {
     match strings
         .iter()
@@ -77,7 +93,16 @@ fn peek(strings: &mut [String], target: &str) -> Option<()> {
 fn move_elements(source: Vec<String>, destination: &mut Vec<String>) {
     source
         .into_iter()
-        .for_each(|s| destination.push(s.clone()))
+        .for_each(|s| destination.push(s))
+}
+
+// Should "exlode" string into a vec of char vectors
+fn explode(strings: Vec<String>) -> Vec<Vec<String>> {
+    let mut out = Vec::<Vec<String>>::new();
+    strings
+        .into_iter()
+        .map(|s| s.chars().map(|c| c.to_string()).collect())
+        .collect()
 }
 
 #[cfg(test)]
@@ -89,9 +114,9 @@ mod tests {
         let mut color = vec![String::from("blue")];
 
         shorten_strings(&mut color);
-        let expect = vec![String::from("b")];
+        let expected = vec![String::from("b")];
 
-        assert_eq!(color, expect);
+        assert_eq!(color, expected);
 
     }
 
@@ -100,9 +125,9 @@ mod tests {
         let mut color = vec![String::from("blue")];
 
         let result = to_uppercase(&mut color);
-        let expect = vec![String::from("BLUE")];
+        let expected = vec![String::from("BLUE")];
 
-        assert_eq!(result, expect);
+        assert_eq!(result, expected);
     }
 
     #[test]
@@ -110,9 +135,9 @@ mod tests {
         let mut color = vec![String::from("blue")];
 
         to_uppercase_in_place(&mut color);
-        let expect = vec![String::from("BLUE")];
+        let expected = vec![String::from("BLUE")];
 
-        assert_eq!(color, expect);
+        assert_eq!(color, expected);
     }
 
     #[test]
@@ -129,7 +154,7 @@ mod tests {
 
     #[test]
     fn test_move_elements() {
-        let mut colors = vec![
+        let colors = vec![
             String::from("red"),
             String::from("green"),
             String::from("blue"),
@@ -139,12 +164,32 @@ mod tests {
         let mut copied_colors = Vec::<String>::new();
         move_elements(colors, &mut copied_colors);
 
-        let mut expected = vec![
+        let expected = vec![
             String::from("red"),
             String::from("green"),
             String::from("blue"),
         ];
+
         assert_eq!(copied_colors, expected);
+    }
+
+    #[test]
+    fn test_explode() {
+        let colors = vec![
+            String::from("red"),
+            String::from("green"),
+            String::from("blue"),
+        ];
+
+        let result = explode(colors);
+
+        let expected = vec![
+            vec![String::from("r"), String::from("e"), String::from("d")],
+            vec![String::from("g"), String::from("r"), String::from("e"), String::from("e"), String::from("n")],
+            vec![String::from("b"), String::from("l"), String::from("u"), String::from("e")],
+        ];
+
+        assert_eq!(result, expected);
     }
 
 }
@@ -177,7 +222,12 @@ fn main() {
     print_elements(&_colors);
 
     peek(&mut _colors, "GREEN");
-    move_elements(colors, &mut _colors);
+    to_lowercase_in_place(&mut uppercased_colors);
+
+    move_elements(uppercased_colors, &mut _colors);
     print_elements(&_colors);
+
+    let exploded = explode(colors);
+    print_nested_elements(&exploded);
 
 }
