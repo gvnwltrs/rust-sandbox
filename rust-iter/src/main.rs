@@ -98,11 +98,25 @@ fn move_elements(source: Vec<String>, destination: &mut Vec<String>) {
 
 // Should "exlode" string into a vec of char vectors
 fn explode(strings: Vec<String>) -> Vec<Vec<String>> {
-    let mut out = Vec::<Vec<String>>::new();
     strings
         .into_iter()
         .map(|s| s.chars().map(|c| c.to_string()).collect())
         .collect()
+}
+
+fn find_color_or(colors: &[String], primary: String, backup: String) -> Option<()> {
+    match colors
+        .iter()
+        .find(|color| primary == color.as_str()) {
+        
+        Some(_) => Some(()),
+        None => match colors
+            .iter()
+            .find(|color| backup == color.as_str()) {
+                Some(_)=> Some(()),
+                None => None
+            }
+        }
 }
 
 #[cfg(test)]
@@ -192,6 +206,22 @@ mod tests {
         assert_eq!(result, expected);
     }
 
+    #[test]
+    fn test_find_color_or() {
+        let mut colors = vec![
+            String::from("red"),
+            String::from("green"),
+            String::from("blue"),
+        ];
+        let result = find_color_or(
+            &mut colors, 
+            String::from("yellow"), 
+            String::from("blue")
+        );
+
+        assert!(result.is_some());
+    }
+
 }
 
 fn main() {
@@ -229,5 +259,8 @@ fn main() {
 
     let exploded = explode(colors);
     print_nested_elements(&exploded);
+
+    let color_green_found = find_color_or(&_colors, String::from("PURPLE"), String::from("GREEN"));
+    println!("Color GREEN found? {:#?}", color_green_found.is_some());
 
 }
