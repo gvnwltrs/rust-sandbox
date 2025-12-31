@@ -1,6 +1,6 @@
 
 
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq)]
 struct Account {
     id: u32,
     balance: i32,
@@ -78,8 +78,11 @@ impl Bank {
         Ok(())
     }
 
-    fn print_balance(&self, id: u32) {
-
+    fn see_balance(&self) -> Vec<Account> {
+        self.accounts
+            .iter()
+            .cloned()
+            .collect()
     }
 
 }
@@ -118,8 +121,37 @@ fn test_update_account_deposit_withdraw() {
     assert!(bank.withdraw(id, 99999).is_err());
 }
 
+#[test]
+fn test_see_balance() {
+    let mut bank = Bank::new(); 
+    bank.add_account(100, "Gergio");
+    bank.add_account(0, "Marco");
+    bank.add_account(1000, "Goldberg");
+
+    let balances = bank.see_balance();
+    let expected = vec![
+        Account {
+            id: 1,
+            balance: 100,
+            holder: String::from("Gergio"),
+        },
+        Account {
+            id: 2,
+            balance: 0,
+            holder: String::from("Marco"),
+        },
+        Account {
+            id: 3,
+            balance: 1000,
+            holder: String::from("Goldberg"),
+        }, 
+    ];
+
+    assert_eq!(balances.get(0), expected.get(0));
+}
+
 fn main() {
-    println!("Welcome to the Bank!");
+    println!("=====Welcome to the Bank!=====\n");
     let mut bank = Bank::new(); 
     let mut phony : Vec<PhonyAccount> = vec![
         PhonyAccount { balance: 0 }, 
@@ -143,7 +175,14 @@ fn main() {
     println!("Checking all account statuses...");
     bank.print_all();
 
-    bank.withdraw(2, 300);
-    println!("Tony withdrew $300");
-    bank.print_one(2); 
+    let withdraw = bank.withdraw(2, 300);
+    println!("Tony withdrew $300? {:#?}", withdraw.is_ok());
+    let print = bank.print_one(2); 
+    println!("withdraw okay? {:#?}", print.is_ok());
+
+    let deposit = bank.deposit(2, 100);
+    println!("Tony deposit $100? {:#?}", deposit.is_ok());
+
+    println!("Balance: {:#?}", bank.see_balance());
+
 }
