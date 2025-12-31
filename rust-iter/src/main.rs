@@ -43,10 +43,10 @@ fn print_elements(elements: &[String]) {
 
 fn print_nested_elements(elements: &Vec<Vec<String>>) {
     elements.iter()
-        .for_each(|inner_vec| {
+        .for_each(|inner_vec| { // pull out each inner vec
             inner_vec.iter()
-                .for_each(|el| print!("{:#?},", el));
-                    println!();
+                .for_each(|el| print!("{:#?},", el)); // print each element in inner vec
+            println!();
     });
 }
 
