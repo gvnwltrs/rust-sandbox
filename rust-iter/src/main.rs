@@ -105,13 +105,10 @@ fn explode(strings: Vec<String>) -> Vec<Vec<String>> {
 }
 
 fn find_color_or(colors: &[String], search: String, fallback: String) -> Option<()> {
-    if colors.iter().any(|c| c.as_str() == search) {
-        return Some(());
-    } else if colors.iter().any(|c| c.as_str() == fallback) {
-        return Some(());
-    } 
-
-    None
+    colors
+        .iter()
+        .any(|c| c.as_str() == search || c.as_str() == fallback)
+        .then_some(())
 }
 
 #[cfg(test)]
