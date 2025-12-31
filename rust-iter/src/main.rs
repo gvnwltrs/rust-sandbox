@@ -104,19 +104,14 @@ fn explode(strings: Vec<String>) -> Vec<Vec<String>> {
         .collect()
 }
 
-fn find_color_or(colors: &[String], primary: String, backup: String) -> Option<()> {
-    match colors
-        .iter()
-        .find(|color| primary == color.as_str()) {
-        
-        Some(_) => Some(()),
-        None => match colors
-            .iter()
-            .find(|color| backup == color.as_str()) {
-                Some(_)=> Some(()),
-                None => None
-            }
-        }
+fn find_color_or(colors: &[String], search: String, fallback: String) -> Option<()> {
+    if colors.iter().any(|c| c.as_str() == search) {
+        return Some(());
+    } else if colors.iter().any(|c| c.as_str() == fallback) {
+        return Some(());
+    } 
+
+    None
 }
 
 #[cfg(test)]
@@ -260,7 +255,10 @@ fn main() {
     let exploded = explode(colors);
     print_nested_elements(&exploded);
 
-    let color_green_found = find_color_or(&_colors, String::from("PURPLE"), String::from("GREEN"));
+    let color_green_found = find_color_or(&_colors, String::from("green"), String::from("GREEN"));
     println!("Color GREEN found? {:#?}", color_green_found.is_some());
+
+    let color_red_found = find_color_or(&_colors, String::from("red"), String::from("RED"));
+    println!("Color RED found? {:#?}", color_red_found.is_some());
 
 }
