@@ -1,6 +1,8 @@
 // use std::path::Iter;
 
 
+// NOTE: Setup iter traint (extension) to implement a "drain"
+// consumer that returns nothing, but allows iter adapters to execute
 trait IteratorExt: Iterator {
     fn drain(mut self) 
     where
@@ -12,22 +14,6 @@ trait IteratorExt: Iterator {
 
 impl<I: Iterator> IteratorExt for I {}
 
-// Instructor's version:
-//
-// for element in elements {
-//      println!("{}", element);  
-//}
-//
-// Version without using .next()
-// elements.iter().for_each(|el| println!("{:#?}", el));
-//
-// Versions demonstrating iterator adapters
-// let map = elements.iter().map(|item| format!("{:#?}", item));
-// map.for_each(|el| println!("{:#?}", el));
-//
-// Using map and for_each
-// elements.iter().map(|x| format!("{}", x)).for_each(|x| println!("{}", x));
-//
 // Using $[String] to allow for passing a slice of a string versus a Vector
 // Below is what's actually happening under the hood:
 fn print_elements(elements: &[String]) {
@@ -43,10 +29,10 @@ fn print_elements(elements: &[String]) {
 
 fn print_nested_elements(elements: &Vec<Vec<String>>) {
     elements.iter()
-        .for_each(|inner_vec| {
+        .for_each(|inner_vec| { // pull out each inner vec
             inner_vec.iter()
-                .for_each(|el| print!("{:#?},", el));
-                    println!();
+                .for_each(|el| print!("{:#?},", el)); // print each element in inner vec
+            println!();
     });
 }
 
@@ -98,11 +84,17 @@ fn move_elements(source: Vec<String>, destination: &mut Vec<String>) {
 
 // Should "exlode" string into a vec of char vectors
 fn explode(strings: Vec<String>) -> Vec<Vec<String>> {
-    let mut out = Vec::<Vec<String>>::new();
     strings
         .into_iter()
         .map(|s| s.chars().map(|c| c.to_string()).collect())
         .collect()
+}
+
+fn find_color_or(colors: &[String], search: String, fallback: String) -> Option<()> {
+    colors
+        .iter()
+        .any(|c| c.as_str() == search || c.as_str() == fallback)
+        .then_some(())
 }
 
 #[cfg(test)]
@@ -192,6 +184,22 @@ mod tests {
         assert_eq!(result, expected);
     }
 
+    #[test]
+    fn test_find_color_or() {
+        let mut colors = vec![
+            String::from("red"),
+            String::from("green"),
+            String::from("blue"),
+        ];
+        let result = find_color_or(
+            &mut colors, 
+            String::from("yellow"), 
+            String::from("blue")
+        );
+
+        assert!(result.is_some());
+    }
+
 }
 
 fn main() {
@@ -229,5 +237,11 @@ fn main() {
 
     let exploded = explode(colors);
     print_nested_elements(&exploded);
+
+    let color_green_found = find_color_or(&_colors, String::from("green"), String::from("GREEN"));
+    println!("Color GREEN found? {:#?}", color_green_found.is_some());
+
+    let color_red_found = find_color_or(&_colors, String::from("red"), String::from("RED"));
+    println!("Color RED found? {:#?}", color_red_found.is_some());
 
 }
