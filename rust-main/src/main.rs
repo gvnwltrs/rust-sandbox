@@ -1,51 +1,34 @@
-use std::io;
-use std::io::Write;
-use rand::Rng;
-use std::cmp::Ordering;
+use core::ops::ControlFlow;
 
-fn run_engine() {
-    let secret_number = rand::rng().random_range(1..=100);
-    let mut tries = 10;
-    let mut input = String::new();
+mod repeat_until;
+use repeat_until::repeat_until::repeat_until;
 
-    while tries > 0 {
-        input.clear();
-        print!("Enter a number: ");
-        io::stdout().flush().expect("Failed");
+mod guess_number_v1;
+use guess_number_v1::guess_number_v1::run_engine;
 
-        io::stdin()
-                .read_line(&mut input)
-                .expect("Whoops...something broke");
+mod guess_number_v2;
+use guess_number_v2::guess_number_v2::Game;
 
-
-        let guess: u32 = match input.trim().parse() {
-            Ok(num) => num,
-            Err(_) => {
-                println!("Please enter a valid number!");
-                continue;
-            }
-        };
-
-        tries -= 1;
-
-         // Use match for cleaner comparison logic
-        match guess.cmp(&secret_number) {
-            Ordering::Less => println!("Whoops... higher"),
-            Ordering::Greater => println!("Whoops... lower"),
-            Ordering::Equal => {
-                println!("You got it! -> {}", secret_number);
-                return; // Exit game
-            }
+fn count_to_5() {
+    let mut count = 0;
+    repeat_until(|| {
+        if count >= 5 {
+            ControlFlow::Break(())
+        } else {
+            count += 1;
+            println!("Count: {}", count);
+            ControlFlow::Continue(())
         }
-
-    }
-
-    println!("Game over! The number was: {}", secret_number);
+    })
+    .for_each(drop)
 }
 
 fn main() {
     println!("Rust Main Starting...");
     
-    run_engine();
+    // count_to_5();
+    // run_engine();
+    let mut new_game = Game::setup(42, 5);
+    new_game.start();
 
 }
