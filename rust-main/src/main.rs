@@ -8,6 +8,8 @@ use std::io::Error;
 // use rust_main::guess_number_v2::Game;
 // use rust_main::counters::count_to_5;
 use rust_main::commands::{ run_ls, sys_cmd };
+use rust_main::network::start_scan;
+
 
 fn main() -> Result<(), Error> {
     println!("Rust Main Starting...");
@@ -26,14 +28,17 @@ fn main() -> Result<(), Error> {
     // let cmd_ls = run_ls();
     // println!("command executed: {}", cmd_ls.is_ok());
 
-    let cmd = sys_cmd("pwd");
-    println!("command executed: {}", cmd.is_ok());
-    match cmd {
-        Ok(x) => println!("result: {:#?}", cmd.unwrap_or(x)),
-        Err(_) => todo!(),
-    }
+    // let cmd = sys_cmd("pwd");
+    // println!("command executed: {}", cmd.is_ok());
+    // match cmd {
+    //     Ok(x) => println!("result: {:#?}", cmd.unwrap_or(x)),
+    //     Err(_) => todo!(),
+    // }
 
-    let top = sys_cmd("date");
+    // let top = sys_cmd("date");
+
+    // network scan 
+    start_scan();
 
     Ok(())
 }
