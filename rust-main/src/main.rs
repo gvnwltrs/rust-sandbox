@@ -9,7 +9,8 @@ use rust_main::guess_number_v2::Game;
 use rust_main::counters::count_to_5;
 use rust_main::commands::{ run_ls, sys_cmd };
 use rust_main::network::start_scan;
-use rust_main::functional::{ square };
+use rust_main::functional::square;
+use rust_main::math::add_two;
 
 #[allow(unused)]
 enum SelectLib {
@@ -19,12 +20,13 @@ enum SelectLib {
     Commands,
     Network,
     Functional,
+    Math,
 }
 
 fn main() -> Result<(), Error> {
     println!("Rust Main Starting...");
 
-    let selection = SelectLib::Functional;
+    let selection = SelectLib::Math;
 
     match selection {
         SelectLib::GuessNumberV1 => {
@@ -67,6 +69,10 @@ fn main() -> Result<(), Error> {
             // use closure to return mapped execution
             let x: Vec<_> = (0..10).map(|x| x*x).collect();
             println!("x: {:#?}", x);
+        }
+        SelectLib::Math => {
+            let result = add_two(1, 1);
+            println!("result: {:#?}", result);
         }
     }
 
