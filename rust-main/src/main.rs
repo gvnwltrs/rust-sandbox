@@ -11,6 +11,7 @@ use rust_main::commands::{ run_ls, sys_cmd };
 use rust_main::network::start_scan;
 use rust_main::functional::*;
 use rust_main::math::add_two;
+use rust_main::brain_teasers::*;
 
 #[allow(unused)]
 enum SelectLib {
@@ -21,12 +22,13 @@ enum SelectLib {
     Network,
     Functional,
     Math,
+    BrainTeasers,
 }
 
 fn main() -> Result<(), Error> {
     println!("Rust Main Starting...");
 
-    let selection = SelectLib::Functional;
+    let selection = SelectLib::BrainTeasers;
 
     match selection {
         SelectLib::GuessNumberV1 => {
@@ -173,6 +175,10 @@ fn main() -> Result<(), Error> {
         SelectLib::Math => {
             let result = add_two(1, 1);
             println!("result: {:#?}", result);
+        }
+        SelectLib::BrainTeasers => {
+            three_and_a_bit();
+            non_standard_input();
         }
     }
 

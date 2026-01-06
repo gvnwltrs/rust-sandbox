@@ -6,3 +6,4 @@ pub mod repeat_until;
 pub mod network;
 pub mod functional;
 pub mod math;
+pub mod brain_teasers;

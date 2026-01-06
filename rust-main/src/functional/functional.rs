@@ -143,19 +143,23 @@ pub fn impure_function(x: u32) -> u32 {
 
 // Owner of the tuple will be the caller
 pub fn immutable_operation1() -> (i32, i32) {
+    #[allow(unused)]
     let immutable_v1 = 1;
     // immutable_v1 = 2; //invalid
 
+    #[allow(unused)]
     let mut mutable_v2 = 1;
     mutable_v2 = 2;
 
-    (immutable_v1, mutable_v2)
+    let output = (immutable_v1, mutable_v2);
+    output
 }
 
 // Functional composition:
 // Uses output of one function as input to another function
 // by being connected. 
 pub fn functional_composition(x: f64) -> f64{
+    #[allow(unused)]
     let fsin = |X: f64| x.sin();
     let fabs = |x: f64| x.abs();
     // Feed ouput of one into the other
