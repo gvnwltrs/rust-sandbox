@@ -28,7 +28,7 @@ enum SelectLib {
 fn main() -> Result<(), Error> {
     println!("Rust Main Starting...");
 
-    let selection = SelectLib::BrainTeasers;
+    let selection = SelectLib::Functional;
 
     match selection {
         SelectLib::GuessNumberV1 => {
@@ -171,6 +171,14 @@ fn main() -> Result<(), Error> {
             // Lazy evaluation print 
             let l_print = lazy_print();
             l_print(); // doesn't print until "kicked" or "poked"
+
+            // Metaprogramming 
+            print();
+            macro_rule_exe(); 
+            macro_branching();
+
+            // Functional control flow 
+            run_simulation();
         }
         SelectLib::Math => {
             let result = add_two(1, 1);
@@ -178,7 +186,7 @@ fn main() -> Result<(), Error> {
         }
         SelectLib::BrainTeasers => {
             three_and_a_bit();
-            non_standard_input();
+            non_standard_input(Select::GoodVersion);
         }
     }
 

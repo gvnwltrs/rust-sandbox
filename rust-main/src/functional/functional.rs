@@ -286,3 +286,161 @@ pub fn lazy_print() -> impl Fn() -> i32 {
 }
 
 /* Metaprogramming */
+
+// Types:
+// 1. recusive
+// 2. procedural
+//
+// Both macro types take abstract syntax tree (AST) as input and produce one or more AST's. 
+
+// Example metaprogramming application: `println!()` macro
+pub fn print() {
+    println!("This is a metaprogramming implementation: `println!()` Rust macro.");
+}
+
+// Other metaprogramming macros:
+// * vec![]
+// * macro_rules!
+// Example:
+//
+// Expects and matches only a comma-separated list of expressions. ( $( $x: expr ),* ) matches against a 
+// comma separaed list of expressions and stores the result in the plural variable `$x`. The single 
+// block in the body defines a new `vec`, then iterates through `$x` to push each `$x` into the vec,
+// and finally the block returns the vec as its result. 
+pub fn macro_rule_exe() {
+    macro_rules! my_vec_macro {
+        { $( $x:expr ),* } => {
+            {
+                let mut temp_vec = Vec::new();
+                $(
+                    temp_vec.push($x);
+                )*
+                temp_vec
+            }
+        }
+    }
+    my_vec_macro!(1, 2, 3); // using the macro 
+}
+
+// "Recursive" macro 
+pub fn macro_branching() {
+    macro_rules! my_macro_branch {
+        (1 $e:expr) => (println!("mode 1: {}", $e));
+        (2 $e:expr) => (println!("mode 2: {}", $e));
+    }
+
+    // using my_macro_branch
+    my_macro_branch!(1 "abc");
+    my_macro_branch!(2 "def");
+}
+
+// "Procedural" macro
+// TBD
+// Procedural macros are a bit more complicated to set up. However, the
+// benefit is then that all processing is done directly with normal Rust code. These macros
+// permit use of any syntactic information in unstructured format to generate more code
+// structures before compilation.
+
+
+/* Functional control flow */
+// This is the primitive or basic building block to ALL code. 
+// Before there were functions and data structures, there was only program flow. 
+// These very control flow structures have only evolved over time. 
+
+// Core questions to ask on a project or task:
+// 1. What data will the program access and store?
+// 2. What input will the program expect?
+// 3. What ouput should the program produce?
+
+// Core outlining method for code solution: "stubs" or "stub out"
+// 1. create a new project folder 
+// 2. create a `Cargo.toml`
+// 3. create a `src/main.rs` file
+// 4. create the stubs in the `src/main.rs` to outline the target solution
+
+// Writing stubs
+// 1. List all program requirements 
+// 2. List dependencies or prerequisites for each requirement
+// 3. Create a dependency graph from the requirements and dependency lists. For e.g.: 
+//      a. store the data types and states
+//      b. store the inputs 
+//      c. store the other inputs 
+//      d. parse the input and store data as some type or collection
+//      e. loop while there are remaining requests 
+//      f. update the data stores or collections 
+//      g. if X happens, now do Y
+//      h. based on Y, now adjust for the next request 
+//      i. print or log results or statuses 
+// 4. Write stubs that implement the depenendency graph 
+//
+// **NOTE: Using these steps exactly is a reliable method to break down complex problems
+// into small problems.**
+// 
+// Once we setup a 1st draft outline, we just have to fill in the blanks to implement.
+// 
+// Example stubbed outline (elevatore application):
+pub fn process_floor_requests(floor_requests: &Vec<u64>) {
+    if floor_requests.len() == 0 { return; }
+
+    // 5.1 Update location, velocity, and acceleration
+
+    // 5.2 If next floor request in queue is satisfied, then remove from queue
+
+    // 5.3 Adjust motor control to process next floor request 
+
+    // 5.4 Print realtime statistics 
+
+    // tail recursion
+    process_floor_requests(&floor_requests);
+}
+
+pub fn run_simulation() -> (f64, f64, f64, f64, f64){
+    // 1. Store, location, velocity, and acceleration state
+    let location: f64 = 0.0; // meters
+    let velocity: f64 = 0.0; // meters per second
+    let acceleration: f64 = 0.0; // meters per second squared
+
+    // 2. Store motor input voltage
+    let up_input_voltage: f64 = 0.0;
+    let down_input_voltage: f64 = 0.0;
+
+    // 3. Store input building description and floor requests
+    let floor_count: u64 = 0;
+    let floor_height: f64 = 0.0; // meters
+    let mut floor_requests: Vec<u64> = Vec::new(); 
+
+    // 4. Parse input and store as building description and floor requests
+    let fake_floor_request = 3;
+    floor_requests.push(fake_floor_request);
+
+    // 5. Loop while there are remaining floor requests
+    while floor_requests.len() > 0 {
+        // Temp: pop floor requests
+        floor_requests.pop();
+
+        // 5.1 Update location, velocity, and acceleration
+
+        // 5.2 If next floor request in queue is satisfied, then remove from queue
+
+        // 5.3 Adjust motor control to process next floor request
+
+        // 5.4 Print realtime statistics 
+    }
+
+    // 6. Print summary or return
+    println!("Floor requests summary | floors: {:#?}, height: {:#?}, requested: {:#?}",
+        floor_count,
+        floor_height,
+        floor_requests,
+    );
+
+    // Make borrow-checker happy (unused for now) by sinking into "let _"
+    // Or just return the tuple:
+    (
+        location, 
+        velocity, 
+        acceleration, 
+        up_input_voltage, 
+        down_input_voltage
+    )
+}
