@@ -28,7 +28,7 @@ enum SelectLib {
 fn main() -> Result<(), Error> {
     println!("Rust Main Starting...");
 
-    let selection = SelectLib::Functional;
+    let selection = SelectLib::BrainTeasers;
 
     match selection {
         SelectLib::GuessNumberV1 => {
@@ -186,7 +186,8 @@ fn main() -> Result<(), Error> {
         }
         SelectLib::BrainTeasers => {
             three_and_a_bit();
-            non_standard_input(Select::GoodVersion);
+            // non_standard_input(Select::GoodVersion);
+            type_conversion();
         }
     }
 

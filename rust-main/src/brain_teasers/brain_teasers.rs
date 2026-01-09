@@ -46,3 +46,18 @@ pub fn non_standard_input(selection: Select) {
 // still in raw string form, meaning it had the extra new line char "\n"
 // still in it, so when running the if-else, it would always evaluate to 
 // else since the condition was actually "5\n" == "5" before using .trim().
+
+// Type conversion
+pub fn type_conversion() {
+    let x: u64 = 4_294_967_296;
+    println!("x: {} ", x);
+    let y: u32 = x as u32; 
+    println!("y: {} ", y);
+
+    if x == y as u64 {
+        println!("x equals y.");
+    } else {
+        println!("x does not equal y.");
+    }
+
+}
