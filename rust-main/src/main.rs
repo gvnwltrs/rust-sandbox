@@ -63,6 +63,14 @@ fn main() -> Result<(), Error> {
             // Network scan 
             start_scan();
         }
+        SelectLib::Math => {
+            let result = add_two(1, 1);
+            println!("result: {:#?}", result);
+        }
+        SelectLib::BrainTeasers => {
+            three_and_a_bit();
+            non_standard_input(Select::GoodVersion);
+        }
         SelectLib::Functional => {
             // Map a squared result to 0 through 10 
             let product= square::<i32>(2);
@@ -177,16 +185,7 @@ fn main() -> Result<(), Error> {
             macro_rule_exe(); 
             macro_branching();
 
-            // Functional control flow 
-            run_simulation();
-        }
-        SelectLib::Math => {
-            let result = add_two(1, 1);
-            println!("result: {:#?}", result);
-        }
-        SelectLib::BrainTeasers => {
-            three_and_a_bit();
-            non_standard_input(Select::GoodVersion);
+            // NOTE: Functional control flow -- see -> rust-simulator
         }
     }
 
