@@ -333,3 +333,13 @@ pub fn macro_branching() {
     my_macro_branch!(1 "abc");
     my_macro_branch!(2 "def");
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_something_functional() {
+        assert!(true);
+    }
+}
