@@ -11,6 +11,7 @@ use rust_main::commands::{ run_ls, sys_cmd };
 use rust_main::network::start_scan;
 use rust_main::math::add_two;
 use rust_main::brain_teasers::*;
+use rust_main::shadowing;
 
 #[allow(unused)]
 enum SelectLib {
@@ -21,14 +22,18 @@ enum SelectLib {
     Network,
     Math,
     BrainTeasers,
+    RustMain,
 }
 
 fn main() -> Result<(), Error> {
     println!("Rust Main Starting...");
 
-    let selection = SelectLib::BrainTeasers;
+    let selection = SelectLib::RustMain;
 
     match selection {
+        SelectLib::RustMain => {
+            println!("{:#?}", shadowing());
+        }
         SelectLib::GuessNumberV1 => {
             // Game v1
             run_engine();
