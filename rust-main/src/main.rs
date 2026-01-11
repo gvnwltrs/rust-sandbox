@@ -24,6 +24,7 @@ enum SelectLib {
     BrainTeasers,
     RustMain,
 }
+#[allow(unused)]
 use SelectLib::*;
 
 fn main() -> Result<(), Error> {
