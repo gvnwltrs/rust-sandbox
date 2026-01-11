@@ -9,7 +9,7 @@ use rust_main::guess_number_v2::Game;
 use rust_main::counters::count_to_5;
 use rust_main::commands::{ run_ls, sys_cmd };
 use rust_main::network::start_scan;
-use rust_main::math::add_two;
+use rust_main::math::*;
 use rust_main::brain_teasers::*;
 
 #[allow(unused)]
@@ -22,11 +22,12 @@ enum SelectLib {
     Math,
     BrainTeasers,
 }
+use SelectLib::*;
 
 fn main() -> Result<(), Error> {
     println!("Rust Main Starting...");
 
-    let selection = SelectLib::BrainTeasers;
+    let selection = Math;
 
     match selection {
         SelectLib::GuessNumberV1 => {
@@ -63,6 +64,10 @@ fn main() -> Result<(), Error> {
         }
         SelectLib::Math => {
             let result = add_two(1, 1);
+            println!("result: {:#?}", result);
+
+            let mut result: i32 = 0;
+            let result = add_some(2, 2, &mut result);
             println!("result: {:#?}", result);
         }
         SelectLib::BrainTeasers => {
