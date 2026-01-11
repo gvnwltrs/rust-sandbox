@@ -72,8 +72,8 @@ fn main() -> Result<(), Error> {
             let result = add_two(1, 1);
             println!("result: {:#?}", result);
 
-            let mut result: i32 = 0;
-            let result = add_some(2, 2, &mut result);
+            let result: i32 = 0;
+            // let result = add_some(2, 2, &mut result);
             println!("result: {:#?}", result);
         }
         SelectLib::BrainTeasers => {
