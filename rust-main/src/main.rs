@@ -7,11 +7,11 @@ use std::io::Error;
 use rust_main::guess_number_v1::run_engine;
 use rust_main::guess_number_v2::Game;
 use rust_main::counters::count_to_5;
-use rust_main::commands::{ run_ls, sys_cmd };
+use rust_main::commands::{run_ls,sys_cmd};
 use rust_main::network::start_scan;
 use rust_main::math::*;
 use rust_main::brain_teasers::*;
-use rust_main::shadowing;
+use rust_main::{shadowing,borrow_checker};
 
 #[allow(unused)]
 enum SelectLib {
@@ -35,6 +35,7 @@ fn main() -> Result<(), Error> {
     match selection {
         SelectLib::RustMain => {
             println!("{:#?}", shadowing());
+            borrow_checker();
         }
         SelectLib::GuessNumberV1 => {
             // Game v1

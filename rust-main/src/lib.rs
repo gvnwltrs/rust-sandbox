@@ -7,6 +7,8 @@ pub mod network;
 pub mod math;
 pub mod brain_teasers;
 
+use rand::prelude::*;
+
 #[derive(Debug)]
 #[allow(unused)]
 pub struct Assignments {
@@ -41,3 +43,14 @@ pub fn shadowing() -> Assignments {
     a.one('a', _val);
     a
 } 
+
+pub fn borrow_checker() {
+    let mut x = Box::new(42); // heap allocated; think of Box == smart_pointer
+    let r = &x; // 'a -- we know that x lives outside of this slot
+
+    if rand::rng().random::<f64>() > 0.5 {
+        *x = 84;
+    } else {
+        println!("{}", r); // 'a
+    }
+}
