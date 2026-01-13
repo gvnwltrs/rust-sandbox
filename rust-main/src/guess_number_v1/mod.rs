@@ -17,7 +17,6 @@ pub fn run_engine() {
                 .read_line(&mut input)
                 .expect("Whoops...something broke");
 
-
         let guess: u32 = match input.trim().parse() {
             Ok(num) => num,
             Err(_) => {

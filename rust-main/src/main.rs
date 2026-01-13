@@ -6,7 +6,7 @@ use std::io::Error;
 #[allow(unused_imports)]
 use rust_main::guess_number_v1::run_engine;
 use rust_main::guess_number_v2::Game;
-use rust_main::counters::count_to_5;
+use rust_main::counters::{count_to_5, count_lines};
 use rust_main::commands::{run_ls,sys_cmd};
 use rust_main::network::start_scan;
 use rust_main::math::*;
@@ -30,7 +30,7 @@ use SelectLib::*;
 fn main() -> Result<(), Error> {
     println!("Rust Main Starting...");
 
-    let selection = SelectLib::RustMain;
+    let selection = SelectLib::Counters;
 
     match selection {
         SelectLib::RustMain => {
@@ -49,6 +49,14 @@ fn main() -> Result<(), Error> {
         SelectLib::Counters => {
             // Simple count
             count_to_5();
+
+            let my_string = String::from(
+                "This is a string.\n
+                There are many like it, but this one is mine.\n
+                Count the lines."
+            );
+            let lines = count_lines(&my_string);
+            println!("Number of lines: {:#?}", lines);
         }
         SelectLib::Commands => {
             // Run an os system level "ls" call 
