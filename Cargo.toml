@@ -1,0 +1,6 @@
+[workspace]
+members = [
+    "crates/*",
+]
+# Optional: enforce consistent dependency versions
+resolver = "3"   
