@@ -3,6 +3,8 @@ use core::ops::ControlFlow;
 use std::io;
 #[allow(unused)]
 use std::io::{stdin, BufReader, Cursor};
+use std::env;
+use std::iter::Iterator;
 
 pub fn count_to_5() {
     let mut count = 0;
@@ -21,6 +23,13 @@ pub fn count_to_5() {
 pub fn count_lines(input: &str) -> io::Result<usize> {
     Ok(input.lines().count())
 }   
+
+pub fn see_cli_args(hold: &str) -> io::Result<String> {
+    Ok(env::args()
+        .into_iter()
+        .fold(hold.to_string(), |_acc, x| _acc + "," + &x )
+    )
+}
 
 #[cfg(test)]
 mod counter_tests {

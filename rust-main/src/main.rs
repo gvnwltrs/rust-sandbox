@@ -11,7 +11,7 @@ use rust_main::network::start_scan;
 use rust_main::math::*;
 use rust_main::brain_teasers::*;
 use rust_main::{shadowing,borrow_checker};
-use rust_main::counters::counting_tools::{count_lines, count_to_5};
+use rust_main::counters::counting_tools::*;
 
 #[allow(unused)]
 enum SelectLib {
@@ -57,6 +57,10 @@ fn main() -> Result<(), Error> {
             );
             let lines = count_lines(&my_string);
             println!("Number of lines: {:#?}", lines);
+
+            // See command line args
+            let args = see_cli_args(EMPTY_STR);
+            println!("CLI Args: {:#?}", args);
         }
         SelectLib::Commands => {
             // Run an os system level "ls" call 
@@ -93,3 +97,7 @@ fn main() -> Result<(), Error> {
 
     Ok(())
 }
+
+
+pub type EmptyString<'a> = &'a str;
+const EMPTY_STR: EmptyString = "";
