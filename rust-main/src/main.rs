@@ -3,97 +3,21 @@ use std::io::Error;
 // use std::error::Error;
 // use core::error::Error;
 
-#[allow(unused_imports)]
-use rust_main::guess_number_v1::run_engine;
-use rust_main::guess_number_v2::Game;
-use rust_main::commands::{run_ls,sys_cmd};
-use rust_main::network::start_scan;
-use rust_main::math::*;
-use rust_main::brain_teasers::*;
-use rust_main::{shadowing,borrow_checker};
-use rust_main::counters::counting_tools::*;
-
 #[allow(unused)]
-enum SelectLib {
-    GuessNumberV1,
-    GuessNumberV2,
-    Counters,
-    Commands,
-    Network,
-    Math,
-    BrainTeasers,
-    RustMain,
-}
-#[allow(unused)]
-use SelectLib::*;
+use rust_main::{Assignments, borrow_checker, shadowing};
 
 fn main() -> Result<(), Error> {
+    // Start
     println!("Rust Main Starting...");
 
-    let selection = SelectLib::Counters;
+    // Shadowing example
+    println!("{:#?}", shadowing());
 
-    match selection {
-        SelectLib::RustMain => {
-            println!("{:#?}", shadowing());
-            borrow_checker();
-        }
-        SelectLib::GuessNumberV1 => {
-            // Game v1
-            run_engine();
-        }
-        SelectLib::GuessNumberV2 => {
-            // Game v2
-            let mut new_game = Game::setup(42, 5);
-            let _ =new_game.start();
-        }
-        SelectLib::Counters => {
-            // Simple count
-            count_to_5();
+    // Check 
+    borrow_checker();
 
-            let my_string = String::from(
-                "This is a string.
-                There are many like it, but this one is mine.
-                Count the lines."
-            );
-            let lines = count_lines(&my_string);
-            println!("Number of lines: {:#?}", lines);
-
-            // See command line args
-            let args = see_cli_args(EMPTY_STR);
-            println!("CLI Args: {:#?}", args);
-        }
-        SelectLib::Commands => {
-            // Run an os system level "ls" call 
-            let cmd_ls = run_ls();
-            println!("command executed: {}", cmd_ls.is_ok());
-
-            let cmd = sys_cmd("pwd");
-            println!("command executed: {}", cmd.is_ok());
-            match cmd {
-                Ok(x) => println!("result: {:#?}", cmd.unwrap_or(x)),
-                Err(_) => todo!(),
-            }
-
-            let date = sys_cmd("date");
-            println!("date executed: {}", date.is_ok());
-        }
-        SelectLib::Network => {
-            // Network scan 
-            start_scan();
-        }
-        SelectLib::Math => {
-            let result = add_two(1, 1);
-            println!("result: {:#?}", result);
-
-            let result: i32 = 0;
-            // let result = add_some(2, 2, &mut result);
-            println!("result: {:#?}", result);
-        }
-        SelectLib::BrainTeasers => {
-            three_and_a_bit();
-            non_standard_input(Select::GoodVersion);
-        }
-    }
+    // Use empty string convenience type
+    println!("{}", EMPTY_STR);
 
     Ok(())
 }
