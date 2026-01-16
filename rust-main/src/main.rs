@@ -6,12 +6,12 @@ use std::io::Error;
 #[allow(unused_imports)]
 use rust_main::guess_number_v1::run_engine;
 use rust_main::guess_number_v2::Game;
-use rust_main::counters::{count_to_5, count_lines};
 use rust_main::commands::{run_ls,sys_cmd};
 use rust_main::network::start_scan;
 use rust_main::math::*;
 use rust_main::brain_teasers::*;
 use rust_main::{shadowing,borrow_checker};
+use rust_main::counters::counting_tools::{count_lines, count_to_5};
 
 #[allow(unused)]
 enum SelectLib {
@@ -51,8 +51,8 @@ fn main() -> Result<(), Error> {
             count_to_5();
 
             let my_string = String::from(
-                "This is a string.\n
-                There are many like it, but this one is mine.\n
+                "This is a string.
+                There are many like it, but this one is mine.
                 Count the lines."
             );
             let lines = count_lines(&my_string);
