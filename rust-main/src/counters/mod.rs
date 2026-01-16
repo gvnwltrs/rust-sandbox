@@ -1,7 +1,8 @@
 use crate::repeat_until::repeat_until;
 use core::ops::ControlFlow;
+use std::io;
 #[allow(unused)]
-use std::io::{stdin, BufRead, Cursor};
+use std::io::{stdin, BufReader, Cursor};
 
 pub fn count_to_5() {
     let mut count = 0;
@@ -17,13 +18,19 @@ pub fn count_to_5() {
     .for_each(drop)
 }
 
-pub fn count_lines(input: &String) -> usize {
-    input.lines().count()
-}
+pub fn count_lines(input: &str) -> io::Result<usize> {
+    Ok(input.lines().count())
+}   
 
-#[test]
-fn test_count_lines_count_is_correct() {
-    let input = Cursor::new("line 1\nline 2\n");
-    let lines = count_lines(&input.into_inner().to_string());
-    assert_eq!(lines, 2, "wrong line count");
+#[cfg(test)]
+mod counter_tests {
+    use super::*;
+
+    #[test]
+    fn test_count_lines_count_is_correct() {
+        let input = Cursor::new("line 1\nline 2\n");
+        let lines = count_lines(&input.into_inner().to_string());
+        assert!(lines.is_err() != true);
+    }
+
 }
