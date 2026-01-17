@@ -1,5 +1,6 @@
 // Demonstration of different size measurements
-
+use heapless::String;
+use crate::file_string::read_to_stack_string;
 use std::fs;
 use std::io;
 
@@ -10,8 +11,6 @@ pub fn get_file_size(path: &str) -> io::Result<usize> {
 
 /// Example showing all the different "sizes" you might care about
 pub fn demonstrate_sizes<const N: usize>(path: &str) -> io::Result<()> {
-    use heapless::String;
-    use file_string::file::read_to_stack_string;
     
     // 1. File size on disk
     let file_size = get_file_size(path)?;

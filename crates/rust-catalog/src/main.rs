@@ -1,6 +1,5 @@
-mod content;
-use content::media::{Media, describe_into, create_buf}; 
-use content::catalog::Catalog;
+use rust_catalog::content::{Media, describe_into, create_buf}; 
+use rust_catalog::content::Catalog;
 
 fn main() {
     // Setup catalog data and container 

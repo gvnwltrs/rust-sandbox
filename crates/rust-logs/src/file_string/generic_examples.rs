@@ -1,6 +1,7 @@
 // Examples of calling functions with const generics
 
 use heapless::String;
+use std::io::{Error, Result};
 
 // Your function signature
 pub fn read_to_stack_string<const N: usize>(path: &str) -> io::Result<String<N>> {
@@ -9,7 +10,7 @@ pub fn read_to_stack_string<const N: usize>(path: &str) -> io::Result<String<N>>
 
 // Different ways to call it:
 
-fn example1() {
+pub fn example1() {
     // ✅ Turbofish syntax (what you're using) - ALWAYS works
     const SIZE: usize = 2048;
     let logs = read_to_stack_string::<SIZE>("logs.txt");
@@ -17,14 +18,14 @@ fn example1() {
     let logs = read_to_stack_string::<2048>("logs.txt");
 }
 
-fn example2() {
+pub fn example2() {
     // ✅ Sometimes you can infer from the variable type
     // But this ONLY works if the compiler can unambiguously determine N
     let logs: Result<String<2048>, _> = read_to_stack_string("logs.txt");
     // However, this is often not possible because Result<_, _> is ambiguous
 }
 
-fn example3() {
+pub fn example3() {
     // ✅ Using a const generic in a struct/type helps inference
     struct LogBuffer<const N: usize> {
         data: String<N>,
