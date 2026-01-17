@@ -14,3 +14,9 @@ cargo build -p '*'
 # Example
 cargo run -p rust-main
 ```
+
+## Test a crate 
+
+```bash
+cargo run -p rust-simulator
+```

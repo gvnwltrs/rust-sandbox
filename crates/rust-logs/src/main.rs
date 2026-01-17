@@ -1,7 +1,5 @@
 use std::fs;
-
-mod file_string;
-use file_string::file::FileBuf;
+use rust_logs::file_string::file::FileBuf;
 
 /* 
 function extract_errors(log: string) -> list of strings: 

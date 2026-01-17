@@ -43,7 +43,7 @@ pub fn immutable_operation1() -> (i32, i32) {
 // Uses output of one function as input to another function
 // by being connected. 
 pub fn functional_composition(x: f64) -> f64{
-    #[allow(unused)]
+    #[allow(unused, nonstandard_style)]
     let fsin = |X: f64| x.sin();
     let fabs = |x: f64| x.abs();
     // Feed ouput of one into the other
