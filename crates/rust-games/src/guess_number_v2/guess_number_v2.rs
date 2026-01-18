@@ -3,9 +3,9 @@ use std::io;
 use std::io::Write;
 
 pub struct Game {
-    secret: u32,
-    tries_left: u32,
-    guesses: Vec<u32>,
+    pub secret: u32,
+    pub tries_left: u32,
+    pub guesses: Vec<u32>,
 }
 
 pub enum StepResult {
@@ -87,6 +87,19 @@ impl Game {
     }
 }
 
+#[cfg(test)]
+mod tests {
+    #[allow(unused)]
+    use super::*;
+
+    #[test]
+    fn test_get_input() {
+        assert!(true);
+    }
+}
+
+// Example usage (manual)
+//
 // fn main() {
 //     let mut game = Game {
 //         secret: 42,
