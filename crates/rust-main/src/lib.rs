@@ -46,3 +46,51 @@ pub fn borrow_checker() {
         println!("{}", r); // 'a
     }
 }
+
+/* Variables & Mutability */
+pub fn updating_a_variable() {
+    println!("1. Varialbes & immutability:\n");
+
+    println!("let x = 1;");
+    let _x = 1;
+    println!("We can update x by shadowing with: let x = 2;");
+    let _x = 2;
+    println!("But we cannot change x otherwise since it is immutable with: let x =");
+    println!("We could rewrite x however, by letting it be mutable: let mut x = 0;");
+    let mut _x = 0;
+    println!("Now we can update x: x = 1;");
+    _x = 1;
+    let _ = _x;
+    println!("END\n");
+}
+
+pub fn set_a_constant() {
+    println!("2. Constants:\n");
+
+    println!("We can set a constant by: const X: u32 = 0;");
+    const _X: u32 = 0;
+    println!("
+        But this is different than variables because we 
+        MUST use a type annotation such as: const X: u32"
+    );
+
+    println!("END\n");
+}
+
+pub fn performing_shadowing() {
+    println!("3. Shadowing:\n");
+
+    println!("We can perform shadowing by simply re-assigning a previously used variable alias:
+        let x = 0;
+        let x = 1;\n"
+    );
+    let _x = 0;
+    let _x = 1;
+    println!("In the previous case, it was a little pointless since we are using the same type.");
+    println!("To gain the real value from shadowing, we can use it as an alternative to typecasting:
+        let x = \"change to a string\";\n"
+    );
+    println!("Now x has gone from an integer to a string type (&str more precisely)\n");
+
+    println!("END\n");
+}
