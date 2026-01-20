@@ -12,12 +12,25 @@ fn main() -> Result<(), Error> {
 
     // Rust the Programming Language
     println!("Running through Rust the Programming Language concepts.\n");
+
+    println!("1. Updating a variable");
     updating_a_variable(); 
+
+    println!("2. Setting a constant");
     set_a_constant();
+
+    println!("3. Shadowing variables");
     performing_shadowing();
+
+    println!("4. Writing to a buffer to format a string");
     let mut buf = String::new(); 
     let _ = write_fmt_to_buf(1, &mut buf);
-    println!("{:?}", buf);
+    println!("{:?}\nEND\n", buf);
+
+    println!("5. Using expressions");
+    add_expressions(2, 2);
+
+    println!("6. Using statements");
 
     Ok(())
 }

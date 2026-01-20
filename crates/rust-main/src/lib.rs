@@ -52,14 +52,12 @@ pub fn borrow_checker() {
 
 // Trying write formats
 pub fn write_fmt_to_buf<W: Write>(_in: i32, out: &mut W) -> core::fmt::Result {
-    write!(out, "value={}...", _in)
     // unimplemented!();
+    write!(out, "value={}...", _in)
 }
 
 /* Variables & Mutability */
 pub fn updating_a_variable() {
-    println!("1. Varialbes & immutability:\n");
-
     println!("let x = 1;");
     let _x = 1;
     println!("We can update x by shadowing with: let x = 2;");
@@ -74,8 +72,6 @@ pub fn updating_a_variable() {
 }
 
 pub fn set_a_constant() {
-    println!("2. Constants:\n");
-
     println!("We can set a constant by: const X: u32 = 0;");
     const _X: u32 = 0;
     println!("
@@ -87,8 +83,6 @@ pub fn set_a_constant() {
 }
 
 pub fn performing_shadowing() {
-    println!("3. Shadowing:\n");
-
     println!("We can perform shadowing by simply re-assigning a previously used variable alias:
         let x = 0;
         let x = 1;\n"
@@ -102,4 +96,19 @@ pub fn performing_shadowing() {
     println!("Now x has gone from an integer to a string type (&str more precisely)\n");
 
     println!("END\n");
+}
+
+// Math expressions
+pub fn add_expressions(a: i32, b: i32) -> i32 {
+    println!("We can do an expression by: let out = {{ a + b }};");
+    let _out = { a + b }; // is it preferrable to use braces to signal what is an expression?
+    println!("Or we can do it shorthand by: let out = a + b;");
+    let out = a + b;
+    println!("
+        In most cases, whatever you decide to use is a matter of preferrence
+        But it seems like the braces way indicates an expression more explicitly...
+        "
+    );
+    println!("END\n");
+    out
 }
