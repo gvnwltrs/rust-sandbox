@@ -51,8 +51,9 @@ pub fn borrow_checker() {
 }
 
 // Trying write formats
-pub fn prep_string_write<W: Write>(_out: &mut W) -> core::fmt::Result {
-    unimplemented!();
+pub fn write_fmt_to_buf<W: Write>(_in: i32, out: &mut W) -> core::fmt::Result {
+    write!(out, "value={}...", _in)
+    // unimplemented!();
 }
 
 /* Variables & Mutability */

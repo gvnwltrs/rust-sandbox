@@ -15,6 +15,9 @@ fn main() -> Result<(), Error> {
     updating_a_variable(); 
     set_a_constant();
     performing_shadowing();
+    let mut buf = String::new(); 
+    let _ = write_fmt_to_buf(1, &mut buf);
+    println!("{:?}", buf);
 
     Ok(())
 }
