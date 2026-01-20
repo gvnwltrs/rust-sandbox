@@ -1,5 +1,8 @@
-
 use rand::prelude::*;
+use core::fmt::Write;
+
+#[allow(unused)]
+use core::fmt::Result;
 
 #[derive(Debug)]
 #[allow(unused)]
@@ -45,6 +48,11 @@ pub fn borrow_checker() {
     } else {
         println!("{}", r); // 'a
     }
+}
+
+// Trying write formats
+pub fn prep_string_write<W: Write>(_out: &mut W) -> core::fmt::Result {
+    unimplemented!();
 }
 
 /* Variables & Mutability */

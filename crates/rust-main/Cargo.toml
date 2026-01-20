@@ -4,5 +4,6 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+fmt = "0.1.0"
 mdns-sd = "0.17.1"
 rand = "0.9.2"
