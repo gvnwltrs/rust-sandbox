@@ -30,6 +30,10 @@ fn main() -> Result<(), Error> {
     println!("5. Using expressions");
     add_expressions(2, 2);
 
+    println!("6. Using conditional expressions");
+    conditional_expression(3, 4);
+    println!("END\n");
+
     println!("6. Using statements");
 
     Ok(())

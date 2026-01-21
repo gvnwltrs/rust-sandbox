@@ -112,3 +112,27 @@ pub fn add_expressions(a: i32, b: i32) -> i32 {
     println!("END\n");
     out
 }
+
+// Conditional expressions
+pub fn conditional_expression(a: i32, b: i32) -> bool {
+    println!("
+        We can do common conditional expressions using if, else if, and else:
+            if a == b {{
+                println!(\"a is equal to b\");
+            }} else if a < b {{
+                    println!(\"a is less than b\");
+            }} else {{
+                println!(\"a is not greater than b\");
+            }}"
+    );
+    if a == b {
+        println!("a is equal to b");
+        true
+    } else if a < b {
+        println!("a is less than b");
+        true
+    } else {
+        println!("a is not greater than b");
+        false
+    }
+}
