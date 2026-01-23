@@ -36,6 +36,10 @@ fn main() -> Result<(), Error> {
 
     println!("6. Using statements");
 
+    println!("7. Using multiple conditionals");
+    wrap_around_conditional(10);
+    println!("END\n");
+
     Ok(())
 }
 

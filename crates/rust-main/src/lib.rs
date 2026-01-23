@@ -136,3 +136,28 @@ pub fn conditional_expression(a: i32, b: i32) -> bool {
         false
     }
 }
+
+pub fn wrap_around_conditional(start: i32) -> bool {
+    println!("Handling multiple conditionals with if-else.");
+    if start < 3 { println!("Come on...{:#?}", start); return false};
+    let mut count = 1;
+    let begin = (start+1) % start ;
+    let mid = (start/2) % start;
+    let end = (start-1) % start;
+    while count > 0 {
+        if count % start == begin {
+            println!("Currently at: {:#?}", count);
+        } else if count % start == mid {
+            println!("Getting closer: {:#?}", count);
+        } else if count % start == end {
+            println!("We made it! {:#?}", count+1);
+            count = 0;
+            continue;
+        } else {
+            println!("We're somewhere: {:#?}", count);
+        }  
+        count += 1;
+    }
+
+    true
+}
