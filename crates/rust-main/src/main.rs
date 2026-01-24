@@ -25,20 +25,24 @@ fn main() -> Result<(), Error> {
     println!("4. Writing to a buffer to format a string");
     let mut buf = String::new(); 
     let _ = write_fmt_to_buf(1, &mut buf);
-    println!("{:?}\nEND\n", buf);
+    println!("{:?}\n\n", buf);
 
     println!("5. Using expressions");
     add_expressions(2, 2);
 
     println!("6. Using conditional expressions");
     conditional_expression(3, 4);
-    println!("END\n");
+    println!("\n");
 
     println!("6. Using statements");
+    println!("\n");
 
     println!("7. Using multiple conditionals");
     wrap_around_conditional(10);
-    println!("END\n");
+    println!("\n");
+
+    println!("8. Using if let");
+    println!("result: {:?}\n", if_let(1));
 
     Ok(())
 }

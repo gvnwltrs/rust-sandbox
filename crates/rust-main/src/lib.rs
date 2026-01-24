@@ -68,7 +68,7 @@ pub fn updating_a_variable() {
     println!("Now we can update x: x = 1;");
     _x = 1;
     let _ = _x;
-    println!("END\n");
+    println!("\n");
 }
 
 pub fn set_a_constant() {
@@ -79,7 +79,7 @@ pub fn set_a_constant() {
         MUST use a type annotation such as: const X: u32"
     );
 
-    println!("END\n");
+    println!("\n");
 }
 
 pub fn performing_shadowing() {
@@ -95,7 +95,7 @@ pub fn performing_shadowing() {
     );
     println!("Now x has gone from an integer to a string type (&str more precisely)\n");
 
-    println!("END\n");
+    println!("\n");
 }
 
 // Math expressions
@@ -109,7 +109,7 @@ pub fn add_expressions(a: i32, b: i32) -> i32 {
         But it seems like the braces way indicates an expression more explicitly...
         "
     );
-    println!("END\n");
+    println!("\n");
     out
 }
 
@@ -160,4 +160,9 @@ pub fn wrap_around_conditional(start: i32) -> bool {
     }
 
     true
+}
+
+pub fn if_let(num: i32) -> bool {
+    let _case = if num == 1 {true} else{false};
+    _case
 }
