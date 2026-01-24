@@ -44,6 +44,9 @@ fn main() -> Result<(), Error> {
     println!("8. Using if let");
     println!("result: {:?}\n", if_let(1));
 
+    println!("9. Using conditional loop");
+    println!("result: {:?}\n", conditional_loop(5));
+
     Ok(())
 }
 

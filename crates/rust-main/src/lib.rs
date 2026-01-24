@@ -166,3 +166,12 @@ pub fn if_let(num: i32) -> bool {
     let _case = if num == 1 {true} else{false};
     _case
 }
+
+pub fn conditional_loop(num: i32) -> i32 {
+    let mut counter = num;
+    while counter != 0 {
+        println!("{:#?}", counter);
+        counter -= 1;
+    }
+    counter
+}
