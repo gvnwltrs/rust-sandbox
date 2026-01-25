@@ -42,10 +42,18 @@ fn main() -> Result<(), Error> {
     println!("\n");
 
     println!("8. Using if let");
-    println!("result: {:?}\n", if_let(1));
+    println!("Result: {:?}\n", if_let(1));
 
     println!("9. Using conditional loop");
-    println!("result: {:?}\n", conditional_loop(5));
+    println!("Result: {:?}\n", conditional_loop(5));
+
+    println!("10. Where do literal strings go?");
+    let heap_string = String::from("heap_string");
+    println!("Result: {:?}, Input: {:?}", where_does_this_string_live(&heap_string), heap_string);
+    let stack_string = "";
+    println!("Result: {:?}, Input: {:?}", where_does_this_string_live(stack_string), stack_string);
+    let literal_str = "literal_str";
+    println!("Result: {:?}, Input: {:?}\n", where_does_this_string_live(literal_str), literal_str);
 
     Ok(())
 }

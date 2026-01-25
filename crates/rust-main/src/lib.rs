@@ -178,6 +178,31 @@ pub fn conditional_loop(num: i32) -> i32 {
     counter
 }
 
-pub fn where_does_this_string_live() {
-    let this = "string";
+pub fn where_does_this_string_live(string: &str) -> &'static str {
+    let mut _string = string;
+    let mut buffer = [0u8; 32];
+    if _string == "" {
+        let text = "stack-text";
+        let len = text.len();
+        buffer[..len].copy_from_slice(text.as_bytes());
+        _string = std::str::from_utf8(&buffer[..len]).unwrap();
+    };
+
+    let stack_val = 0;
+    let stack_addr = &stack_val as *const _ as usize;
+    let heap_addr = Box::into_raw(Box::new(0)) as usize;
+    let literal_addr = _string.as_ptr() as usize;
+    let f_addr = where_does_this_string_live as *const () as usize;
+
+    let dist_to_f = (literal_addr as isize - f_addr as isize).abs();
+    let dist_to_stack = (literal_addr as isize - stack_addr as isize).abs();
+    let dist_to_heap = (literal_addr as  isize - heap_addr as isize).abs();
+
+    if  dist_to_stack < dist_to_f && dist_to_stack < dist_to_heap {
+       "stack"
+    } else if dist_to_f < dist_to_heap {
+        ".rodata (near fn)"
+    } else {
+        "heap"
+    }
 }
