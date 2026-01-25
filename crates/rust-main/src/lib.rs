@@ -168,10 +168,16 @@ pub fn if_let(num: i32) -> bool {
 }
 
 pub fn conditional_loop(num: i32) -> i32 {
+    println!("REMEMBER: While loops are great counters or countdowns. Not for collections though...");
+    println!("Also, even for countdowns or counters, a for loop might be a better option since it sets clear boundaries...");
     let mut counter = num;
     while counter != 0 {
         println!("{:#?}", counter);
         counter -= 1;
     }
     counter
+}
+
+pub fn where_does_this_string_live() {
+    let this = "string";
 }
