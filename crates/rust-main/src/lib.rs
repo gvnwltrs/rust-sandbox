@@ -206,3 +206,16 @@ pub fn where_does_this_string_live(string: &str) -> &'static str {
         "heap"
     }
 }
+
+pub fn takes_ownership(s: String) {
+    let _s = s;
+}
+
+pub fn makes_copy(val: i32) -> i32 {
+    let _val = val;
+    _val
+}
+
+pub fn gives_ownership() -> String {
+    String::from("Here, have a string. You own it!")
+}

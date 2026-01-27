@@ -55,6 +55,30 @@ fn main() -> Result<(), Error> {
     let literal_str = "literal_str";
     println!("Result: {:?}, Input: {:?}\n", where_does_this_string_live(literal_str), literal_str);
 
+    println!("11. Examples of ownership in functions");
+    let mut s = String::from("this string");
+    println!("We create a String: {:?}", s);
+    let moved_s = std::mem::take(&mut s);
+    println!("Now we pass the string to function not as a reference or borrow.");
+    takes_ownership(moved_s);
+    println!("Let's look at the string again: {:?}\n", s);
+
+    let mut x = 5;
+    println!("x is: {:?}", x);
+    println!("Now we copy x to y.");
+    let mut y = makes_copy(x);
+    println!("y is: {:?}", y);
+    x = 10; 
+    println!("We modify x: {:?}", x); 
+    println!("y is still: {:?}", y);
+    y = 20;
+    println!("We modify y: {:?}", y);
+    println!("Now we have x:{:?}, y:{:?}\n", x,y);
+
+    println!("12. Giving ownership from a function");
+    let give_me = gives_ownership();
+    println!("We call 'gives_ownership' and it gives us a string: {:?}\n", give_me);
+
     Ok(())
 }
 
