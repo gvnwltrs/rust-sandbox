@@ -79,6 +79,16 @@ fn main() -> Result<(), Error> {
     let give_me = gives_ownership();
     println!("We call 'gives_ownership' and it gives us a string: {:?}\n", give_me);
 
+    println!("13. Mutable references"); 
+    let mut my_string = String::from("Before we had this...");
+    println!("Original: {:?}", my_string);
+    mutate_reference(&mut my_string);
+    println!("\
+        We can modify a reference so long as we claim that's \
+        what we are doing with the thing we borrow: \
+        \n{:?}\n", my_string
+    );
+
     Ok(())
 }
 

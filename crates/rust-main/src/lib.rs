@@ -219,3 +219,7 @@ pub fn makes_copy(val: i32) -> i32 {
 pub fn gives_ownership() -> String {
     String::from("Here, have a string. You own it!")
 }
+
+pub fn mutate_reference(s: &mut String) {
+    s.push_str("and now we have this...");
+}
