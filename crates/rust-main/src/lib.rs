@@ -27,6 +27,10 @@ impl Assignments {
     }
 }
 
+// 0) Three core discplines of Rust and in programming generally
+
+// 1) Variables and mutability
+
 // Why? Shadowing allows you to change the type that a var name 
 // holds, but still allowing for a reuse of the name without having
 // to do somethign like a typecast. Think healthier alternative to typecasting. 
@@ -56,7 +60,6 @@ pub fn write_fmt_to_buf<W: Write>(_in: i32, out: &mut W) -> core::fmt::Result {
     write!(out, "value={}...", _in)
 }
 
-/* Variables & Mutability */
 pub fn updating_a_variable() {
     println!("let x = 1;");
     let _x = 1;
@@ -98,6 +101,11 @@ pub fn performing_shadowing() {
     println!("\n");
 }
 
+// 2) Data types
+
+
+// 3) Functions
+
 // Math expressions
 pub fn add_expressions(a: i32, b: i32) -> i32 {
     println!("We can do an expression by: let out = {{ a + b }};");
@@ -112,6 +120,10 @@ pub fn add_expressions(a: i32, b: i32) -> i32 {
     println!("\n");
     out
 }
+
+// 4) Comments
+
+// 5) Control flow
 
 // Conditional expressions
 pub fn conditional_expression(a: i32, b: i32) -> bool {
@@ -136,6 +148,8 @@ pub fn conditional_expression(a: i32, b: i32) -> bool {
         false
     }
 }
+
+// 6) Loops
 
 pub fn wrap_around_conditional(start: i32) -> bool {
     println!("Handling multiple conditionals with if-else.");
@@ -178,6 +192,8 @@ pub fn conditional_loop(num: i32) -> i32 {
     counter
 }
 
+// 7) Ownership 
+
 pub fn where_does_this_string_live(string: &str) -> &'static str {
     let mut _string = string;
     let mut buffer = [0u8; 32];
@@ -207,6 +223,8 @@ pub fn where_does_this_string_live(string: &str) -> &'static str {
     }
 }
 
+// 8) Ownership & functions 
+
 pub fn takes_ownership(s: String) {
     let _s = s;
 }
@@ -216,10 +234,16 @@ pub fn makes_copy(val: i32) -> i32 {
     _val
 }
 
+// 9) Borrowing & references
+
 pub fn gives_ownership() -> String {
     String::from("Here, have a string. You own it!")
 }
 
+// 10) Mutable references
+
 pub fn mutate_reference(s: &mut String) {
     s.push_str("and now we have this...");
 }
+
+// 11) Dangling references
