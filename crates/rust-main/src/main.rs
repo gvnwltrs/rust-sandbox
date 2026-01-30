@@ -89,6 +89,14 @@ fn main() -> Result<(), Error> {
         \n{:?}\n", my_string
     );
 
+    println!("14. Dangling references (TBD)...\n");
+
+    println!("15. String slices");
+    let my_words = String::from("This is it");
+    println!("Original string: {:?}", my_words);
+    let slice = first_word_slice(&my_words);
+    println!("Slice: {:?}\n", slice);
+
     Ok(())
 }
 
