@@ -249,7 +249,7 @@ pub fn mutate_reference(s: &mut String) {
 // 11) Dangling references
 
 // Slice types 
-pub fn first_word_slice(s: &String) -> &str {
+pub fn first_word_slice(s: &str) -> &str {
     let bytes = s.as_bytes();
 
     for (i, &item) in bytes.iter().enumerate() {
