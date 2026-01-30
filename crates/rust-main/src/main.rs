@@ -96,6 +96,10 @@ fn main() -> Result<(), Error> {
     println!("Original string: {:?}", my_words);
     let slice = first_word_slice(&my_words);
     println!("Slice: {:?}\n", slice);
+    let another_slice = &my_words[0..7];
+    println!("Another slice: {:?}\n", another_slice);
+
+    println!("16. ");
 
     Ok(())
 }
