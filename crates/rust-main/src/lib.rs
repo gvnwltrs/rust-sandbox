@@ -260,3 +260,14 @@ pub fn first_word_slice(s: &str) -> &str {
 
     &s[..]
 }
+
+#[derive(Debug)]
+#[allow(unused)]
+pub struct MyStruct {
+    x: i32,
+    y: i32,
+}
+
+pub fn init_struct() -> MyStruct {
+    MyStruct { x: 42, y: 43 }
+}

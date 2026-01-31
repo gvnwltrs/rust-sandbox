@@ -99,7 +99,9 @@ fn main() -> Result<(), Error> {
     let another_slice = &my_words[0..7];
     println!("Another slice: {:?}\n", another_slice);
 
-    println!("16. ");
+    println!("16. Handling structs");
+    let istruct = init_struct();
+    println!("Initalizing a struct and returning: {:#?}\n", istruct);
 
     Ok(())
 }
