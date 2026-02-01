@@ -109,7 +109,14 @@ fn main() -> Result<(), Error> {
     let mut data = MyData::new(); // single owner
     println!("Initialized to: {:#?}", data);
     using_data_method(&mut data); 
-    println!("After borrowing and modifying: {:#?}", data);
+    println!("After borrowing and modifying: {:#?}\n", data);
+    println!(
+        "The init was an \"Associated Function\",\
+         while the function that called it was a free function\n\
+    ");
+    println!("Now calling method to reset.");
+    data.reset();
+    println!("Result for reset: {:#?}\n", data);
 
     Ok(())
 }

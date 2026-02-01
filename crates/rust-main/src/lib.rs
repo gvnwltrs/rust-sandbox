@@ -1,5 +1,6 @@
 use rand::prelude::*;
 use core::fmt::Write;
+#[allow(unused)]
 use std::io::Error;
 
 #[allow(unused)]
@@ -293,8 +294,23 @@ impl MyData {
             values: 42,
         }
     }
+
+    pub fn reset(&mut self) {
+        self.values = 42;
+    }
 }
 
 pub fn using_data_method(data: &mut MyData) {
     data.values = 100;
+}
+
+#[cfg(test)]
+mod rust_main_tests {
+    #[allow(unused)]
+    use super::*;
+
+    #[test]
+    fn test_sanity() {
+        assert!(true);
+    }
 }
