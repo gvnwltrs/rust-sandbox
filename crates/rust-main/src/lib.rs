@@ -311,8 +311,8 @@ pub enum Vault {
     ID(i32),
 }
 
-pub fn update_vault(vault: &mut Vault) {
-    *vault = Vault::Name(String::from("New"));
+pub fn update_vault(vault: &mut Vault, val: Vault) {
+    *vault = val;
 } 
 
 #[cfg(test)]
