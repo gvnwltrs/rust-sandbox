@@ -118,6 +118,12 @@ fn main() -> Result<(), Error> {
     data.reset();
     println!("Result for reset: {:#?}\n", data);
 
+    println!("18. Using enums");
+    let mut new_vault = Vault::Name(String::from("Old"));
+    println!("Old vault name: {:#?}", new_vault);
+    update_vault(&mut new_vault);
+    println!("Updated vault name: {:#?}\n", new_vault);
+
     Ok(())
 }
 

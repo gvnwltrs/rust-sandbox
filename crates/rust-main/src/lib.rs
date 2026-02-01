@@ -304,6 +304,17 @@ pub fn using_data_method(data: &mut MyData) {
     data.values = 100;
 }
 
+#[derive(Debug)]
+#[allow(unused)]
+pub enum Vault {
+    Name(String),
+    ID(i32),
+}
+
+pub fn update_vault(vault: &mut Vault) {
+    *vault = Vault::Name(String::from("New"));
+} 
+
 #[cfg(test)]
 mod rust_main_tests {
     #[allow(unused)]
