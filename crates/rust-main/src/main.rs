@@ -105,6 +105,12 @@ fn main() -> Result<(), Error> {
     let tstruct = init_tup_struct(42, 43);
     println!("Initalizing a tuple struct and returning: {:#?}\n", tstruct);
 
+    println!("17. Using methods");
+    let mut data = MyData::new(); // single owner
+    println!("Initialized to: {:#?}", data);
+    using_data_method(&mut data); 
+    println!("After borrowing and modifying: {:#?}", data);
+
     Ok(())
 }
 

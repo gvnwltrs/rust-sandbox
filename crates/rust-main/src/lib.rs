@@ -1,5 +1,6 @@
 use rand::prelude::*;
 use core::fmt::Write;
+use std::io::Error;
 
 #[allow(unused)]
 use core::fmt::Result;
@@ -278,4 +279,22 @@ pub fn init_struct() -> MyStruct {
 
 pub fn init_tup_struct(x: i32, y: i32) -> TupleStruct {
     TupleStruct(x, y)
+}
+
+#[derive(Debug)]
+#[allow(unused)]
+pub struct MyData{
+    values: i32,
+}
+
+impl MyData {
+    pub fn new() -> Self {
+        Self {
+            values: 42,
+        }
+    }
+}
+
+pub fn using_data_method(data: &mut MyData) {
+    data.values = 100;
 }
