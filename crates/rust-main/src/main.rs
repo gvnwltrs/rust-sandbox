@@ -102,6 +102,8 @@ fn main() -> Result<(), Error> {
     println!("16. Handling structs");
     let istruct = init_struct();
     println!("Initalizing a struct and returning: {:#?}\n", istruct);
+    let tstruct = init_tup_struct(42, 43);
+    println!("Initalizing a tuple struct and returning: {:#?}\n", tstruct);
 
     Ok(())
 }

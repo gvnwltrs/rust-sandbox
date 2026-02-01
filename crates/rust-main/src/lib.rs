@@ -268,6 +268,14 @@ pub struct MyStruct {
     y: i32,
 }
 
+#[derive(Debug)]
+#[allow(unused)]
+pub struct TupleStruct(i32, i32);
+
 pub fn init_struct() -> MyStruct {
     MyStruct { x: 42, y: 43 }
+}
+
+pub fn init_tup_struct(x: i32, y: i32) -> TupleStruct {
+    TupleStruct(x, y)
 }
