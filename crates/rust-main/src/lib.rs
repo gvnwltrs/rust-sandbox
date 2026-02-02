@@ -334,6 +334,34 @@ pub fn read_vault(vault: &Vault) -> String {
     msg
 }
 
+// Exploring "kinds" with enums 
+#[derive(Debug, Clone)]
+#[allow(unused)]
+pub enum Operation {
+    Quit(String), // Contains a "quit" message
+    Move { x: i32, y: i32 },
+    Write(String),
+    ChangeColor(i32, i32, i32),
+}
+
+pub fn execute_op(op: &Operation) -> String {
+    let mut msg = String::default();
+    match op {
+        Operation::Quit(_) => {println!("Quit operation executing.");}
+        Operation::Move { .. } => { println!("Move operation executing."); }
+        Operation::Write(_msg) => { 
+            println!("Write operation executing."); 
+            msg.push_str(_msg); 
+        }
+        Operation::ChangeColor(_, _, _) => { println!("Change color operation executing."); }
+    }
+    msg
+}
+// Using braces {} for match arms—even when they only contain a single expression—is a
+// common practice: it makes the code consistent and much easier to extend later. Since
+// the match is already exhaustive, it just needs to tidy up the unreachable code to make 
+// the compiler happy. 
+
 #[cfg(test)]
 mod rust_main_tests {
     #[allow(unused)]
@@ -342,5 +370,14 @@ mod rust_main_tests {
     #[test]
     fn test_sanity() {
         assert!(true);
+    }
+
+    #[test]
+    fn test_execute_operation() {
+        let write = Operation::Write(String::from("Append"));
+        let result = execute_op(&write);
+        let expected = String::from("Append");
+
+        assert_eq!(result, expected);
     }
 }
