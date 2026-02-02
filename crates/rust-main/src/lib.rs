@@ -304,16 +304,35 @@ pub fn using_data_method(data: &mut MyData) {
     data.values = 100;
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 #[allow(unused)]
 pub enum Vault {
     Name(String),
     ID(i32),
 }
 
-pub fn update_vault(vault: &mut Vault, val: Vault) {
-    *vault = val;
+pub fn update_vault(vault: &mut Vault, val: &Vault) {
+    *vault = val.clone();
 } 
+
+// Returns by giving ownership to a string (move)
+pub fn read_vault(vault: &Vault) -> String {
+    let mut msg = String::from("Type:"); 
+
+    match vault {
+        Vault::Name(name) => { 
+            let variant = String::from(" String, ");
+            msg.push_str(variant.as_str());
+            msg.push_str(name)
+        },
+        Vault::ID(id) => {
+            let variant = String::from(" i32, ");
+            msg.push_str(variant.as_str());
+            msg.push_str(id.to_string().as_str());
+        }
+    }
+    msg
+}
 
 #[cfg(test)]
 mod rust_main_tests {

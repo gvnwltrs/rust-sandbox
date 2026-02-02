@@ -122,13 +122,16 @@ fn main() -> Result<(), Error> {
     let mut old_vault = Vault::Name(String::from("Old"));
     println!("Old vault name: {:#?}", old_vault);
     let mut new_vault = Vault::Name(String::from("New"));
-    update_vault(&mut old_vault, new_vault);
+    update_vault(&mut old_vault, &new_vault);
     println!("Updated vault name: {:#?}\n", old_vault);
+    println!("Now reading from vault: {:#?}\n", read_vault(&old_vault));
 
     println!("Changing the vault type.");
     new_vault = Vault::ID(42);
-    update_vault(&mut old_vault, new_vault);
+    update_vault(&mut old_vault, &new_vault);
     println!("Updated vault type: {:#?}\n", old_vault);
+
+    println!("Now reading from vault: {:#?}\n", read_vault(&new_vault));
 
     Ok(())
 }
