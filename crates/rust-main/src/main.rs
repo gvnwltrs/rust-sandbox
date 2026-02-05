@@ -133,6 +133,20 @@ fn main() -> Result<(), Error> {
 
     println!("Now reading from vault: {:#?}\n", read_vault(&new_vault));
 
+    let state = UsState::Michigan;
+    let value = value_in_cents(Coin::Quarter(state));
+    println!("Coin value: {:?}\n", value);
+
+    let mut collection = CoinCollection::default();
+    let entry1 = Coin::Quarter(UsState::Michigan);
+    add_coin_to_collection(&mut collection, entry1);
+    let val = value_in_cents(collection.collection[0].clone());
+    println!("Value: {:?}", val);
+    let entry2 = Coin::Penny;
+    let val2 = value_in_cents(entry2);
+    println!("{:?}", val2);
+    
+
     Ok(())
 }
 

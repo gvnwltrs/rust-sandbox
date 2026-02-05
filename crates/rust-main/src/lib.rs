@@ -379,6 +379,46 @@ pub fn get_data(s: &SelectOption) -> bool {
     }
 }
 
+#[derive(Debug, Clone)]
+pub enum UsState {
+    Alabama,
+    Michigan,
+}
+
+#[derive(Debug, Clone)]
+pub struct CoinCollection {
+    pub collection: Vec<Coin>
+}
+
+impl CoinCollection {
+    pub fn default() -> Self {
+        Self {
+            collection: Vec::default()
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub enum Coin {
+    Penny,
+    Nickel,
+    Dime,
+    Quarter(UsState),
+}
+
+pub fn add_coin_to_collection(c: &mut CoinCollection, entry: Coin) {
+    c.collection.push(entry);
+}
+
+pub fn value_in_cents(coin: Coin) -> (String, u8) {
+    match coin {
+        Coin::Penny => (format!(""), 1),
+        Coin::Nickel => (format!(""), 5),
+        Coin::Dime => (format!(""), 10),
+        Coin::Quarter(state) => (format!("State: {:?}", state), 25),
+    }
+}
+
 #[cfg(test)]
 mod rust_main_tests {
     #[allow(unused)]
