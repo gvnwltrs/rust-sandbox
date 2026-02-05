@@ -371,7 +371,7 @@ pub enum SelectOption {
     Last,
 } 
 
-pub fn get_data(s: SelectOption) -> bool {
+pub fn get_data(s: &SelectOption) -> bool {
     match s {
         SelectOption::First => false,
         SelectOption::New => true,
@@ -400,7 +400,8 @@ mod rust_main_tests {
 
     #[test]
     fn test_enum_option() {
-        let data_access = get_data(SelectOption::Last);
+        let option = SelectOption::Last;
+        let data_access = get_data(&option);
         let expected = false;
 
         assert_eq!(data_access, expected);
