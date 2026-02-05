@@ -362,6 +362,23 @@ pub fn execute_op(op: &Operation) -> String {
 // the match is already exhaustive, it just needs to tidy up the unreachable code to make 
 // the compiler happy. 
 
+// Experimenting with options
+
+#[derive(Debug)]
+pub enum SelectOption {
+    First,
+    New,
+    Last,
+} 
+
+pub fn get_data(s: SelectOption) -> bool {
+    match s {
+        SelectOption::First => false,
+        SelectOption::New => true,
+        SelectOption::Last => false,
+    }
+}
+
 #[cfg(test)]
 mod rust_main_tests {
     #[allow(unused)]
@@ -379,5 +396,13 @@ mod rust_main_tests {
         let expected = String::from("Append");
 
         assert_eq!(result, expected);
+    }
+
+    #[test]
+    fn test_enum_option() {
+        let data_access = get_data(SelectOption::Last);
+        let expected = false;
+
+        assert_eq!(data_access, expected);
     }
 }
