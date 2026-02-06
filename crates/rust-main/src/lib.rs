@@ -419,6 +419,13 @@ pub fn value_in_cents(coin: &Coin) -> (String, u8) {
     }
 }
 
+pub fn match_to_condition(o: Option<u32>) -> Option<u32> {
+    match o {
+        Some(num) => Some(num),
+        None => None,
+    }
+}
+
 #[cfg(test)]
 mod rust_main_tests {
     #[allow(unused)]
@@ -495,6 +502,16 @@ mod rust_main_tests {
         assert_eq!(coin_value, expected);
     }
 
-    // #[test]
+    #[test]
+    fn test_exhaustive_match_pattern() {
+        let x: Option<u32> = Some(5);
+        let pattern_matched = match_to_condition(x);
+        let expected = Some(5);
+        assert_eq!(pattern_matched, expected);
+
+        let x: Option<u32> = None; 
+        let pattern_matched = match_to_condition(x);
+        assert!(pattern_matched != expected);
+    }
 
 }
