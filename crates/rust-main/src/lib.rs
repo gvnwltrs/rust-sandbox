@@ -463,6 +463,123 @@ pub fn lookup_table_match(ent: Entity) -> Option<String> {
     }
 }
 
+#[derive(Debug, Clone, PartialEq)]
+pub enum Status {
+    Ready,
+	Good,
+	Working,
+	Success,
+	Error,
+	Degraded,
+	Warning,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum ThermostatEvent {
+	PowerOn,
+	Awaiting,
+	Error,
+	Shutdown,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum ActiveEvent {
+	Processing,
+	Running,
+	Inactive,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum Units {
+	Farenheit,
+	Celsius,
+	Kelvins,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct ThermostatDataPoint {
+	timestamp: Option<String>,
+	temperature: Option<f64>,
+	setpoint: Option<f64>, 
+	trigger_event: ThermostatEvent,
+	active_event: ActiveEvent,
+	units: Units,
+}
+
+/* Actions */
+pub fn gen_thermo_instance() -> ThermostatDataPoint {
+	ThermostatDataPoint {
+		timestamp: Some(String::default()),
+		temperature: None,
+		setpoint: None,
+		trigger_event: ThermostatEvent::Awaiting,
+		active_event: ActiveEvent::Inactive,
+		units: Units::Farenheit, // DEFAULT
+	}
+}
+
+pub fn check_status(device: &ThermostatDataPoint) -> Status {
+    match device.trigger_event {
+        ThermostatEvent::Awaiting => { 
+            match device.active_event { 
+                ActiveEvent::Inactive => Status::Ready,
+                ActiveEvent::Processing => Status::Error,
+                ActiveEvent::Running => Status::Good,
+            }
+        },
+        ThermostatEvent::PowerOn => {
+            match device.active_event {
+                ActiveEvent::Inactive => Status::Error,
+                ActiveEvent::Processing => Status::Working,
+                ActiveEvent::Running => Status::Error,
+            }
+        },
+        ThermostatEvent::Error => {
+            match device.active_event {
+                ActiveEvent::Inactive => Status::Error,
+                ActiveEvent::Processing => Status::Degraded,
+                ActiveEvent::Running => Status::Warning,
+            }
+        }, 
+        ThermostatEvent::Shutdown => {
+            match device.active_event {
+                ActiveEvent::Inactive => Status::Success,
+                ActiveEvent::Processing => Status::Working,
+                ActiveEvent::Running => Status::Error,
+            }
+        }
+    }
+}
+
+fn power_on_device(_sp: Option<f64>) -> (Status, f64) {
+   // Fake implementation 
+   let fake_reading = 65.0;
+   (Status::Good, fake_reading)
+}
+
+pub fn init_device(device: &mut ThermostatDataPoint) -> Status {
+    const DEFAULT_TEMP: f64 = 68.0;
+    device.trigger_event = ThermostatEvent::PowerOn;
+    device.active_event = ActiveEvent::Processing;
+    let set_on = Some(DEFAULT_TEMP); 
+    device.setpoint = set_on;
+    let set_on: (Status, f64) = power_on_device(set_on);
+    match set_on.0 {
+        Status::Good => { 
+            device.trigger_event = ThermostatEvent::Awaiting;
+            device.active_event = ActiveEvent::Running;
+            device.temperature = Some(set_on.1);
+            Status::Success
+        },
+        _ => { 
+            device.trigger_event = ThermostatEvent::Error;
+            device.active_event = ActiveEvent::Inactive;
+            Status::Error
+        }
+    }
+}
+
+
 #[cfg(test)]
 mod rust_main_tests {
     #[allow(unused)]
@@ -565,5 +682,41 @@ mod rust_main_tests {
         let expected = Some(String::from("Device: Android"));
         assert_eq!(found, expected);
     }
+
+    // 1. Power on stage
+    #[test]
+    fn test_device_check_status_handles_defaults() {
+        let thermo_instance = gen_thermo_instance(); 
+        let status = check_status(&thermo_instance);
+        let expected = Status::Ready;
+        assert_eq!(status, expected);
+    }
+
+    #[test]
+    fn test_boot_thermostat_power_on_good() {
+        let mut thermo_instance = gen_thermo_instance(); 
+        let initialized = init_device(&mut thermo_instance);
+        let expected = Status::Success; 
+        assert_eq!(initialized, expected);
+    }
+	
+    // 2. Set operation
+    // #[test]
+    // fn test_set_default_operation() {
+    //     let mut thermo_instance = gen_thermo_instance();
+    //     let status = check_status(&mut thermo_instance);
+    //     let expected = Status::Good;
+    //     assert_eq!(status, expected);
+        
+    //     let config: (f64, ThermostatEvent) = (
+    //         68.0, ThermostatEvent::ScheduleEvent
+    //     );
+    //     let operation_set = set_operation(
+    //         &mut thermo_instance,
+    //         &config
+    //     ); 
+    //     expected = Status::Success;
+    //     assert_eq!(operation_set, expected);
+    // }
 
 }
