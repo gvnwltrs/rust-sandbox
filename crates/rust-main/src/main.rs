@@ -6,6 +6,12 @@ use std::io::Error;
 #[allow(unused)]
 use rust_main::*;
 
+struct Container { element: u32 }
+
+fn try_move(u: Container) {
+    println!("Value received: {}", u.element);
+}
+
 fn main() -> Result<(), Error> {
     // Start
     println!("Rust Main Starting...\n");
@@ -118,7 +124,7 @@ fn main() -> Result<(), Error> {
     data.reset();
     println!("Result for reset: {:#?}\n", data);
 
-    println!("18. Using enums");
+    println!("18. Using enums & structs");
     let mut old_vault = Vault::Name(String::from("Old"));
     println!("Old vault name: {:#?}", old_vault);
     let mut new_vault = Vault::Name(String::from("New"));
@@ -133,19 +139,27 @@ fn main() -> Result<(), Error> {
 
     println!("Now reading from vault: {:#?}\n", read_vault(&new_vault));
 
+    let mut msg = format!("Coin value: ");
     let state = UsState::Michigan;
-    let value = value_in_cents(Coin::Quarter(state));
-    println!("Coin value: {:?}\n", value);
+    let value = value_in_cents(&Coin::Quarter(state));
+    msg.push_str(&format!("{:#?}", value));
+    // println!("Coin value: {:?}\n", value);
+    println!("{:#?}",msg);
 
     let mut collection = CoinCollection::default();
-    let entry1 = Coin::Quarter(UsState::Michigan);
-    add_coin_to_collection(&mut collection, entry1);
-    let val = value_in_cents(collection.collection[0].clone());
-    println!("Value: {:?}", val);
-    let entry2 = Coin::Penny;
-    let val2 = value_in_cents(entry2);
-    println!("{:?}", val2);
+    let quarter = Coin::Quarter(UsState::Michigan);
+    add_coin_to_collection(&mut collection, &quarter);
+
+    let coin_value = value_in_cents(&collection.collection.get(0).unwrap());
+    println!("Value: {:?}", coin_value);
+
+    let penny = Coin::Penny;
+    let coin_value = value_in_cents(&penny);
+    println!("Coin value {:?}", coin_value);
     
+    let x = Container { element: 5 }; 
+    try_move(x);
+    println!("Original: {}", String::from("Element moved.\n")); 
 
     Ok(())
 }

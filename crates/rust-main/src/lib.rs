@@ -406,16 +406,16 @@ pub enum Coin {
     Quarter(UsState),
 }
 
-pub fn add_coin_to_collection(c: &mut CoinCollection, entry: Coin) {
-    c.collection.push(entry);
+pub fn add_coin_to_collection(c: &mut CoinCollection, entry: &Coin) {
+    c.collection.push(entry.clone());
 }
 
-pub fn value_in_cents(coin: Coin) -> (String, u8) {
+pub fn value_in_cents(coin: &Coin) -> (String, u8) {
     match coin {
-        Coin::Penny => (format!(""), 1),
-        Coin::Nickel => (format!(""), 5),
-        Coin::Dime => (format!(""), 10),
-        Coin::Quarter(state) => (format!("State: {:?}", state), 25),
+        Coin::Penny => (format!("Penny"), 1),
+        Coin::Nickel => (format!("Nickel"), 5),
+        Coin::Dime => (format!("Dime"), 10),
+        Coin::Quarter(state) => (format!("Quarter, State: {:?}", state), 25),
     }
 }
 
@@ -429,21 +429,72 @@ mod rust_main_tests {
         assert!(true);
     }
 
+    // NOTE: Try write operation.  
     #[test]
-    fn test_execute_operation() {
+    fn test_execute_write_operation() {
         let write = Operation::Write(String::from("Append"));
-        let result = execute_op(&write);
+        let write_executed = execute_op(&write);
         let expected = String::from("Append");
 
-        assert_eq!(result, expected);
+        assert_eq!(write_executed, expected);
     }
 
+    // NOTE: Try using options to result in single enum variant for condition.
     #[test]
-    fn test_enum_option() {
+    fn test_enum_option_for_last_item() {
         let option = SelectOption::Last;
         let data_access = get_data(&option);
         let expected = false;
 
         assert_eq!(data_access, expected);
     }
+
+    // NOTE: Try to get the value of a particular coin. 
+    #[test]
+    fn test_coin_valuation_for_penny() {
+        let penny = Coin::Penny;
+        let mut coins = CoinCollection::default();
+        add_coin_to_collection(&mut coins, &penny);
+        let coin_value = value_in_cents(&penny);
+        let expected: (String, u8) = (String::from("Penny"), 1);
+
+        assert_eq!(coin_value, expected);
+    }
+
+    #[test]
+    fn test_coin_valuation_for_nickel() {
+        let nickel = Coin::Nickel;
+        let mut coins = CoinCollection::default();
+        add_coin_to_collection(&mut coins, &nickel);
+        let coin_value = value_in_cents(&nickel);
+        let expected: (String, u8) = (String::from("Nickel"), 5);
+
+        assert_eq!(coin_value, expected);
+    }
+
+    #[test]
+    fn test_coin_valuation_for_dime() {
+        let dime = Coin::Dime;
+        let mut coins = CoinCollection::default();
+        add_coin_to_collection(&mut coins, &dime);
+        let coin_value = value_in_cents(&dime);
+        let expected: (String, u8) = (String::from("Dime"), 10);
+
+        assert_eq!(coin_value, expected);
+    }
+
+    #[test]
+    fn test_coin_valuation_for_quarter() {
+        let michigan = UsState::Michigan;
+        let quarter = Coin::Quarter(michigan);
+        let mut coins = CoinCollection::default();
+        add_coin_to_collection(&mut coins, &quarter);
+        let coin_value = value_in_cents(&quarter);
+        let expected: (String, u8) = (String::from("Quarter, State: Michigan"), 25);
+
+        assert_eq!(coin_value, expected);
+    }
+
+    // #[test]
+
 }
