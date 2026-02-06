@@ -426,6 +426,43 @@ pub fn match_to_condition(o: Option<u32>) -> Option<u32> {
     }
 }
 
+pub fn dummy_qualification(t: bool) -> bool {
+    match t { true => true, false => false }
+}
+
+pub fn match_with_table(num: i32) -> bool {
+    match num {
+        1 => dummy_qualification(true),
+        2 => dummy_qualification(true),
+        3 => dummy_qualification(true),  
+        _ => dummy_qualification(false)
+    }
+}
+
+pub enum Entity {
+    Android,
+    Linux,
+    Apple,
+    Microsoft,
+}
+
+pub fn lookup_callback(arm: Entity) -> Option<String> {
+    match arm {
+        Entity::Android => Some(String::from("Device: Android")),
+        Entity::Linux => Some(String::from("Device: Linux")),
+        Entity::Apple => Some(String::from("Device: Apple")),
+        Entity::Microsoft => Some(String::from("Device: Microsoft")),
+    } 
+}
+
+pub fn lookup_table_match(ent: Entity) -> Option<String> {
+    let matched_value = lookup_callback(ent);
+    match Some(matched_value) {
+        Some(val) => val,
+        _ => None
+    }
+}
+
 #[cfg(test)]
 mod rust_main_tests {
     #[allow(unused)]
@@ -512,6 +549,21 @@ mod rust_main_tests {
         let x: Option<u32> = None; 
         let pattern_matched = match_to_condition(x);
         assert!(pattern_matched != expected);
+    }
+
+    #[test]
+    fn test_match_with_table() {
+        let table_match = match_with_table(1);
+        let expected = true;
+        assert_eq!(table_match, expected);
+    }
+
+    #[test]
+    fn test_lookup_table() {
+        let query = Entity::Android;
+        let found = lookup_table_match(query);
+        let expected = Some(String::from("Device: Android"));
+        assert_eq!(found, expected);
     }
 
 }
