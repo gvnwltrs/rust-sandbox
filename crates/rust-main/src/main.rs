@@ -161,13 +161,20 @@ fn main() -> Result<(), Error> {
     try_move(x);
     println!("Original: {}", String::from("Element moved.\n")); 
 
-    let mut device = gen_thermo_instance();
-    let initalized = init_device(&mut device);
-    println!("Device initialized: {:#?}", initalized);
-    let status = check_status(&device);
-    println!("Device status: {:#?}", status);
-    println!("Device state: {:#?}", device);
+    /*=======================================================================*/
 
+    let mut device: (ThermostatDataPoint, Status)= gen_thermo_instance();
+    let mut device = init_device(&mut device.0);
+    println!("Device initialized: {:#?}", device);
+    let status = check_status(&device.0);
+    println!("Device status: {:#?}", status);
+    println!("Device state: {:#?}\n", device);
+
+    println!("Device temp setpoint being modified...");
+    let temp_setting = ThermostatEvent::Setpoint(67.0);
+    let device: (ThermostatDataPoint, Status) = set_operation(&mut device.0, &temp_setting);
+    println!("Device configuration: {:#?}", device.1);
+    println!("Device updated: {:#?}\n", device);
 
     Ok(())
 }
