@@ -161,6 +161,14 @@ fn main() -> Result<(), Error> {
     try_move(x);
     println!("Original: {}", String::from("Element moved.\n")); 
 
+    let mut device = gen_thermo_instance();
+    let initalized = init_device(&mut device);
+    println!("Device initialized: {:#?}", initalized);
+    let status = check_status(&device);
+    println!("Device status: {:#?}", status);
+    println!("Device state: {:#?}", device);
+
+
     Ok(())
 }
 
