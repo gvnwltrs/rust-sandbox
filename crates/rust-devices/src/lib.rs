@@ -42,7 +42,6 @@ pub struct Thermostat {
     pub units: Units, 
 }
 
-
 #[derive(Debug, Clone, PartialEq)]
 pub enum Command {
     PowerOn,
