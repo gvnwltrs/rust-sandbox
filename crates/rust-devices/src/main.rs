@@ -12,7 +12,7 @@ use std::io::Error;
 use rust_devices::*;
 
 fn main() -> Result<(), Error> {
-    let mut device: (ThermostatDataPoint, Status)= gen_thermo_instance();
+    let mut device: (Thermostat, Status)= generate_device_instance();
     let mut device = init_device(&mut device.0);
     println!("Device initialized: {:#?}", device);
     let status = check_status(&device.0);
@@ -21,7 +21,7 @@ fn main() -> Result<(), Error> {
 
     println!("Device temp setpoint being modified...");
     let temp_setting = ThermostatEvent::Setpoint(67.0);
-    let device: (ThermostatDataPoint, Status) = set_operation(&mut device.0, &temp_setting);
+    let device: (Thermostat, Status) = set_operation(&mut device.0, &temp_setting);
     println!("Device configuration: {:#?}", device.1);
     println!("Device updated: {:#?}\n", device);
 

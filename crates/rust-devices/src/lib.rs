@@ -15,33 +15,6 @@ use chrono::{Local, Utc};
 /* 1. Data  */
 
 #[derive(Debug, Clone, PartialEq)]
-pub enum Status {
-    Ready,
-	Good,
-	Working,
-	Success,
-	Error,
-	Degraded,
-	Warning(String),
-}
-
-#[derive(Debug, Clone, PartialEq)]
-pub enum ThermostatEvent {
-	PowerOn,
-    Setpoint(f64),
-	Shutdown,
-	Awaiting,
-	Error,
-}
-
-#[derive(Debug, Clone, PartialEq)]
-pub enum ActiveEvent {
-	Processing,
-	Running,
-	Inactive,
-}
-
-#[derive(Debug, Clone, PartialEq)]
 pub enum Units {
 	Farenheit,
 	Celsius,
@@ -49,19 +22,94 @@ pub enum Units {
 }
 
 #[derive(Debug, Clone, PartialEq)]
-pub struct ThermostatDataPoint {
-	timestamp: Option<String>,
-	temperature: Option<f64>,
-	setpoint: Option<f64>, 
-	trigger_event: ThermostatEvent,
-	active_event: ActiveEvent,
-	units: Units,
+pub enum ThermostatState {
+    Off,
+    Booting,
+    Idle {
+        temperature: f64,
+        setpoint: f64,
+    },
+    ConfiguringSetpoint {
+        temperature: f64,
+        setpoint: f64,
+    },
+    Fault,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct Thermostat {
+    pub state: ThermostatState,
+    pub units: Units, 
+}
+
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum Command {
+    PowerOn,
+    ConfigureSetpoint(f64),
+    Shutdown,
+}
+
+pub trait ThermostatHardware {
+    fn read_temperature(&self) -> f64;
+    fn write_setpoint(&mut self, _temp: f64) -> bool;
+} 
+
+pub struct FakeHardware;
+
+impl ThermostatHardware for FakeHardware {
+    fn read_temperature(&self) -> f64 {
+        65.0
+    }
+
+    fn write_setpoint(&mut self, _temp: f64) -> bool {
+        true
+    }
 }
 
 /* 2. Actions */
 
-fn gen_timestamp() -> Option<String> {
+fn generate_timestamp() -> Option<String> {
     Some(Local::now().format("%Y-%m-%dT%H:%M").to_string())
+}
+
+pub fn generate_device_instance() -> (Thermostat, Status) {
+    (
+        Thermostat {
+            timestamp: generate_timestamp(),
+            temperature: None,
+            setpoint: None,
+            trigger_event: ThermostatEvent::Awaiting,
+            active_event: ActiveEvent::Inactive,
+            units: Units::Farenheit, // DEFAULT
+        },
+        Status::Success
+    )
+}
+
+pub fn step(
+    device: &mut Thermostat,
+    hw: &mut impl ThermostatHardware,
+    cmd: Option<Command>,
+) -> Result<(), ()> {
+    match device.state {
+        (ThermostatState::Off, Some(Command::PowerOn)) => {
+            ThermostatState::Booting
+        },
+        (ThermostatState::Booting, None) => {
+            let temp = hw.read_temperature();
+            ThermostatState::Idle { 
+                temperature: temp, 
+                setpoint: 68.0, 
+            }
+        },
+        (
+            ThermostatState::Idle { temperature, .. },
+            Some(Command::ConfigureSetpoint(target)),
+        ) => { 
+        }
+    }
+
 }
 
 fn fake_power_on_device(_sp: Option<f64>) -> (Status, f64) {
@@ -70,10 +118,10 @@ fn fake_power_on_device(_sp: Option<f64>) -> (Status, f64) {
    (Status::Good, fake_reading)
 }
 
-pub fn init_device(device: &mut ThermostatDataPoint) -> (ThermostatDataPoint, Status) {
+pub fn init_device(device: &mut Thermostat) -> (Thermostat, Status) {
     let mut _device = device.clone();
     const DEFAULT_TEMP: f64 = 68.0;
-    _device.timestamp = gen_timestamp();
+    _device.timestamp = generate_timestamp();
     _device.trigger_event = ThermostatEvent::PowerOn;
     _device.active_event = ActiveEvent::Processing;
     let set_on = Some(DEFAULT_TEMP); 
@@ -94,14 +142,14 @@ pub fn init_device(device: &mut ThermostatDataPoint) -> (ThermostatDataPoint, St
     }
 }
 
-fn fake_set_temperature_on_device(_device: &mut ThermostatDataPoint) -> Status {
+fn fake_set_temperature_on_device(_device: &mut Thermostat) -> Status {
     _device.temperature = Some(65.14);
     Status::Success
 }
 
-fn modify_temp_setpoint(device: &mut ThermostatDataPoint, temp: f64) -> (ThermostatDataPoint, Status) {
+fn modify_temp_setpoint(device: &mut Thermostat, temp: f64) -> (Thermostat, Status) {
     let mut _device = device.clone();
-    _device.timestamp = gen_timestamp();
+    _device.timestamp = generate_timestamp();
     match device.trigger_event {
         ThermostatEvent::Awaiting => {
             _device.trigger_event = ThermostatEvent::Setpoint(temp);
@@ -124,9 +172,9 @@ fn modify_temp_setpoint(device: &mut ThermostatDataPoint, temp: f64) -> (Thermos
     }
 }
 
-pub fn set_operation(device: &mut ThermostatDataPoint, cfg: &ThermostatEvent) -> (ThermostatDataPoint, Status) {
+pub fn set_operation(device: &mut Thermostat, cfg: &ThermostatEvent) -> (Thermostat, Status) {
     let mut _device = device.clone();
-    _device.timestamp = gen_timestamp();
+    _device.timestamp = generate_timestamp();
     // let mut _device = device.clone();
     let msg = format!("Msg: Not a configurable operation -> ");
     match cfg {
@@ -213,7 +261,7 @@ mod rust_device_tests {
     // 1. Power on stage
     #[test]
     fn test_device_check_status_handles_defaults() {
-        let thermo_instance = gen_thermo_instance(); 
+        let thermo_instance = generate_device_instance(); 
         let status = check_status(&thermo_instance.0);
         let expected = Status::Ready;
         assert_eq!(status, expected);
@@ -221,7 +269,7 @@ mod rust_device_tests {
 
     #[test]
     fn test_boot_thermostat_power_on_good() {
-        let mut thermo_instance = gen_thermo_instance(); 
+        let mut thermo_instance = generate_device_instance(); 
         let initialized = init_device(&mut thermo_instance.0);
         let expected = Status::Success; 
         assert_eq!(initialized.1, expected);
@@ -230,7 +278,7 @@ mod rust_device_tests {
     // 2. Set operation
     #[test]
     fn test_configure_new_temp_setpoint() {
-        let mut temp_device = gen_thermo_instance();
+        let mut temp_device = generate_device_instance();
         let status = check_status(&temp_device.0);
         let expected = Status::Ready;
         assert_eq!(status, expected);
