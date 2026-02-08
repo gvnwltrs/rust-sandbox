@@ -64,60 +64,6 @@ fn gen_timestamp() -> Option<String> {
     Some(Local::now().format("%Y-%m-%dT%H:%M").to_string())
 }
 
-pub fn gen_thermo_instance() -> (ThermostatDataPoint, Status) {
-    (
-        ThermostatDataPoint {
-            timestamp: gen_timestamp(),
-            temperature: None,
-            setpoint: None,
-            trigger_event: ThermostatEvent::Awaiting,
-            active_event: ActiveEvent::Inactive,
-            units: Units::Farenheit, // DEFAULT
-        },
-        Status::Success
-    )
-}
-
-pub fn check_status(device: &ThermostatDataPoint) -> Status {
-    match device.trigger_event {
-        ThermostatEvent::PowerOn => {
-            match device.active_event {
-                ActiveEvent::Inactive => Status::Error,
-                ActiveEvent::Processing => Status::Working,
-                ActiveEvent::Running => Status::Error,
-            }
-        },
-        ThermostatEvent::Setpoint(_) => {
-            match device.active_event {
-                ActiveEvent::Inactive => Status::Error,
-                ActiveEvent::Processing => Status::Working,
-                ActiveEvent::Running => Status::Error,
-            }
-        },
-        ThermostatEvent::Shutdown => {
-            match device.active_event {
-                ActiveEvent::Inactive => Status::Success,
-                ActiveEvent::Processing => Status::Working,
-                ActiveEvent::Running => Status::Error,
-            }
-        }
-        ThermostatEvent::Awaiting => { 
-            match device.active_event { 
-                ActiveEvent::Inactive => Status::Ready,
-                ActiveEvent::Processing => Status::Error,
-                ActiveEvent::Running => Status::Good,
-            }
-        },
-        ThermostatEvent::Error => {
-            match device.active_event {
-                ActiveEvent::Inactive => Status::Error,
-                ActiveEvent::Processing => Status::Degraded,
-                ActiveEvent::Running => Status::Warning(String::from("Msg: Running in bad state.")),
-            }
-        }, 
-    }
-}
-
 fn fake_power_on_device(_sp: Option<f64>) -> (Status, f64) {
    // Fake implementation 
    let fake_reading = 65.0;
@@ -197,6 +143,60 @@ pub fn set_operation(device: &mut ThermostatDataPoint, cfg: &ThermostatEvent) ->
 }
 
 /* 3. Pure Functions */
+
+pub fn gen_thermo_instance() -> (ThermostatDataPoint, Status) {
+    (
+        ThermostatDataPoint {
+            timestamp: gen_timestamp(),
+            temperature: None,
+            setpoint: None,
+            trigger_event: ThermostatEvent::Awaiting,
+            active_event: ActiveEvent::Inactive,
+            units: Units::Farenheit, // DEFAULT
+        },
+        Status::Success
+    )
+}
+
+pub fn check_status(device: &ThermostatDataPoint) -> Status {
+    match device.trigger_event {
+        ThermostatEvent::PowerOn => {
+            match device.active_event {
+                ActiveEvent::Inactive => Status::Error,
+                ActiveEvent::Processing => Status::Working,
+                ActiveEvent::Running => Status::Error,
+            }
+        },
+        ThermostatEvent::Setpoint(_) => {
+            match device.active_event {
+                ActiveEvent::Inactive => Status::Error,
+                ActiveEvent::Processing => Status::Working,
+                ActiveEvent::Running => Status::Error,
+            }
+        },
+        ThermostatEvent::Shutdown => {
+            match device.active_event {
+                ActiveEvent::Inactive => Status::Success,
+                ActiveEvent::Processing => Status::Working,
+                ActiveEvent::Running => Status::Error,
+            }
+        }
+        ThermostatEvent::Awaiting => { 
+            match device.active_event { 
+                ActiveEvent::Inactive => Status::Ready,
+                ActiveEvent::Processing => Status::Error,
+                ActiveEvent::Running => Status::Good,
+            }
+        },
+        ThermostatEvent::Error => {
+            match device.active_event {
+                ActiveEvent::Inactive => Status::Error,
+                ActiveEvent::Processing => Status::Degraded,
+                ActiveEvent::Running => Status::Warning(String::from("Msg: Running in bad state.")),
+            }
+        }, 
+    }
+}
 
 /* 4. Tests  */
 

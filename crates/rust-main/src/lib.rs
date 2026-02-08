@@ -35,9 +35,15 @@ impl Assignments {
     }
 }
 
-// 0) Three core discplines of Rust and in programming generally
+/* 0) Three core discplines of Rust and in programming generally */
 
-// 1) Variables and mutability
+// 1. Ownership
+
+// 2. Borrowing
+
+// 3. Lifetimes
+
+/* 1) Variables and mutability */
 
 // Why? Shadowing allows you to change the type that a var name 
 // holds, but still allowing for a reuse of the name without having
@@ -109,10 +115,10 @@ pub fn performing_shadowing() {
     println!("\n");
 }
 
-// 2) Data types
+/* 2) Data types */
 
 
-// 3) Functions
+/* 3) Functions */
 
 // Math expressions
 pub fn add_expressions(a: i32, b: i32) -> i32 {
@@ -129,9 +135,9 @@ pub fn add_expressions(a: i32, b: i32) -> i32 {
     out
 }
 
-// 4) Comments
+/* 4) Comments */
 
-// 5) Control flow
+/* 5) Control flow */
 
 // Conditional expressions
 pub fn conditional_expression(a: i32, b: i32) -> bool {
@@ -157,7 +163,7 @@ pub fn conditional_expression(a: i32, b: i32) -> bool {
     }
 }
 
-// 6) Loops
+/* 6) Loops */
 
 pub fn wrap_around_conditional(start: i32) -> bool {
     println!("Handling multiple conditionals with if-else.");
@@ -200,7 +206,7 @@ pub fn conditional_loop(num: i32) -> i32 {
     counter
 }
 
-// 7) Ownership 
+/* 7) Ownership */ 
 
 pub fn where_does_this_string_live(string: &str) -> &'static str {
     let mut _string = string;
@@ -231,7 +237,7 @@ pub fn where_does_this_string_live(string: &str) -> &'static str {
     }
 }
 
-// 8) Ownership & functions 
+/*  8) Ownership & functions  */
 
 pub fn takes_ownership(s: String) {
     let _s = s;
@@ -242,19 +248,19 @@ pub fn makes_copy(val: i32) -> i32 {
     _val
 }
 
-// 9) Borrowing & references
+/* 9) Borrowing & references */
 
 pub fn gives_ownership() -> String {
     String::from("Here, have a string. You own it!")
 }
 
-// 10) Mutable references
+/* 10) Mutable references */
 
 pub fn mutate_reference(s: &mut String) {
     s.push_str("and now we have this...");
 }
 
-// 11) Dangling references
+/* 11) Dangling references */
 
 // Slice types 
 pub fn first_word_slice(s: &str) -> &str {
@@ -267,4 +273,55 @@ pub fn first_word_slice(s: &str) -> &str {
     }
 
     &s[..]
+}
+
+/* 12) Better control flow */
+
+#[allow(unused)]
+#[derive(Debug)]
+pub struct Data {
+    text_blocks: Vec<String>,
+}
+
+impl Data {
+
+    pub fn new() -> Self { Self { text_blocks: vec![], }}
+
+}
+
+#[allow(unused)]
+#[derive(Debug)]
+pub enum DataAction {
+    Read,
+    Write,
+    None,
+}
+
+pub fn verbose_control_flow(
+    data: & mut Data, 
+    input: (DataAction, Option<&str>)) -> Option<String> {
+    match input {
+        (DataAction::Read, None)  => { 
+            Some(data.text_blocks
+                .iter()
+                .map(|block| block.as_str())
+                .collect()
+            )
+        },
+        (DataAction::Write, Some(text)) => {
+            data.text_blocks.push(text.to_string());
+            Some(String::from("Wrote text block."))
+        },
+        _ => None
+    }
+}
+
+// Only write
+pub fn write_only_control_flow(data: &mut Data, input: (DataAction, String)) -> Option<String> {
+    if let DataAction::Write = input.0 {
+        data.text_blocks.push(input.1);
+        Some(String::from("Wrote text block."))
+    } else {
+        None
+    }  
 }

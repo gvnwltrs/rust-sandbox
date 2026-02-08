@@ -100,6 +100,21 @@ fn main() -> Result<(), Error> {
     let another_slice = &my_words[0..7];
     println!("Another slice: {:?}\n", another_slice);
 
+    println!("16. Better control flow with \"it let\"");
+    let mut data = Data::new();;
+    let input = (DataAction::Write, Some("Adding this block."));
+    println!("Writing data with exhaustive match pattern.");
+    let result = verbose_control_flow(&mut data, input);
+    println!("Result: {:#?}", result);
+    println!("Now writing data with concise \"if let\".");
+    let input = (DataAction::Write, String::from("Adding this block."));
+    let result = write_only_control_flow(&mut data, input);
+    println!("Result: {:#?}\"", result);
+    println!("Reading data.");
+    let input = (DataAction::Read, None);
+    let result = verbose_control_flow(&mut data, input);
+    println!("Result: {:#?}\n", result);
+
     Ok(())
 }
 
