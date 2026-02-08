@@ -12,23 +12,8 @@ use std::io::Error;
 use rust_devices::*;
 
 fn main() -> Result<(), Error> {
-    let mut device: (Thermostat, Status)= generate_device_instance();
-    let mut device = init_device(&mut device.0);
-    println!("Device initialized: {:#?}", device);
-    let status = check_status(&device.0);
-    println!("Device status: {:#?}", status);
-    println!("Device state: {:#?}\n", device);
-
-    println!("Device temp setpoint being modified...");
-    let temp_setting = ThermostatEvent::Setpoint(67.0);
-    let device: (Thermostat, Status) = set_operation(&mut device.0, &temp_setting);
-    println!("Device configuration: {:#?}", device.1);
-    println!("Device updated: {:#?}\n", device);
+    let device = new_device();
+    println!("Device created: {:#?}", device);
 
     Ok(())
 }
-
-
-pub type EmptyString<'a> = &'a str;
-#[allow(unused)]
-const EMPTY_STR: EmptyString = "";
