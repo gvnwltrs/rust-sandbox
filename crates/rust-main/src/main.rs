@@ -10,8 +10,6 @@ use rust_main::*;
 fn main() -> Result<(), Error> {
     // Start
     println!("Rust Main Starting...\n");
-
-    // Rust the Programming Language
     println!("Running through Rust the Programming Language concepts.\n");
 
     println!("1. Updating a variable");
@@ -26,7 +24,7 @@ fn main() -> Result<(), Error> {
     println!("4. Writing to a buffer to format a string");
     let mut buf = String::new(); 
     let _ = write_fmt_to_buf(1, &mut buf);
-    println!("{:?}\n\n", buf);
+    println!("Result: {:?}\n\n", buf);
 
     println!("5. Using expressions");
     add_expressions(2, 2);
@@ -62,7 +60,7 @@ fn main() -> Result<(), Error> {
     let moved_s = std::mem::take(&mut s);
     println!("Now we pass the string to function not as a reference or borrow.");
     takes_ownership(moved_s);
-    println!("Let's look at the string again: {:?}\n", s);
+    println!("Result: {:?}\n", s);
 
     let mut x = 5;
     println!("x is: {:?}", x);
