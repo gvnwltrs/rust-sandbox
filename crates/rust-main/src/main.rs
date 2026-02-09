@@ -113,6 +113,19 @@ fn main() -> Result<(), Error> {
     let result = verbose_control_flow(&mut data, input);
     println!("Result: {:#?}\n", result);
 
+    println!("17. Handling collections\n");
+    let mut vector = vector_create_with_capacity(Some(1));
+    let result = vector_modify(&mut vector, 1);
+    // result = vector_modify(&mut vector, 1);
+    println!("Result: {:#?}\n", result);
+    println!("Trying to read something with no value.");
+    let result = vector.get(3); 
+    println!("Result: {:#?}", result);
+    let mut string = String::from("cat");
+    println!("Transforming a String (char array): {}", string);
+    let result = string_collection_vert_transform(&mut string);
+    println!("Result: \n{}\n", result);
+
     Ok(())
 }
 

@@ -4,10 +4,12 @@ use rand::prelude::*;
 use core::fmt::Write;
 
 #[allow(unused)]
-use std::io::Error;
+use std::io::{Error, ErrorKind};
+//use std::fmt::Error;
 
 #[allow(unused)]
-use core::fmt::Result;
+use std::result::Result;
+//use core::fmt::Result;
 
 #[allow(unused)]
 use chrono::{Local, Utc};
@@ -342,6 +344,32 @@ pub fn tuple_read(item: &(u32, String)) -> String {
     format!("val: {}, msg: {}", item.0, item.1)
 }
 
+pub fn vector_create_with_capacity(cap: Option<usize>) -> Vec<u32> {
+   match cap {
+    Some(x) => Vec::with_capacity(x),
+    None => Vec::new()
+   }
+}
+
+pub fn vector_modify(v:&mut Vec<u32>, val: u32) -> Result<(), Error> {
+    if v.capacity() > 0 && v.len() == v.capacity() {
+        return Err(ErrorKind::OutOfMemory.into()); 
+    }
+
+    v.push(val); 
+    Ok(())
+}
+
+pub fn string_collection_vert_transform(string: &mut String) -> & str {
+    let mut out = String::new();
+    for c in string.chars() {
+        out.push(c);
+        out.push('\n');
+    }
+    *string = out;
+    string
+} 
+
 #[cfg(test)]
 mod rust_main_tests {
     #[allow(unused)]
@@ -361,5 +389,51 @@ mod rust_main_tests {
         let expected = String::from("val: 42, msg: Tuple is on stack.");
         assert_eq!(result, expected);
     }
+
+    #[test]
+    fn test_creating_a_vector() {
+        let vector = vector_create_with_capacity(None); 
+        let expected = Vec::new();
+        assert_eq!(vector, expected);
+    }
+
+    #[test]
+    fn test_modifying_a_vector() {
+        let mut vector = vector_create_with_capacity(None);
+        let _ = vector_modify(&mut vector, 1);
+        let _ = vector_modify(&mut vector, 2);
+        let _ = vector_modify(&mut vector, 3);
+        let expected = vec![1, 2, 3];
+        assert_eq!(vector, expected);
+    }
+
+    #[test]
+    fn test_reading_a_vector_value() {
+        let mut vector = vector_create_with_capacity(None);
+        let _ = vector_modify(&mut vector, 1);
+        let _ = vector_modify(&mut vector, 2);
+        let _ = vector_modify(&mut vector, 3);
+        let read = &vector[2];  // reference is optional, but no need to copy
+        let expected: u32 = 3;
+        assert_eq!(*read, expected);
+    }
+
+    #[test]
+    fn test_reading_a_vector_with_no_value() {
+       let mut vector = vector_create_with_capacity(Some(10)); 
+       let _ = vector_modify(&mut vector, 1);
+       let read = vector.get(2);
+       let expected: Option<&u32> = None;
+       assert_eq!(read, expected);
+    }
+
+    #[test]
+    fn test_string_collection_iteration() {
+        let mut string = String::from("cat");
+        let result = string_collection_vert_transform(&mut string);
+        let expected = String::from("c\na\nt\n");
+        assert_eq!(result, expected);
+    }
+
 
 }
