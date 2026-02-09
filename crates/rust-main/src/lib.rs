@@ -328,8 +328,18 @@ pub fn write_only_control_flow(data: &mut Data, input: (DataAction, String)) -> 
 
 /* 13) Collections from standard library */
 
-pub fn tuple_create() -> (u32, String) {
-    (42, String::from("Tuple is on stack."))
+#[derive(Debug)]
+pub enum Command {
+    None,
+    Alter,
+}
+
+pub fn tuple_create(num: u32, msg: String, _cmd: Option<Command>) -> (u32, String) {
+    (num, msg)
+}
+
+pub fn tuple_read(item: &(u32, String)) -> String {
+    format!("val: {}, msg: {}", item.0, item.1)
 }
 
 #[cfg(test)]
@@ -339,9 +349,17 @@ mod rust_main_tests {
 
     #[test]
     fn test_stack_tuple_create() {
-        let tuple = tuple_create(); 
+        let tuple = tuple_create(42, String::from("Tuple is on stack."), None); 
         let expected = (42, String::from("Tuple is on stack."));
         assert_eq!(tuple, expected);
+    }
+
+    #[test]
+    fn test_stack_tuple_read() {
+        let tuple = tuple_create(42, String::from("Tuple is on stack."), None); 
+        let result = tuple_read(&tuple);
+        let expected = String::from("val: 42, msg: Tuple is on stack.");
+        assert_eq!(result, expected);
     }
 
 }

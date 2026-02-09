@@ -99,7 +99,7 @@ fn main() -> Result<(), Error> {
     println!("Another slice: {:?}\n", another_slice);
 
     println!("16. Better control flow with \"it let\"");
-    let mut data = Data::new();;
+    let mut data = Data::new();
     let input = (DataAction::Write, Some("Adding this block."));
     println!("Writing data with exhaustive match pattern.");
     let result = verbose_control_flow(&mut data, input);
