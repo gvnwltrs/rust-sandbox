@@ -325,3 +325,23 @@ pub fn write_only_control_flow(data: &mut Data, input: (DataAction, String)) -> 
         None
     }  
 }
+
+/* 13) Collections from standard library */
+
+pub fn tuple_create() -> (u32, String) {
+    (42, String::from("Tuple is on stack."))
+}
+
+#[cfg(test)]
+mod rust_main_tests {
+    #[allow(unused)]
+    use super::*;
+
+    #[test]
+    fn test_stack_tuple_create() {
+        let tuple = tuple_create(); 
+        let expected = (42, String::from("Tuple is on stack."));
+        assert_eq!(tuple, expected);
+    }
+
+}
