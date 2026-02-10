@@ -354,13 +354,13 @@ pub fn vector_create_with_capacity(cap: Option<usize>) -> Vec<u32> {
    }
 }
 
-pub fn vector_modify(v:&mut Vec<u32>, val: u32) -> Result<(), Error> {
+pub fn vector_modify(v:&mut Vec<u32>, val: u32) -> Result<u32, Error> {
     if v.capacity() > 0 && v.len() == v.capacity() {
         return Err(ErrorKind::OutOfMemory.into()); 
     }
 
     v.push(val); 
-    Ok(())
+    Ok(val)
 }
 
 pub fn string_collection_vert_transform(string: &mut String) -> &str {

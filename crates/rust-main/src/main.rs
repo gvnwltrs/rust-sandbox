@@ -114,7 +114,9 @@ fn main() -> Result<(), Error> {
     println!("Result: {:#?}\n", result);
 
     println!("17. Handling collections\n");
+    println!("Creating a vector.");
     let mut vector = vector_create_with_capacity(Some(1));
+    println!("Now modifying.");
     let result = vector_modify(&mut vector, 1);
     // result = vector_modify(&mut vector, 1);
     println!("Result: {:#?}\n", result);
