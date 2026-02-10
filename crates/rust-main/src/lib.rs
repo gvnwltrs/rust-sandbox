@@ -14,6 +14,9 @@ use std::result::Result;
 #[allow(unused)]
 use chrono::{Local, Utc};
 
+#[allow(unused)]
+use std::collections::HashMap;
+
 #[derive(Debug)]
 #[allow(unused)]
 pub struct Assignments {
@@ -360,7 +363,7 @@ pub fn vector_modify(v:&mut Vec<u32>, val: u32) -> Result<(), Error> {
     Ok(())
 }
 
-pub fn string_collection_vert_transform(string: &mut String) -> & str {
+pub fn string_collection_vert_transform(string: &mut String) -> &str {
     let mut out = String::new();
     for c in string.chars() {
         out.push(c);
@@ -369,6 +372,15 @@ pub fn string_collection_vert_transform(string: &mut String) -> & str {
     *string = out;
     string
 } 
+
+pub fn hashmap_create() -> HashMap<String, i32> {
+    let mut _hashmap = HashMap::new();
+    _hashmap
+}
+
+pub fn hashmap_modify(map: &mut HashMap<String, i32>, entry: (String, i32)) {
+    map.insert(entry.0, entry.1);
+}
 
 #[cfg(test)]
 mod rust_main_tests {
@@ -433,6 +445,23 @@ mod rust_main_tests {
         let result = string_collection_vert_transform(&mut string);
         let expected = String::from("c\na\nt\n");
         assert_eq!(result, expected);
+    }
+
+    #[test]
+    fn test_hashmap_create() {
+        let hashmap = hashmap_create();
+        let expected = HashMap::new();
+        assert_eq!(hashmap, expected); 
+    }
+
+    #[test]
+    fn test_hashmap_modify() {
+        let mut hashmap = hashmap_create();
+        let entry = (String::from("new entry"), 42);
+        let _ = hashmap_modify(&mut hashmap, entry);
+        let found = hashmap.get("new entry"); 
+        let expected: Option<&i32> = Some(&42); 
+        assert_eq!(found, expected);
     }
 
 
