@@ -12,8 +12,26 @@ use std::io::Error;
 use rust_devices::*;
 
 fn main() -> Result<(), Error> {
-    let device = new_device();
-    println!("Device created: {:#?}", device);
+    let state_msg = format!("Current state: "); 
+    let mut hardware = FakeHardware;
+    let mut device = new_device();
+    println!("Device created: {:#?}\n", device);
+
+    println!("Device transitioning to power on.");
+    let _step = step(&mut device, &mut hardware, Some(Command::PowerOn));
+    match _step { 
+        Ok(result) => println!("Power on result: {:#?}", result),
+        Err(e) => println!("Error: {:#?}", e)
+    }
+    println!("{} {:#?}\n", state_msg, device);
+
+    println!("Device transitioning to idle.");
+    let _step = step(&mut device, &mut hardware, None);
+    match _step {
+        Ok(result) => println!("To idle result: {:#?}", result),
+        Err(e) => println!("Error: {:#?}", e)
+    }
+    println!("{} {:#?}\n", state_msg, device);
 
     Ok(())
 }

@@ -174,9 +174,4 @@ mod rust_device_tests {
 
     }
 
-    #[test]
-    fn test_stub() {
-        assert!(false);
-    }
-
 }
