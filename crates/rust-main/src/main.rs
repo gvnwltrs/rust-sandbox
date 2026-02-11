@@ -8,6 +8,9 @@ use rust_main::*;
 
 
 fn main() -> Result<(), Error> {
+    // Message helpers
+    let mut _result = format!("Result: ");
+
     // Start
     println!("Rust Main Starting...\n");
     println!("Running through Rust the Programming Language concepts.\n");
@@ -114,6 +117,7 @@ fn main() -> Result<(), Error> {
     println!("Result: {:#?}\n", result);
 
     println!("17. Handling collections\n");
+
     println!("Creating a vector.");
     let mut vector = vector_create_with_capacity(Some(1));
     println!("Now modifying.");
@@ -123,10 +127,33 @@ fn main() -> Result<(), Error> {
     println!("Trying to read something with no value.");
     let result = vector.get(3); 
     println!("Result: {:#?}", result);
+
     let mut string = String::from("cat");
     println!("Transforming a String (char array): {}", string);
     let result = string_collection_vert_transform(&mut string);
     println!("Result: \n{}\n", result);
+
+    println!("Creating and handling hash maps.\n");
+    println!("Creating a new hash map.");
+    let mut hashmap = give_hashmap();
+    println!("Result: {:#?}\n", hashmap);
+    println!("Mutating hashmap.");
+    let entry = (String::from("Key1"), 42);
+    mutate_hashmap(&mut hashmap, entry);
+    println!("Result: {:#?}\n", hashmap);
+    println!("Overwriting existing hash map entry.");
+    let entry = (String::from("Key1"), 99);
+    mutate_hashmap(&mut hashmap, entry);
+    println!("Result: {:#?}\n", hashmap);
+    println!("Adding new hash map pair (grows like a stack).");
+    let entry = (String::from("Key2"), 42);
+    mutate_hashmap(&mut hashmap, entry);
+    println!("{} {:#?}\n", _result, hashmap);
+    println!("Trying to update an existing key-value.");
+    let entry = (String::from("Key2"), 99);
+    try_mutate_hashmap(&mut hashmap, entry);
+    println!("{} {:#?}\n", _result, hashmap);
+
 
     Ok(())
 }
@@ -135,3 +162,7 @@ fn main() -> Result<(), Error> {
 pub type EmptyString<'a> = &'a str;
 #[allow(unused)]
 const EMPTY_STR: EmptyString = "";
+
+pub type PrettyFormat<'a> = &'a str;
+#[allow(unused)]
+const FMT: PrettyFormat = "{:#?}"; 

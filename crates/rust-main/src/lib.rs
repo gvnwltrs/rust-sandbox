@@ -15,7 +15,7 @@ use std::result::Result;
 use chrono::{Local, Utc};
 
 #[allow(unused)]
-use std::collections::HashMap;
+use std::collections::{hash_map::Entry, HashMap};
 
 #[derive(Debug)]
 #[allow(unused)]
@@ -373,13 +373,21 @@ pub fn string_collection_vert_transform(string: &mut String) -> &str {
     string
 } 
 
-pub fn hashmap_create() -> HashMap<String, i32> {
+pub fn give_hashmap() -> HashMap<String, i32> {
     let mut _hashmap = HashMap::new();
     _hashmap
 }
 
-pub fn hashmap_modify(map: &mut HashMap<String, i32>, entry: (String, i32)) {
+pub fn mutate_hashmap(map: &mut HashMap<String, i32>, entry: (String, i32)) {
     map.insert(entry.0, entry.1);
+}
+
+pub fn try_mutate_hashmap(map: &mut HashMap<String, i32>, entry: (String, i32)) -> Option<&mut i32> {
+    match map.entry(entry.0) {
+        Entry::Occupied(occupied) => { Some(occupied.into_mut()) }
+        Entry::Vacant(vacant) => { vacant.insert(entry.1); None } 
+    }
+    // Some(map.entry(entry.0).or_insert(entry.1))
 }
 
 #[cfg(test)]
@@ -390,23 +398,20 @@ mod rust_main_tests {
     #[test]
     fn test_stack_tuple_create() {
         let tuple = tuple_create(42, String::from("Tuple is on stack."), None); 
-        let expected = (42, String::from("Tuple is on stack."));
-        assert_eq!(tuple, expected);
+        assert!(tuple == (42, String::from("Tuple is on stack.")));
     }
 
     #[test]
     fn test_stack_tuple_read() {
         let tuple = tuple_create(42, String::from("Tuple is on stack."), None); 
         let result = tuple_read(&tuple);
-        let expected = String::from("val: 42, msg: Tuple is on stack.");
-        assert_eq!(result, expected);
+        assert!(result == String::from("val: 42, msg: Tuple is on stack."));
     }
 
     #[test]
     fn test_creating_a_vector() {
         let vector = vector_create_with_capacity(None); 
-        let expected = Vec::new();
-        assert_eq!(vector, expected);
+        assert!(vector == Vec::new());
     }
 
     #[test]
@@ -415,8 +420,7 @@ mod rust_main_tests {
         let _ = vector_modify(&mut vector, 1);
         let _ = vector_modify(&mut vector, 2);
         let _ = vector_modify(&mut vector, 3);
-        let expected = vec![1, 2, 3];
-        assert_eq!(vector, expected);
+        assert!(vector == vec![1, 2, 3]);
     }
 
     #[test]
@@ -426,8 +430,7 @@ mod rust_main_tests {
         let _ = vector_modify(&mut vector, 2);
         let _ = vector_modify(&mut vector, 3);
         let read = &vector[2];  // reference is optional, but no need to copy
-        let expected: u32 = 3;
-        assert_eq!(*read, expected);
+        assert!(*read == 3);
     }
 
     #[test]
@@ -435,34 +438,41 @@ mod rust_main_tests {
        let mut vector = vector_create_with_capacity(Some(10)); 
        let _ = vector_modify(&mut vector, 1);
        let read = vector.get(2);
-       let expected: Option<&u32> = None;
-       assert_eq!(read, expected);
+       assert!(read.is_none());
     }
 
     #[test]
     fn test_string_collection_iteration() {
         let mut string = String::from("cat");
         let result = string_collection_vert_transform(&mut string);
-        let expected = String::from("c\na\nt\n");
-        assert_eq!(result, expected);
+        assert!(result == String::from("c\na\nt\n"));
     }
 
     #[test]
-    fn test_hashmap_create() {
-        let hashmap = hashmap_create();
-        let expected = HashMap::new();
-        assert_eq!(hashmap, expected); 
+    fn test_give_hashmap() {
+        let hashmap = give_hashmap();
+        assert!(hashmap == HashMap::new());
     }
 
     #[test]
-    fn test_hashmap_modify() {
-        let mut hashmap = hashmap_create();
+    fn test_mutate_hashmap() {
+        let mut hashmap = give_hashmap();
         let entry = (String::from("new entry"), 42);
-        let _ = hashmap_modify(&mut hashmap, entry);
+        let _ = mutate_hashmap(&mut hashmap, entry);
         let found = hashmap.get("new entry"); 
-        let expected: Option<&i32> = Some(&42); 
-        assert_eq!(found, expected);
+        assert!(found == Some(&42));
     }
 
+    #[test]
+    fn test_try_mutate_hashmap() {
+        let mut hashmap = give_hashmap();
+        let entry = (String::from("new entry"), 42);
+        let result = try_mutate_hashmap(&mut hashmap, entry); // "takes" entry (goes out of existence)
+        assert!(result.is_none());
+
+        let entry = (String::from("new entry"), 99); // alread has a value so does nothing
+        let result = try_mutate_hashmap(&mut hashmap, entry);
+        assert!(result.is_some());
+    }
 
 }
