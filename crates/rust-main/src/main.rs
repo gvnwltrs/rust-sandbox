@@ -16,59 +16,60 @@ fn main() -> Result<(), Error> {
     println!("Running through Rust the Programming Language concepts.\n");
 
     println!("1. Updating a variable");
-    updating_a_variable(); 
+    let mut input = 1;
+    mutate_variable(&mut input); 
+    println!("let x = {};", input);
+    println!("We can update x by shadowing with: let x = 2;");
+    println!("But we cannot change x otherwise since it is immutable with: let x =");
+    println!("We could rewrite x however, by letting it be mutable: let mut x = 0;");
+    println!("Now we can update x: x = 1;");
+    println!("\n");
 
     println!("2. Setting a constant");
-    set_a_constant();
+    give_a_constant();
 
     println!("3. Shadowing variables");
-    performing_shadowing();
+    give_shadowing_update();
 
     println!("4. Writing to a buffer to format a string");
     let mut buf = String::new(); 
-    let _ = write_fmt_to_buf(1, &mut buf);
+    let _ = mutate_buf_with_fmt(1, &mut buf);
     println!("Result: {:?}\n\n", buf);
 
     println!("5. Using expressions");
-    add_expressions(2, 2);
+    calc_add(2, 2);
 
     println!("6. Using conditional expressions");
-    conditional_expression(3, 4);
+    calc_conditional_expression(3, 4);
     println!("\n");
 
     println!("6. Using statements");
     println!("\n");
 
     println!("7. Using multiple conditionals");
-    wrap_around_conditional(10);
+    calc_wrap_around_conditional(10);
     println!("\n");
 
     println!("8. Using if let");
-    println!("Result: {:?}\n", if_let(1));
+    println!("Result: {:?}\n", calc_if_let(1));
 
     println!("9. Using conditional loop");
-    println!("Result: {:?}\n", conditional_loop(5));
+    println!("Result: {:?}\n", calc_conditional_loop_count(5));
 
-    println!("10. Where do literal strings go?");
-    let heap_string = String::from("heap_string");
-    println!("Result: {:?}, Input: {:?}", where_does_this_string_live(&heap_string), heap_string);
-    let stack_string = "";
-    println!("Result: {:?}, Input: {:?}", where_does_this_string_live(stack_string), stack_string);
-    let literal_str = "literal_str";
-    println!("Result: {:?}, Input: {:?}\n", where_does_this_string_live(literal_str), literal_str);
+    println!("10. Where do literal strings go (TBD)?\n");
 
     println!("11. Examples of ownership in functions");
     let mut s = String::from("this string");
     println!("We create a String: {:?}", s);
     let moved_s = std::mem::take(&mut s);
     println!("Now we pass the string to function not as a reference or borrow.");
-    takes_ownership(moved_s);
+    take_string_ownership(moved_s);
     println!("Result: {:?}\n", s);
 
     let mut x = 5;
     println!("x is: {:?}", x);
     println!("Now we copy x to y.");
-    let mut y = makes_copy(x);
+    let mut y = take_copy(x);
     println!("y is: {:?}", y);
     x = 10; 
     println!("We modify x: {:?}", x); 
@@ -78,7 +79,7 @@ fn main() -> Result<(), Error> {
     println!("Now we have x:{:?}, y:{:?}\n", x,y);
 
     println!("12. Giving ownership from a function");
-    let give_me = gives_ownership();
+    let give_me = give_ownership();
     println!("We call 'gives_ownership' and it gives us a string: {:?}\n", give_me);
 
     println!("13. Mutable references"); 
@@ -96,7 +97,7 @@ fn main() -> Result<(), Error> {
     println!("15. String slices");
     let my_words = String::from("This is it");
     println!("Original string: {:?}", my_words);
-    let slice = first_word_slice(&my_words);
+    let slice = give_first_word_slice(&my_words);
     println!("Slice: {:?}\n", slice);
     let another_slice = &my_words[0..7];
     println!("Another slice: {:?}\n", another_slice);
@@ -105,23 +106,23 @@ fn main() -> Result<(), Error> {
     let mut data = Data::new();
     let input = (DataAction::Write, Some("Adding this block."));
     println!("Writing data with exhaustive match pattern.");
-    let result = verbose_control_flow(&mut data, input);
+    let result = take_verbose_control_flow_string(&mut data, input);
     println!("Result: {:#?}", result);
     println!("Now writing data with concise \"if let\".");
     let input = (DataAction::Write, String::from("Adding this block."));
-    let result = write_only_control_flow(&mut data, input);
+    let result = mutate_only_control_flow(&mut data, input);
     println!("Result: {:#?}\"", result);
     println!("Reading data.");
     let input = (DataAction::Read, None);
-    let result = verbose_control_flow(&mut data, input);
+    let result = take_verbose_control_flow_string(&mut data, input);
     println!("Result: {:#?}\n", result);
 
     println!("17. Handling collections\n");
 
     println!("Creating a vector.");
-    let mut vector = vector_create_with_capacity(Some(1));
+    let mut vector = give_vector_with_capacity(Some(1));
     println!("Now modifying.");
-    let result = vector_modify(&mut vector, 1);
+    let result = mutate_vector(&mut vector, 1);
     // result = vector_modify(&mut vector, 1);
     println!("Result: {:#?}\n", result);
     println!("Trying to read something with no value.");
@@ -130,7 +131,7 @@ fn main() -> Result<(), Error> {
 
     let mut string = String::from("cat");
     println!("Transforming a String (char array): {}", string);
-    let result = string_collection_vert_transform(&mut string);
+    let result = mutate_string_collection_to_vertical(&mut string);
     println!("Result: \n{}\n", result);
 
     println!("Creating and handling hash maps.\n");

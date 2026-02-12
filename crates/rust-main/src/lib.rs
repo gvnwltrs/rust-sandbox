@@ -17,7 +17,7 @@ use chrono::{Local, Utc};
 #[allow(unused)]
 use std::collections::{hash_map::Entry, HashMap};
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 #[allow(unused)]
 pub struct Assignments {
     x: Option<char>,
@@ -53,7 +53,7 @@ impl Assignments {
 // Why? Shadowing allows you to change the type that a var name 
 // holds, but still allowing for a reuse of the name without having
 // to do somethign like a typecast. Think healthier alternative to typecasting. 
-pub fn shadowing() -> Assignments {
+pub fn give_shadowed_assignments() -> Assignments {
     let _val = "?";
     let _val = 2.0;
     let _val = 3;
@@ -62,7 +62,7 @@ pub fn shadowing() -> Assignments {
     a
 } 
 
-pub fn borrow_checker() {
+pub fn mutate_borrow_checker() {
     let mut x = Box::new(42); // heap allocated; think of Box == smart_pointer
     let r = &x; // 'a -- we know that x lives outside of this slot
 
@@ -74,26 +74,20 @@ pub fn borrow_checker() {
 }
 
 // Trying write formats
-pub fn write_fmt_to_buf<W: Write>(_in: i32, out: &mut W) -> core::fmt::Result {
+pub fn mutate_buf_with_fmt<W: Write>(_in: i32, out: &mut W) -> core::fmt::Result {
     // unimplemented!();
     write!(out, "value={}...", _in)
 }
 
-pub fn updating_a_variable() {
-    println!("let x = 1;");
-    let _x = 1;
-    println!("We can update x by shadowing with: let x = 2;");
-    let _x = 2;
-    println!("But we cannot change x otherwise since it is immutable with: let x =");
-    println!("We could rewrite x however, by letting it be mutable: let mut x = 0;");
-    let mut _x = 0;
-    println!("Now we can update x: x = 1;");
-    _x = 1;
-    let _ = _x;
-    println!("\n");
+pub fn mutate_variable(input: &mut i32) -> &mut i32 {
+    *input = 1;
+    *input = 2;
+    *input = 0;
+    *input = 1;
+    input 
 }
 
-pub fn set_a_constant() {
+pub fn give_a_constant() {
     println!("We can set a constant by: const X: u32 = 0;");
     const _X: u32 = 0;
     println!("
@@ -104,7 +98,7 @@ pub fn set_a_constant() {
     println!("\n");
 }
 
-pub fn performing_shadowing() {
+pub fn give_shadowing_update() {
     println!("We can perform shadowing by simply re-assigning a previously used variable alias:
         let x = 0;
         let x = 1;\n"
@@ -126,7 +120,7 @@ pub fn performing_shadowing() {
 /* 3) Functions */
 
 // Math expressions
-pub fn add_expressions(a: i32, b: i32) -> i32 {
+pub fn calc_add(a: i32, b: i32) -> i32 {
     println!("We can do an expression by: let out = {{ a + b }};");
     let _out = { a + b }; // is it preferrable to use braces to signal what is an expression?
     println!("Or we can do it shorthand by: let out = a + b;");
@@ -145,7 +139,7 @@ pub fn add_expressions(a: i32, b: i32) -> i32 {
 /* 5) Control flow */
 
 // Conditional expressions
-pub fn conditional_expression(a: i32, b: i32) -> bool {
+pub fn calc_conditional_expression(a: i32, b: i32) -> bool {
     println!("
         We can do common conditional expressions using if, else if, and else:
             if a == b {{
@@ -170,7 +164,7 @@ pub fn conditional_expression(a: i32, b: i32) -> bool {
 
 /* 6) Loops */
 
-pub fn wrap_around_conditional(start: i32) -> bool {
+pub fn calc_wrap_around_conditional(start: i32) -> bool {
     println!("Handling multiple conditionals with if-else.");
     if start < 3 { println!("Come on...{:#?}", start); return false};
     let mut count = 1;
@@ -195,12 +189,12 @@ pub fn wrap_around_conditional(start: i32) -> bool {
     true
 }
 
-pub fn if_let(num: i32) -> bool {
+pub fn calc_if_let(num: i32) -> bool {
     let _case = if num == 1 {true} else{false};
     _case
 }
 
-pub fn conditional_loop(num: i32) -> i32 {
+pub fn calc_conditional_loop_count(num: i32) -> i32 {
     println!("REMEMBER: While loops are great counters or countdowns. Not for collections though...");
     println!("Also, even for countdowns or counters, a for loop might be a better option since it sets clear boundaries...");
     let mut counter = num;
@@ -213,49 +207,50 @@ pub fn conditional_loop(num: i32) -> i32 {
 
 /* 7) Ownership */ 
 
-pub fn where_does_this_string_live(string: &str) -> &'static str {
-    let mut _string = string;
-    let mut buffer = [0u8; 32];
-    if _string == "" {
-        let text = "stack-text";
-        let len = text.len();
-        buffer[..len].copy_from_slice(text.as_bytes());
-        _string = std::str::from_utf8(&buffer[..len]).unwrap();
-    };
+// FIXME: Broken...
+// pub fn give_string_mem_location(string: &str) -> &'static str {
+//     let mut _string = string;
+//     let mut buffer = [0u8; 32];
+//     if _string == "" {
+//         let text = "stack-text";
+//         let len = text.len();
+//         buffer[..len].copy_from_slice(text.as_bytes());
+//         _string = std::str::from_utf8(&buffer[..len]).unwrap();
+//     };
 
-    let stack_val = 0;
-    let stack_addr = &stack_val as *const _ as usize;
-    let heap_addr = Box::into_raw(Box::new(0)) as usize;
-    let literal_addr = _string.as_ptr() as usize;
-    let f_addr = where_does_this_string_live as *const () as usize;
+//     let stack_val = 0;
+//     let stack_addr = &stack_val as *const _ as usize;
+//     let heap_addr = Box::into_raw(Box::new(0)) as usize;
+//     let literal_addr = _string.as_ptr() as usize;
+//     let f_addr = where_does_this_string_live as *const () as usize;
 
-    let dist_to_f = (literal_addr as isize - f_addr as isize).abs();
-    let dist_to_stack = (literal_addr as isize - stack_addr as isize).abs();
-    let dist_to_heap = (literal_addr as  isize - heap_addr as isize).abs();
+//     let dist_to_f = (literal_addr as isize - f_addr as isize).abs();
+//     let dist_to_stack = (literal_addr as isize - stack_addr as isize).abs();
+//     let dist_to_heap = (literal_addr as  isize - heap_addr as isize).abs();
 
-    if  dist_to_stack < dist_to_f && dist_to_stack < dist_to_heap {
-       "stack"
-    } else if dist_to_f < dist_to_heap {
-        ".rodata (near fn)"
-    } else {
-        "heap"
-    }
-}
+//     if  dist_to_stack < dist_to_f && dist_to_stack < dist_to_heap {
+//        "stack"
+//     } else if dist_to_f < dist_to_heap {
+//         ".rodata (near fn)"
+//     } else {
+//         "heap"
+//     }
+// }
 
 /*  8) Ownership & functions  */
 
-pub fn takes_ownership(s: String) {
+pub fn take_string_ownership(s: String) {
     let _s = s;
 }
 
-pub fn makes_copy(val: i32) -> i32 {
+pub fn take_copy(val: i32) -> i32 {
     let _val = val;
     _val
 }
 
 /* 9) Borrowing & references */
 
-pub fn gives_ownership() -> String {
+pub fn give_ownership() -> String {
     String::from("Here, have a string. You own it!")
 }
 
@@ -268,7 +263,7 @@ pub fn mutate_reference(s: &mut String) {
 /* 11) Dangling references */
 
 // Slice types 
-pub fn first_word_slice(s: &str) -> &str {
+pub fn give_first_word_slice(s: &str) -> &str {
     let bytes = s.as_bytes();
 
     for (i, &item) in bytes.iter().enumerate() {
@@ -302,7 +297,7 @@ pub enum DataAction {
     None,
 }
 
-pub fn verbose_control_flow(
+pub fn take_verbose_control_flow_string(
     data: & mut Data, 
     input: (DataAction, Option<&str>)) -> Option<String> {
     match input {
@@ -322,7 +317,7 @@ pub fn verbose_control_flow(
 }
 
 // Only write
-pub fn write_only_control_flow(data: &mut Data, input: (DataAction, String)) -> Option<String> {
+pub fn mutate_only_control_flow(data: &mut Data, input: (DataAction, String)) -> Option<String> {
     if let DataAction::Write = input.0 {
         data.text_blocks.push(input.1);
         Some(String::from("Wrote text block."))
@@ -339,22 +334,22 @@ pub enum Command {
     Alter,
 }
 
-pub fn tuple_create(num: u32, msg: String, _cmd: Option<Command>) -> (u32, String) {
+pub fn take_tuple(num: u32, msg: String, _cmd: Option<Command>) -> (u32, String) {
     (num, msg)
 }
 
-pub fn tuple_read(item: &(u32, String)) -> String {
+pub fn take_tuple_val(item: &(u32, String)) -> String {
     format!("val: {}, msg: {}", item.0, item.1)
 }
 
-pub fn vector_create_with_capacity(cap: Option<usize>) -> Vec<u32> {
+pub fn give_vector_with_capacity(cap: Option<usize>) -> Vec<u32> {
    match cap {
     Some(x) => Vec::with_capacity(x),
     None => Vec::new()
    }
 }
 
-pub fn vector_modify(v:&mut Vec<u32>, val: u32) -> Result<u32, Error> {
+pub fn mutate_vector(v:&mut Vec<u32>, val: u32) -> Result<u32, Error> {
     if v.capacity() > 0 && v.len() == v.capacity() {
         return Err(ErrorKind::OutOfMemory.into()); 
     }
@@ -363,7 +358,7 @@ pub fn vector_modify(v:&mut Vec<u32>, val: u32) -> Result<u32, Error> {
     Ok(val)
 }
 
-pub fn string_collection_vert_transform(string: &mut String) -> &str {
+pub fn mutate_string_collection_to_vertical(string: &mut String) -> &str {
     let mut out = String::new();
     for c in string.chars() {
         out.push(c);
@@ -404,50 +399,58 @@ mod rust_main_tests {
     #[allow(unused)]
     use super::*;
 
+    // Basics 
+
+   #[test]
+   fn test_give_shadowed_assignments() {
+    let s_struct = give_shadowed_assignments();
+    assert!(s_struct == Assignments { x:Some('a') , y: None, value: Some(3) });
+   } 
+
     // Collections
 
     #[test]
-    fn test_stack_tuple_create() {
-        let tuple = tuple_create(42, String::from("Tuple is on stack."), None); 
+    fn test_take_tuple() {
+        let tuple = take_tuple(42, String::from("Tuple is on stack."), None); 
         assert!(tuple == (42, String::from("Tuple is on stack.")));
     }
 
     #[test]
-    fn test_stack_tuple_read() {
-        let tuple = tuple_create(42, String::from("Tuple is on stack."), None); 
-        let result = tuple_read(&tuple);
+    fn test_stack_take_tuple_val() {
+        let tuple = take_tuple(42, String::from("Tuple is on stack."), None); 
+        let result = take_tuple_val(&tuple);
         assert!(result == String::from("val: 42, msg: Tuple is on stack."));
     }
 
     #[test]
-    fn test_creating_a_vector() {
-        let vector = vector_create_with_capacity(None); 
+    fn test_give_vector() {
+        let vector = give_vector_with_capacity(None); 
         assert!(vector == Vec::new());
     }
 
     #[test]
     fn test_modifying_a_vector() {
-        let mut vector = vector_create_with_capacity(None);
-        let _ = vector_modify(&mut vector, 1);
-        let _ = vector_modify(&mut vector, 2);
-        let _ = vector_modify(&mut vector, 3);
+        let mut vector = give_vector_with_capacity(None);
+        let _ = mutate_vector(&mut vector, 1);
+        let _ = mutate_vector(&mut vector, 2);
+        let _ = mutate_vector(&mut vector, 3);
         assert!(vector == vec![1, 2, 3]);
     }
 
     #[test]
     fn test_reading_a_vector_value() {
-        let mut vector = vector_create_with_capacity(None);
-        let _ = vector_modify(&mut vector, 1);
-        let _ = vector_modify(&mut vector, 2);
-        let _ = vector_modify(&mut vector, 3);
+        let mut vector = give_vector_with_capacity(None);
+        let _ = mutate_vector(&mut vector, 1);
+        let _ = mutate_vector(&mut vector, 2);
+        let _ = mutate_vector(&mut vector, 3);
         let read = &vector[2];  // reference is optional, but no need to copy
         assert!(*read == 3);
     }
 
     #[test]
     fn test_reading_a_vector_with_no_value() {
-       let mut vector = vector_create_with_capacity(Some(10)); 
-       let _ = vector_modify(&mut vector, 1);
+       let mut vector = give_vector_with_capacity(Some(10)); 
+       let _ = mutate_vector(&mut vector, 1);
        let read = vector.get(2);
        assert!(read.is_none());
     }
@@ -455,7 +458,7 @@ mod rust_main_tests {
     #[test]
     fn test_string_collection_iteration() {
         let mut string = String::from("cat");
-        let result = string_collection_vert_transform(&mut string);
+        let result = mutate_string_collection_to_vertical(&mut string);
         assert!(result == String::from("c\na\nt\n"));
     }
 
