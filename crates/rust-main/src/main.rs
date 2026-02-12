@@ -27,9 +27,25 @@ fn main() -> Result<(), Error> {
 
     println!("2. Setting a constant");
     give_a_constant();
+    println!("We can set a constant by: const X: u32 = 0;");
+    println!("
+        But this is different than variables because we 
+        MUST use a type annotation such as: const X: u32"
+    );
+    println!("\n");
 
     println!("3. Shadowing variables");
     give_shadowing_update();
+    println!("We can perform shadowing by simply re-assigning a previously used variable alias:
+        let x = 0;
+        let x = 1;\n"
+    );
+    println!("In the previous case, it was a little pointless since we are using the same type.");
+    println!("To gain the real value from shadowing, we can use it as an alternative to typecasting:
+        let x = \"change to a string\";\n"
+    );
+    println!("Now x has gone from an integer to a string type (&str more precisely)\n");
+    println!("\n");
 
     println!("4. Writing to a buffer to format a string");
     let mut buf = String::new(); 
@@ -38,9 +54,30 @@ fn main() -> Result<(), Error> {
 
     println!("5. Using expressions");
     calc_add(2, 2);
+    println!("We can do an expression by: let out = {{ a + b }};");
+    println!("Or we can do it shorthand by: let out = a + b;");
+    println!("
+        In most cases, whatever you decide to use is a matter of preferrence
+        But it seems like the braces way indicates an expression more explicitly...
+        "
+    );
+    println!("\n");
 
     println!("6. Using conditional expressions");
     calc_conditional_expression(3, 4);
+    println!("
+        We can do common conditional expressions using if, else if, and else:
+            if a == b {{
+                println!(\"a is equal to b\");
+            }} else if a < b {{
+                    println!(\"a is less than b\");
+            }} else {{
+                println!(\"a is not greater than b\");
+            }}"
+    );
+    println!("a is equal to b");
+    println!("a is less than b");
+    println!("a is not greater than b");
     println!("\n");
 
     println!("6. Using statements");
@@ -48,6 +85,7 @@ fn main() -> Result<(), Error> {
 
     println!("7. Using multiple conditionals");
     calc_wrap_around_conditional(10);
+    println!("Handling multiple conditionals with if-else.");
     println!("\n");
 
     println!("8. Using if let");
@@ -55,6 +93,8 @@ fn main() -> Result<(), Error> {
 
     println!("9. Using conditional loop");
     println!("Result: {:?}\n", calc_conditional_loop_count(5));
+    println!("REMEMBER: While loops are great counters or countdowns. Not for collections though...");
+    println!("Also, even for countdowns or counters, a for loop might be a better option since it sets clear boundaries...");
 
     println!("10. Where do literal strings go (TBD)?\n");
 

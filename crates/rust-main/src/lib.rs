@@ -40,14 +40,6 @@ impl Assignments {
     }
 }
 
-/* 0) Three core discplines of Rust and in programming generally */
-
-// 1. Ownership
-
-// 2. Borrowing
-
-// 3. Lifetimes
-
 /* 1) Variables and mutability */
 
 // Why? Shadowing allows you to change the type that a var name 
@@ -62,14 +54,13 @@ pub fn give_shadowed_assignments() -> Assignments {
     a
 } 
 
-pub fn mutate_borrow_checker() {
+pub fn mutate_borrow_checker() -> Result<Box<i32>, Error> {
     let mut x = Box::new(42); // heap allocated; think of Box == smart_pointer
     let r = &x; // 'a -- we know that x lives outside of this slot
-
-    if rand::rng().random::<f64>() > 0.5 {
-        *x = 84;
-    } else {
-        println!("{}", r); // 'a
+    *x = 84;
+    match rand::rng().random::<f64>() > 0.5 {
+        true => Ok(x), 
+        false => Err(Error::other("Operation failed through 3rd party dep."))
     }
 }
 
@@ -88,30 +79,12 @@ pub fn mutate_variable(input: &mut i32) -> &mut i32 {
 }
 
 pub fn give_a_constant() {
-    println!("We can set a constant by: const X: u32 = 0;");
     const _X: u32 = 0;
-    println!("
-        But this is different than variables because we 
-        MUST use a type annotation such as: const X: u32"
-    );
-
-    println!("\n");
 }
 
 pub fn give_shadowing_update() {
-    println!("We can perform shadowing by simply re-assigning a previously used variable alias:
-        let x = 0;
-        let x = 1;\n"
-    );
     let _x = 0;
     let _x = 1;
-    println!("In the previous case, it was a little pointless since we are using the same type.");
-    println!("To gain the real value from shadowing, we can use it as an alternative to typecasting:
-        let x = \"change to a string\";\n"
-    );
-    println!("Now x has gone from an integer to a string type (&str more precisely)\n");
-
-    println!("\n");
 }
 
 /* 2) Data types */
@@ -121,16 +94,8 @@ pub fn give_shadowing_update() {
 
 // Math expressions
 pub fn calc_add(a: i32, b: i32) -> i32 {
-    println!("We can do an expression by: let out = {{ a + b }};");
     let _out = { a + b }; // is it preferrable to use braces to signal what is an expression?
-    println!("Or we can do it shorthand by: let out = a + b;");
     let out = a + b;
-    println!("
-        In most cases, whatever you decide to use is a matter of preferrence
-        But it seems like the braces way indicates an expression more explicitly...
-        "
-    );
-    println!("\n");
     out
 }
 
@@ -140,24 +105,11 @@ pub fn calc_add(a: i32, b: i32) -> i32 {
 
 // Conditional expressions
 pub fn calc_conditional_expression(a: i32, b: i32) -> bool {
-    println!("
-        We can do common conditional expressions using if, else if, and else:
-            if a == b {{
-                println!(\"a is equal to b\");
-            }} else if a < b {{
-                    println!(\"a is less than b\");
-            }} else {{
-                println!(\"a is not greater than b\");
-            }}"
-    );
     if a == b {
-        println!("a is equal to b");
         true
     } else if a < b {
-        println!("a is less than b");
         true
     } else {
-        println!("a is not greater than b");
         false
     }
 }
@@ -165,23 +117,18 @@ pub fn calc_conditional_expression(a: i32, b: i32) -> bool {
 /* 6) Loops */
 
 pub fn calc_wrap_around_conditional(start: i32) -> bool {
-    println!("Handling multiple conditionals with if-else.");
-    if start < 3 { println!("Come on...{:#?}", start); return false};
+    if start < 3 { return false };
     let mut count = 1;
     let begin = (start+1) % start ;
     let mid = (start/2) % start;
     let end = (start-1) % start;
     while count > 0 {
         if count % start == begin {
-            println!("Currently at: {:#?}", count);
         } else if count % start == mid {
-            println!("Getting closer: {:#?}", count);
         } else if count % start == end {
-            println!("We made it! {:#?}", count+1);
             count = 0;
             continue;
         } else {
-            println!("We're somewhere: {:#?}", count);
         }  
         count += 1;
     }
@@ -195,47 +142,15 @@ pub fn calc_if_let(num: i32) -> bool {
 }
 
 pub fn calc_conditional_loop_count(num: i32) -> i32 {
-    println!("REMEMBER: While loops are great counters or countdowns. Not for collections though...");
-    println!("Also, even for countdowns or counters, a for loop might be a better option since it sets clear boundaries...");
     let mut counter = num;
     while counter != 0 {
-        println!("{:#?}", counter);
         counter -= 1;
     }
     counter
 }
 
 /* 7) Ownership */ 
-
-// FIXME: Broken...
-// pub fn give_string_mem_location(string: &str) -> &'static str {
-//     let mut _string = string;
-//     let mut buffer = [0u8; 32];
-//     if _string == "" {
-//         let text = "stack-text";
-//         let len = text.len();
-//         buffer[..len].copy_from_slice(text.as_bytes());
-//         _string = std::str::from_utf8(&buffer[..len]).unwrap();
-//     };
-
-//     let stack_val = 0;
-//     let stack_addr = &stack_val as *const _ as usize;
-//     let heap_addr = Box::into_raw(Box::new(0)) as usize;
-//     let literal_addr = _string.as_ptr() as usize;
-//     let f_addr = where_does_this_string_live as *const () as usize;
-
-//     let dist_to_f = (literal_addr as isize - f_addr as isize).abs();
-//     let dist_to_stack = (literal_addr as isize - stack_addr as isize).abs();
-//     let dist_to_heap = (literal_addr as  isize - heap_addr as isize).abs();
-
-//     if  dist_to_stack < dist_to_f && dist_to_stack < dist_to_heap {
-//        "stack"
-//     } else if dist_to_f < dist_to_heap {
-//         ".rodata (near fn)"
-//     } else {
-//         "heap"
-//     }
-// }
+// TODO: ...
 
 /*  8) Ownership & functions  */
 
