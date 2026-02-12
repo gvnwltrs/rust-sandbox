@@ -390,10 +390,21 @@ pub fn try_mutate_hashmap(map: &mut HashMap<String, i32>, entry: (String, i32)) 
     // Some(map.entry(entry.0).or_insert(entry.1))
 }
 
+/* 14) Error Handling */
+
+pub fn try_take_panic(enable: bool) -> Result<(), Error> {
+    match enable {
+        true => panic!("Crash test."),
+        false => Ok(())
+    }
+}
+
 #[cfg(test)]
 mod rust_main_tests {
     #[allow(unused)]
     use super::*;
+
+    // Collections
 
     #[test]
     fn test_stack_tuple_create() {
@@ -473,6 +484,14 @@ mod rust_main_tests {
         let entry = (String::from("new entry"), 99); // alread has a value so does nothing
         let result = try_mutate_hashmap(&mut hashmap, entry);
         assert!(result.is_some());
+    }
+
+    // Error handling
+
+    #[test]
+    fn test_try_panic() {
+        let did_panic = try_take_panic(false);
+        assert!(did_panic.is_ok());
     }
 
 }

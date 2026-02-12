@@ -155,6 +155,19 @@ fn main() -> Result<(), Error> {
     println!("{} {:#?}\n", _result, hashmap);
 
 
+    println!("18. Error handling\n");
+    println!("Trying panic.");
+    let real_panic = false;
+    let did_real_panic: Result<(), Error> = match real_panic { 
+        true => {
+            println!("Executing real panic.\n"); 
+            let _ = try_take_panic(real_panic);
+            Err(Error::last_os_error())
+        }
+        false => try_take_panic(real_panic) 
+    };
+    println!("Result: mock_program_panic({})\n", did_real_panic.is_ok());
+
     Ok(())
 }
 
