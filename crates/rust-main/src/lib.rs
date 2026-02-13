@@ -93,7 +93,7 @@ pub fn give_shadowing_update() {
 /* 3) Functions */
 
 // Math expressions
-pub fn calc_add(a: i32, b: i32) -> i32 {
+pub fn derive_add(a: i32, b: i32) -> i32 {
     let _out = { a + b }; // is it preferrable to use braces to signal what is an expression?
     let out = a + b;
     out
@@ -104,7 +104,7 @@ pub fn calc_add(a: i32, b: i32) -> i32 {
 /* 5) Control flow */
 
 // Conditional expressions
-pub fn calc_conditional_expression(a: i32, b: i32) -> bool {
+pub fn derive_conditional_expression(a: i32, b: i32) -> bool {
     if a == b {
         true
     } else if a < b {
@@ -116,7 +116,7 @@ pub fn calc_conditional_expression(a: i32, b: i32) -> bool {
 
 /* 6) Loops */
 
-pub fn calc_wrap_around_conditional(start: i32) -> bool {
+pub fn derive_wrap_around_conditional(start: i32) -> bool {
     if start < 3 { return false };
     let mut count = 1;
     let begin = (start+1) % start ;
@@ -136,12 +136,12 @@ pub fn calc_wrap_around_conditional(start: i32) -> bool {
     true
 }
 
-pub fn calc_if_let(num: i32) -> bool {
+pub fn derive_if_let(num: i32) -> bool {
     let _case = if num == 1 {true} else{false};
     _case
 }
 
-pub fn calc_conditional_loop_count(num: i32) -> i32 {
+pub fn derive_conditional_loop_count(num: i32) -> i32 {
     let mut counter = num;
     while counter != 0 {
         counter -= 1;
@@ -178,7 +178,7 @@ pub fn mutate_reference(s: &mut String) {
 /* 11) Dangling references */
 
 // Slice types 
-pub fn give_first_word_slice(s: &str) -> &str {
+pub fn access_first_word_slice(s: &str) -> &str {
     let bytes = s.as_bytes();
 
     for (i, &item) in bytes.iter().enumerate() {
@@ -309,6 +309,8 @@ pub fn try_take_panic(enable: bool) -> Result<(), Error> {
     }
 }
 
+/* 15) Generics, traits, and lifetimes */
+
 #[cfg(test)]
 mod rust_main_tests {
     #[allow(unused)]
@@ -410,6 +412,13 @@ mod rust_main_tests {
     fn test_try_panic() {
         let did_panic = try_take_panic(false);
         assert!(did_panic.is_ok());
+    }
+
+    // Generics 
+
+    #[test]
+    fn test_() {
+
     }
 
 }

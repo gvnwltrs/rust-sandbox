@@ -53,7 +53,7 @@ fn main() -> Result<(), Error> {
     println!("Result: {:?}\n\n", buf);
 
     println!("5. Using expressions");
-    calc_add(2, 2);
+    derive_add(2, 2);
     println!("We can do an expression by: let out = {{ a + b }};");
     println!("Or we can do it shorthand by: let out = a + b;");
     println!("
@@ -64,7 +64,7 @@ fn main() -> Result<(), Error> {
     println!("\n");
 
     println!("6. Using conditional expressions");
-    calc_conditional_expression(3, 4);
+    derive_conditional_expression(3, 4);
     println!("
         We can do common conditional expressions using if, else if, and else:
             if a == b {{
@@ -84,15 +84,15 @@ fn main() -> Result<(), Error> {
     println!("\n");
 
     println!("7. Using multiple conditionals");
-    calc_wrap_around_conditional(10);
+    derive_wrap_around_conditional(10);
     println!("Handling multiple conditionals with if-else.");
     println!("\n");
 
     println!("8. Using if let");
-    println!("Result: {:?}\n", calc_if_let(1));
+    println!("Result: {:?}\n", derive_if_let(1));
 
     println!("9. Using conditional loop");
-    println!("Result: {:?}\n", calc_conditional_loop_count(5));
+    println!("Result: {:?}\n", derive_conditional_loop_count(5));
     println!("REMEMBER: While loops are great counters or countdowns. Not for collections though...");
     println!("Also, even for countdowns or counters, a for loop might be a better option since it sets clear boundaries...");
 
@@ -137,7 +137,7 @@ fn main() -> Result<(), Error> {
     println!("15. String slices");
     let my_words = String::from("This is it");
     println!("Original string: {:?}", my_words);
-    let slice = give_first_word_slice(&my_words);
+    let slice = access_first_word_slice(&my_words);
     println!("Slice: {:?}\n", slice);
     let another_slice = &my_words[0..7];
     println!("Another slice: {:?}\n", another_slice);
