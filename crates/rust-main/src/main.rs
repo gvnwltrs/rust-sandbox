@@ -238,7 +238,7 @@ fn main() -> Result<(), Error> {
 
     msg(Desc, "Now using generic method.");
     let _data = (42, 'Y');
-    let g_impl: GImpl<i32, char> = give_g_impl();
+    let g_impl: GImpl<i32, char> = GImpl::give();
     msg(Data, &_data);
     msg(Data, &g_impl);
     msg(Impl, "g_impl.give_pair()");

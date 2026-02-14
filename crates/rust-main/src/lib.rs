@@ -347,13 +347,13 @@ use std::marker::PhantomData;
 pub struct GImpl<T, U> { _a: PhantomData<T>, _b: PhantomData<U> }
 
 impl<T, U> GImpl<T, U> {
+    pub fn give() -> Self {
+        Self { _a: PhantomData, _b: PhantomData }
+    }
+
     pub fn give_pair(&self, a: T, b: U) -> (T, U) {
         (a, b)
     }
-}
-
-pub fn give_g_impl<T,U>() -> GImpl<T, U> {
-    GImpl { _a: PhantomData, _b: PhantomData }
 }
 
 #[cfg(test)]
@@ -477,7 +477,7 @@ mod rust_main_tests {
 
     #[test]
     fn test_give_generic_method_output() {
-        let g_impl = give_g_impl();
+        let g_impl = GImpl::give();
         let result = g_impl.give_pair(45, 'h');
         assert!(result == (45, 'h'));
     }
