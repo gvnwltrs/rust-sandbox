@@ -15,7 +15,7 @@ fn main() -> Result<(), Error> {
     // Start
     let config: Option<Config> = None;
     let mut runtime = Runtime::give(&config);
-    msg(Stat, &runtime);
+    msg(Stat, &(&runtime.state, &runtime.config.unwrap()));
 
     msg(Desc, "Rust Main Starting...\n");
     msg(Desc, "Running through Rust the Programming Language concepts.\n");
@@ -247,7 +247,7 @@ fn main() -> Result<(), Error> {
     msg(Data, &g_impl);
     msg(Impl, "g_impl.give_pair()");
     let result = g_impl.give_pair(_data.0, _data.1);
-    msg(Res, result);
+    msg(Res, &result);
 
     Ok(())
 }
