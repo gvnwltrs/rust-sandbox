@@ -341,6 +341,21 @@ pub fn give_typed_struct<T, U, V>(t: (T, U, V)) -> GStruct<T, U, V> {
     }
 }
 
+use std::marker::PhantomData;
+#[derive(Debug, PartialEq)]
+#[allow(unused)]
+pub struct GImpl<T, U> { _a: PhantomData<T>, _b: PhantomData<U> }
+
+impl<T, U> GImpl<T, U> {
+    pub fn give_pair(&self, a: T, b: U) -> (T, U) {
+        (a, b)
+    }
+}
+
+pub fn give_g_impl<T,U>() -> GImpl<T, U> {
+    GImpl { _a: PhantomData, _b: PhantomData }
+}
+
 #[cfg(test)]
 mod rust_main_tests {
     #[allow(unused)]
@@ -458,6 +473,13 @@ mod rust_main_tests {
         let _input = (42, 42.0, '*');
         let t_struct = give_typed_struct(_input);
         assert!(t_struct == GStruct { a: 42, b: 42.0, c: '*' });
+    }
+
+    #[test]
+    fn test_give_generic_method_output() {
+        let g_impl = give_g_impl();
+        let result = g_impl.give_pair(45, 'h');
+        assert!(result == (45, 'h'));
     }
 
 }

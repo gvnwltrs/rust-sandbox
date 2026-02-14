@@ -6,6 +6,8 @@ use std::io::Error;
 #[allow(unused)]
 use rust_main::*;
 
+#[allow(unused)]
+use std::marker::PhantomData;
 
 fn main() -> Result<(), Error> {
     use PType::*;
@@ -233,6 +235,15 @@ fn main() -> Result<(), Error> {
     msg(Impl, "give_typed_struct((T, U, V))");
     let result = give_typed_struct(_input);
     msg(Res, &result);
+
+    msg(Desc, "Now using generic method.");
+    let _data = (42, 'Y');
+    let g_impl: GImpl<i32, char> = give_g_impl();
+    msg(Data, &_data);
+    msg(Data, &g_impl);
+    msg(Impl, "g_impl.give_pair()");
+    let result = g_impl.give_pair(_data.0, _data.1);
+    msg(Res, result);
 
     Ok(())
 }
