@@ -229,6 +229,13 @@ fn main() -> Result<(), Error> {
     let largest = access_largest(&data);
     msg(Res, &largest);
 
+    msg(Desc, "Using a generic multi-type struct.");
+    let _input = (42, 42.0, '*');
+    msg(Data, &_input);
+    msg(Impl, "give_typed_struct((T, U, V))");
+    let result = give_typed_struct(_input);
+    msg(Res, &result);
+
     Ok(())
 }
 
