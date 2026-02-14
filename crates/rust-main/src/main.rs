@@ -198,14 +198,12 @@ fn main() -> Result<(), Error> {
     msg(Desc, "Adding new hash map pair (grows like a stack).");
     let entry = (String::from("Key2"), 42);
     mutate_hashmap(&mut hashmap, entry);
-    msg(Data, &hashmap);
-    msg(Res, &result);
+    msg(Res, &hashmap);
     msg(Desc, "Trying to update an existing key-value.");
     let entry = (String::from("Key2"), 99);
     try_mutate_hashmap(&mut hashmap, entry);
-    msg(Data, &hashmap);
-    msg(Res, &result);
-
+    msg(Res, &hashmap);
+    msg(Desc, "Does not mutate because key and value already populated.\n");
 
     msg(Desc, "18. Error handling\n");
     msg(Desc, "Trying panic.");
