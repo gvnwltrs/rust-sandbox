@@ -23,11 +23,11 @@ fn main() {
     println!("Added account.");
 
     println!("Checking all account statuses...");
-    bank.msg_all();
+    bank.print_all();
 
     let withdraw = bank.withdraw(2, 300);
     println!("Tony withdrew $300? {:#?}", withdraw.is_ok());
-    let msg = bank.msg_one(2); 
+    let msg = bank.print_one(2); 
     println!("withdraw okay? {:#?}", msg.is_ok());
 
     let deposit = bank.deposit(2, 100);
