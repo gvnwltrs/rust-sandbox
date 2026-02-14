@@ -325,6 +325,22 @@ pub fn access_largest<T: PartialOrd>(list: &[T]) -> &T {
     largest
 }
 
+#[derive(Debug, PartialEq)]
+#[allow(unused)]
+pub struct GStruct<T, U, V> {
+    a: T,
+    b: U,
+    c: V,
+}
+
+pub fn give_typed_struct<T, U, V>(t: (T, U, V)) -> GStruct<T, U, V> {
+    GStruct {
+        a: t.0,
+        b: t.1,
+        c: t.2,
+    }
+}
+
 #[cfg(test)]
 mod rust_main_tests {
     #[allow(unused)]
@@ -435,6 +451,13 @@ mod rust_main_tests {
         let data = vec![0, 1, 2, 3];
         let largest = access_largest(&data);
         assert!(*largest == 3);
+    }
+
+    #[test]
+    fn test_give_typed_struct() {
+        let _input = (42, 42.0, '*');
+        let t_struct = give_typed_struct(_input);
+        assert!(t_struct == GStruct { a: 42, b: 42.0, c: '*' });
     }
 
 }
