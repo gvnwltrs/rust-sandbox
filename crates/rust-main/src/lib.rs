@@ -56,7 +56,7 @@ pub fn give_shadowed_assignments() -> Assignments {
 
 pub fn mutate_borrow_checker() -> Result<Box<i32>, Error> {
     let mut x = Box::new(42); // heap allocated; think of Box == smart_pointer
-    let r = &x; // 'a -- we know that x lives outside of this slot
+    let _r = &x; // 'a -- we know that x lives outside of this slot
     *x = 84;
     match rand::rng().random::<f64>() > 0.5 {
         true => Ok(x), 
@@ -194,11 +194,11 @@ pub fn access_first_word_slice(s: &str) -> &str {
 
 #[allow(unused)]
 #[derive(Debug)]
-pub struct Data {
+pub struct TData {
     text_blocks: Vec<String>,
 }
 
-impl Data {
+impl TData {
 
     pub fn new() -> Self { Self { text_blocks: vec![], }}
 
@@ -213,7 +213,7 @@ pub enum DataAction {
 }
 
 pub fn take_verbose_control_flow_string(
-    data: & mut Data, 
+    data: & mut TData, 
     input: (DataAction, Option<&str>)) -> Option<String> {
     match input {
         (DataAction::Read, None)  => { 
@@ -232,7 +232,7 @@ pub fn take_verbose_control_flow_string(
 }
 
 // Only write
-pub fn mutate_only_control_flow(data: &mut Data, input: (DataAction, String)) -> Option<String> {
+pub fn mutate_only_control_flow(data: &mut TData, input: (DataAction, String)) -> Option<String> {
     if let DataAction::Write = input.0 {
         data.text_blocks.push(input.1);
         Some(String::from("Wrote text block."))
@@ -310,6 +310,20 @@ pub fn try_take_panic(enable: bool) -> Result<(), Error> {
 }
 
 /* 15) Generics, traits, and lifetimes */
+
+// This generic requires a 'trait' to address comparison for all types. 
+// We use the "PartialOrd" trait to resolve this.
+pub fn access_largest<T: PartialOrd>(list: &[T]) -> &T {
+    let mut largest = &list[0];
+
+    for item in list {
+        if item > largest {
+            largest = item;
+        }
+    } 
+
+    largest
+}
 
 #[cfg(test)]
 mod rust_main_tests {
@@ -417,8 +431,10 @@ mod rust_main_tests {
     // Generics 
 
     #[test]
-    fn test_() {
-
+    fn test_access_largest() {
+        let data = vec![0, 1, 2, 3];
+        let largest = access_largest(&data);
+        assert!(*largest == 3);
     }
 
 }
