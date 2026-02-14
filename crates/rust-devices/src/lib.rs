@@ -50,18 +50,18 @@ pub enum Command {
 }
 
 pub trait ThermostatHardware {
-    fn read_temperature(&self) -> f64;
-    fn apply_setpoint(&mut self, _temp: f64) -> bool;
+    fn give_temperature(&self) -> f64;
+    fn mutate_setpoint(&mut self, _temp: f64) -> bool;
 } 
 
 pub struct FakeHardware;
 
 impl ThermostatHardware for FakeHardware {
-    fn read_temperature(&self) -> f64 {
+    fn give_temperature(&self) -> f64 {
         65.0
     }
 
-    fn apply_setpoint(&mut self, _temp: f64) -> bool {
+    fn mutate_setpoint(&mut self, _temp: f64) -> bool {
         true
     }
 }
@@ -69,11 +69,11 @@ impl ThermostatHardware for FakeHardware {
 /* 2. Actions */
 
 #[allow(unused)]
-fn generate_timestamp() -> Option<String> {
+fn give_timestamp() -> Option<String> {
     Some(Local::now().format("%Y-%m-%dT%H:%M").to_string())
 }
 
-pub fn step(
+pub fn mutate_state(
     device: &mut Thermostat,
     hw: &mut impl ThermostatHardware,
     cmd: Option<Command>,
@@ -85,7 +85,7 @@ pub fn step(
         }
 
         (ThermostatState::Booting, None) => {
-            let temp = hw.read_temperature();
+            let temp = hw.give_temperature();
             ThermostatState::Idle {
                 temperature: temp,
                 setpoint: 68.0,
@@ -106,7 +106,7 @@ pub fn step(
             ThermostatState::SettingSetpoint { temperature, target },
             None,
         ) => {
-            if hw.apply_setpoint(*target) {
+            if hw.mutate_setpoint(*target) {
                 ThermostatState::Idle {
                     temperature: *temperature,
                     setpoint: *target,
@@ -126,7 +126,7 @@ pub fn step(
 
 /* 3. Pure Functions */
 
-pub fn new_device() -> Thermostat {
+pub fn give_device() -> Thermostat {
     Thermostat {
         state: ThermostatState::Off,
         units: Units::Fahrenheit,
@@ -149,9 +149,9 @@ mod rust_device_tests {
     #[test]
     fn test_thermostat_boot() {
         let mut hw = FakeHardware;
-        let mut dev = new_device();
-        step(&mut dev, &mut hw, Some(Command::PowerOn)).unwrap();
-        step(&mut dev, &mut hw, None).unwrap();
+        let mut dev = give_device();
+        mutate_state(&mut dev, &mut hw, Some(Command::PowerOn)).unwrap();
+        mutate_state(&mut dev, &mut hw, None).unwrap();
         assert!(matches!(dev.state, ThermostatState::Idle { .. }));
     }
 	
@@ -159,11 +159,11 @@ mod rust_device_tests {
     #[test]
     fn test_thermostat_setpoint() {
         let mut hw = FakeHardware;
-        let mut dev = new_device();
-        step(&mut dev, &mut hw, Some(Command::PowerOn)).unwrap();
-        step(&mut dev, &mut hw, None).unwrap();
-        step(&mut dev, &mut hw, Some(Command::SetSetpoint(72.0))).unwrap();
-        step(&mut dev, &mut hw, None).unwrap();
+        let mut dev = give_device();
+        mutate_state(&mut dev, &mut hw, Some(Command::PowerOn)).unwrap();
+        mutate_state(&mut dev, &mut hw, None).unwrap();
+        mutate_state(&mut dev, &mut hw, Some(Command::SetSetpoint(72.0))).unwrap();
+        mutate_state(&mut dev, &mut hw, None).unwrap();
 
         match dev.state {
             ThermostatState::Idle { setpoint, .. } => {
@@ -172,6 +172,10 @@ mod rust_device_tests {
             _ => panic!("unexpected state"),
         }
 
+    }
+
+    #[test]
+    fn test_stub() {
     }
 
 }

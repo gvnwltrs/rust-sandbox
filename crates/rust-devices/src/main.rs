@@ -12,26 +12,27 @@ use std::io::Error;
 use rust_devices::*;
 
 fn main() -> Result<(), Error> {
-    let state_msg = format!("Current state: "); 
     let mut hardware = FakeHardware;
-    let mut device = new_device();
-    println!("Device created: {:#?}\n", device);
+    let mut device = give_device();
+    access_report(&device);
 
-    println!("Device transitioning to power on.");
-    let _step = step(&mut device, &mut hardware, Some(Command::PowerOn));
-    match _step { 
-        Ok(result) => println!("Power on result: {:#?}", result),
-        Err(e) => println!("Error: {:#?}", e)
-    }
-    println!("{} {:#?}\n", state_msg, device);
+    let _step = mutate_state(&mut device, &mut hardware, Some(Command::PowerOn));
+    access_report(&device);
 
-    println!("Device transitioning to idle.");
-    let _step = step(&mut device, &mut hardware, None);
-    match _step {
-        Ok(result) => println!("To idle result: {:#?}", result),
-        Err(e) => println!("Error: {:#?}", e)
-    }
-    println!("{} {:#?}\n", state_msg, device);
+    let _step = mutate_state(&mut device, &mut hardware, None);
+    access_report(&device);
+
 
     Ok(())
+}
+
+// Helpers
+fn access_report(device: &Thermostat) {
+    match device.state {
+        ThermostatState::Off => println!("Device state: Off"),
+        ThermostatState::Booting => println!("Device state: Booting..."),
+        ThermostatState::Idle { temperature, setpoint } => println!("Device state: Idle, temp: {:#?}, setpoint: {:#?}", &temperature, &setpoint),
+        ThermostatState::SettingSetpoint { temperature, target } => println!("Device state: SettingSetpoint, temp: {:#?}, target: {:#?}", &temperature, &target),
+        ThermostatState::Fault => println!("Device state: Fault"),
+    }
 }
