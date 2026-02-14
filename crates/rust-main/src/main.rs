@@ -13,6 +13,10 @@ fn main() -> Result<(), Error> {
     use PType::*;
 
     // Start
+    let config: Option<Config> = None;
+    let mut runtime = Runtime::give(&config);
+    msg(Stat, &runtime);
+
     msg(Desc, "Rust Main Starting...\n");
     msg(Desc, "Running through Rust the Programming Language concepts.\n");
 
@@ -250,6 +254,7 @@ fn main() -> Result<(), Error> {
 
 #[derive(Debug)]
 enum PType {
+    Stat,
     Desc,
     Impl,
     Data,
@@ -259,6 +264,7 @@ enum PType {
 fn msg<T: std::fmt::Debug>(t: PType, msg: T) {
     // Message helpers
     match t {
+        PType::Stat => println!("Runtime: {:#?}", msg),
         PType::Desc => println!("Description: {:#?}", msg),
         PType::Impl => println!(" | function: {:#?}", msg),
         PType::Data => println!(" | data: {:#?}", msg),
@@ -273,3 +279,33 @@ const EMPTY_STR: EmptyString = "";
 pub type PrettyFormat<'a> = &'a str;
 #[allow(unused)]
 const FMT: PrettyFormat = "{:#?}"; 
+
+
+#[derive(Debug, PartialEq)]
+enum State {
+    Init,
+    Running,
+    Shutdown,
+    Error,
+}
+
+#[derive(Debug, PartialEq)]
+struct Config {
+
+}
+
+#[derive(Debug, PartialEq)]
+struct Runtime<T> {
+    state: State,
+    config: Option<T>,
+}
+
+impl<T> Runtime<T> {
+    fn give(cfg: T) -> Self {
+        Self { state: State::Init, config: Some(cfg) }
+    }
+
+    fn access_status(&self) -> &Self { self }
+}
+
+
