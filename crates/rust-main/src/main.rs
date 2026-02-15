@@ -13,15 +13,102 @@ fn main() -> Result<(), Error> {
     use PType::*;
 
     // Start
-    let config: Option<Config> = None;
+    let config: Option<String> = None;
     #[allow(unused_mut)]
-    let mut runtime = Runtime::give(&config);
-    msg(Stat, &(&runtime.state, &runtime.config.unwrap()));
+    let mut runtime = Runtime::give(config);
+    msg(Cfg, runtime.access_config());
+    msg(State, runtime.access_status());
 
     msg(Desc, "Rust Main Starting...\n");
     msg(Desc, "Running through Rust the Programming Language concepts.\n");
     println!("\n\n================================\n\n");
-    let lessons: [fn() -> Result<(), Error>; 19] = [
+    let lessons = take_lessons();
+    for (i, lesson) in lessons.iter().enumerate() {
+        // Centralized logic: logging, timing, and error handling
+        println!("--- Lesson {} ---\n", i + 1);
+        lesson()?; 
+    } 
+
+    Ok(())
+}
+
+// Helpers 
+
+pub type EmptyString<'a> = &'a str;
+#[allow(unused)]
+const EMPTY_STR: EmptyString = "";
+
+pub type PrettyFormat<'a> = &'a str;
+
+#[allow(unused)]
+const FMT: PrettyFormat = "{:#?}"; 
+#[derive(Debug)]
+enum PType {
+    State,
+    Cfg,
+    Desc,
+    Impl,
+    Data,
+    Res,
+}
+
+fn msg<T: std::fmt::Debug>(t: PType, msg: T) {
+    // Message helpers
+    match t {
+        PType::State => println!("Runtime state: {:#?}", msg),
+        PType::Cfg => println!("Runtime config: {:#?}", msg),
+        PType::Desc => println!("Description: {:#?}", msg),
+        PType::Impl => println!(" | function: {:#?}", msg),
+        PType::Data => println!(" | data: {:#?}", msg),
+        PType::Res => println!(" | result: {:#?}", msg),
+    }
+}
+
+#[derive(Debug, PartialEq)]
+#[allow(unused)]
+enum State {
+    Init,
+    Running,
+    Shutdown,
+    ErrorState,
+}
+
+#[derive(Debug, PartialEq)]
+#[allow(dead_code)]
+// TODO: Implment to convert fields into one string
+struct Config {
+
+}
+
+#[derive(Debug, PartialEq)]
+struct Runtime {
+    state: State,
+    config: Option<String>,
+    default_config: String,
+}
+
+impl Runtime {
+    fn give(cfg: Option<String>) -> Self {
+        Self { state: State::Init, config: cfg, default_config: String::new() }
+    }
+
+    #[allow(unused)]
+    fn access_config(&self) -> &String { 
+        match &self.config {
+            Some(cfg) => &cfg,
+            None => &self.default_config,
+        }
+    }
+
+    #[allow(unused)]
+    fn access_status(&self) -> &State { 
+        &self.state 
+    }
+}
+
+
+fn take_lessons() -> [fn() -> Result<(), Error>; 19] {
+    [
             access_lesson_1, 
             access_lesson_2,
             access_lesson_3,
@@ -41,75 +128,8 @@ fn main() -> Result<(), Error> {
             access_lesson_17, 
             access_lesson_18, 
             access_lesson_19, 
-        ];
-
-    for (i, lesson) in lessons.iter().enumerate() {
-        // Centralized logic: logging, timing, and error handling
-        println!("--- Lesson {} ---\n", i + 1);
-        lesson()?; 
-    } 
-
-    Ok(())
+        ]
 }
-
-// Helpers 
-
-#[derive(Debug)]
-enum PType {
-    Stat,
-    Desc,
-    Impl,
-    Data,
-    Res,
-}
-
-fn msg<T: std::fmt::Debug>(t: PType, msg: T) {
-    // Message helpers
-    match t {
-        PType::Stat => println!("Runtime: {:#?}", msg),
-        PType::Desc => println!("Description: {:#?}", msg),
-        PType::Impl => println!(" | function: {:#?}", msg),
-        PType::Data => println!(" | data: {:#?}", msg),
-        PType::Res => println!(" | result: {:#?}", msg),
-    }
-}
-
-#[derive(Debug, PartialEq)]
-#[allow(unused)]
-enum State {
-    Init,
-    Running,
-    Shutdown,
-    ErrorState,
-}
-
-#[derive(Debug, PartialEq)]
-struct Config {
-
-}
-
-#[derive(Debug, PartialEq)]
-struct Runtime<T> {
-    state: State,
-    config: Option<T>,
-}
-
-impl<T> Runtime<T> {
-    fn give(cfg: T) -> Self {
-        Self { state: State::Init, config: Some(cfg) }
-    }
-
-    #[allow(unused)]
-    fn access_status(&self) -> &Self { self }
-}
-
-pub type EmptyString<'a> = &'a str;
-#[allow(unused)]
-const EMPTY_STR: EmptyString = "";
-
-pub type PrettyFormat<'a> = &'a str;
-#[allow(unused)]
-const FMT: PrettyFormat = "{:#?}"; 
 
 // Lessons
 fn access_lesson_1() -> Result<(), Error> {
