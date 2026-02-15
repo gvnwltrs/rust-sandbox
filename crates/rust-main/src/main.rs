@@ -14,22 +14,49 @@ fn main() -> Result<(), Error> {
 
     // Start
     let config: Option<String> = None;
-    #[allow(unused_mut)]
+    let lessons = give_lessons();
+    let end_condition = lessons.len()-1;
     let mut runtime = Runtime::give(config);
-    msg(Cfg, runtime.access_config());
-    msg(State, runtime.access_status());
+    let mut cur = 0;
 
     msg(Desc, "Rust Main Starting...\n");
     msg(Desc, "Running through Rust the Programming Language concepts.\n");
     println!("\n\n================================\n\n");
-    let lessons = take_lessons();
-    for (i, lesson) in lessons.iter().enumerate() {
-        // Centralized logic: logging, timing, and error handling
-        println!("--- Lesson {} ---\n", i + 1);
-        lesson()?; 
-    } 
+    msg(Cfg, runtime.access_config());
+    msg(State, runtime.access_status());
 
-    Ok(())
+    runtime.mutate_state(ProgramState::Running);
+    msg(State, runtime.access_status());
+    loop {
+        if let ProgramState::Running =  runtime.state {
+            println!("\n--- Lesson {} ---\n", cur + 1);
+
+            let result = lessons[cur]();
+            match result {
+                Ok(()) => {
+                    if cur == end_condition { 
+                        runtime.mutate_state(ProgramState::Shutdown); 
+                    } else {
+                        cur += 1;
+                    }
+                } 
+                Err(e) => {
+                    msg(PType::Res, format!("lesson failed: {}", e));
+                    runtime.mutate_state(ProgramState::ErrorState);
+                }
+            }
+            cur = cur + 1;
+        } else {
+            break;
+        }
+    }
+
+    // Checking end condition
+    msg(State, runtime.access_status());
+    match runtime.state {
+        ProgramState::Shutdown => Ok(()),
+        _ => Err(Error::other("Error occurred."))
+    }
 }
 
 // Helpers 
@@ -66,7 +93,7 @@ fn msg<T: std::fmt::Debug>(t: PType, msg: T) {
 
 #[derive(Debug, PartialEq)]
 #[allow(unused)]
-enum State {
+enum ProgramState {
     Init,
     Running,
     Shutdown,
@@ -77,19 +104,23 @@ enum State {
 #[allow(dead_code)]
 // TODO: Implment to convert fields into one string
 struct Config {
-
+    // TODO
 }
 
 #[derive(Debug, PartialEq)]
 struct Runtime {
-    state: State,
+    state: ProgramState,
     config: Option<String>,
     default_config: String,
 }
 
 impl Runtime {
     fn give(cfg: Option<String>) -> Self {
-        Self { state: State::Init, config: cfg, default_config: String::new() }
+        Self { state: ProgramState::Init, config: cfg, default_config: String::new() }
+    }
+
+    fn mutate_state(&mut self, s: ProgramState) {
+        self.state = s;
     }
 
     #[allow(unused)]
@@ -101,13 +132,13 @@ impl Runtime {
     }
 
     #[allow(unused)]
-    fn access_status(&self) -> &State { 
+    fn access_status(&self) -> &ProgramState { 
         &self.state 
     }
 }
 
 
-fn take_lessons() -> [fn() -> Result<(), Error>; 19] {
+fn give_lessons() -> [fn() -> Result<(), Error>; 19] {
     [
             access_lesson_1, 
             access_lesson_2,
