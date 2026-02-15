@@ -14,12 +14,106 @@ fn main() -> Result<(), Error> {
 
     // Start
     let config: Option<Config> = None;
+    #[allow(unused_mut)]
     let mut runtime = Runtime::give(&config);
     msg(Stat, &(&runtime.state, &runtime.config.unwrap()));
 
     msg(Desc, "Rust Main Starting...\n");
     msg(Desc, "Running through Rust the Programming Language concepts.\n");
+    println!("\n\n================================\n\n");
+    let lessons: [fn() -> Result<(), Error>; 19] = [
+            access_lesson_1, 
+            access_lesson_2,
+            access_lesson_3,
+            access_lesson_4, 
+            access_lesson_5, 
+            access_lesson_6, 
+            access_lesson_7, 
+            access_lesson_8, 
+            access_lesson_9, 
+            access_lesson_10, 
+            access_lesson_11, 
+            access_lesson_12, 
+            access_lesson_13, 
+            access_lesson_14, 
+            access_lesson_15,
+            access_lesson_16, 
+            access_lesson_17, 
+            access_lesson_18, 
+            access_lesson_19, 
+        ];
 
+    for (i, lesson) in lessons.iter().enumerate() {
+        // Centralized logic: logging, timing, and error handling
+        println!("--- Lesson {} ---\n", i + 1);
+        lesson()?; 
+    } 
+
+    Ok(())
+}
+
+// Helpers 
+
+#[derive(Debug)]
+enum PType {
+    Stat,
+    Desc,
+    Impl,
+    Data,
+    Res,
+}
+
+fn msg<T: std::fmt::Debug>(t: PType, msg: T) {
+    // Message helpers
+    match t {
+        PType::Stat => println!("Runtime: {:#?}", msg),
+        PType::Desc => println!("Description: {:#?}", msg),
+        PType::Impl => println!(" | function: {:#?}", msg),
+        PType::Data => println!(" | data: {:#?}", msg),
+        PType::Res => println!(" | result: {:#?}", msg),
+    }
+}
+
+#[derive(Debug, PartialEq)]
+#[allow(unused)]
+enum State {
+    Init,
+    Running,
+    Shutdown,
+    ErrorState,
+}
+
+#[derive(Debug, PartialEq)]
+struct Config {
+
+}
+
+#[derive(Debug, PartialEq)]
+struct Runtime<T> {
+    state: State,
+    config: Option<T>,
+}
+
+impl<T> Runtime<T> {
+    fn give(cfg: T) -> Self {
+        Self { state: State::Init, config: Some(cfg) }
+    }
+
+    #[allow(unused)]
+    fn access_status(&self) -> &Self { self }
+}
+
+pub type EmptyString<'a> = &'a str;
+#[allow(unused)]
+const EMPTY_STR: EmptyString = "";
+
+pub type PrettyFormat<'a> = &'a str;
+#[allow(unused)]
+const FMT: PrettyFormat = "{:#?}"; 
+
+// Lessons
+fn access_lesson_1() -> Result<(), Error> {
+    use PType::*;
     msg(Desc, "1. Updating a variable");
     let mut input = 1;
     mutate_variable(&mut input); 
@@ -29,7 +123,13 @@ fn main() -> Result<(), Error> {
     msg(Desc, "But we cannot change x otherwise since it is immutable with: let x =");
     msg(Desc, "We could rewrite x however, by letting it be mutable: let mut x = 0;");
     msg(Desc, "Now we can update x: x = 1;\n");
+    println!("\n\n================================\n\n");
 
+    Ok(())
+}
+
+fn access_lesson_2() -> Result<(), Error> {
+    use PType::*;
     msg(Desc, "2. Setting a constant");
     give_a_constant();
     msg(Desc, "We can set a constant by: const X: u32 = 0;");
@@ -39,7 +139,13 @@ fn main() -> Result<(), Error> {
         MUST use a type annotation such as: const X: u32
         \n"
     );
+    println!("\n\n================================\n\n");
 
+    Ok(())
+}
+
+fn access_lesson_3() -> Result<(), Error>  {
+    use PType::*;
     msg(Desc, "3. Shadowing variables");
     give_shadowing_update();
     msg(Desc, "We can perform shadowing by simply re-assigning a previously used variable alias:
@@ -52,14 +158,25 @@ fn main() -> Result<(), Error> {
     );
     msg(Desc, "Now x has gone from an integer to a string type (&str more precisely)\n");
     msg(Desc, "\n");
+    println!("\n\n================================\n\n");
 
+    Ok(())
+}
+
+fn access_lesson_4() -> Result<(), Error>  {
+    use PType::*;
     msg(Desc, "4. Writing to a buffer to format a string");
     let mut buf = String::new(); 
     let _ = mutate_buf_with_fmt(1, &mut buf);
     msg(Res, &buf);
+    println!("\n\n================================\n\n");
 
-    msg(Desc, "5. Using expressions");
-    derive_add(2, 2);
+    Ok(())
+}
+
+fn access_lesson_5() -> Result<(), Error>  {
+    use PType::*;
+    msg(Desc, "5. Using expressions"); derive_add(2, 2);
     msg(Desc, "We can do an expression by: let out = {{ a + b }};");
     msg(Desc, "Or we can do it shorthand by: let out = a + b;");
     msg(Desc,
@@ -68,7 +185,13 @@ fn main() -> Result<(), Error> {
         But it seems like the braces way indicates an expression more explicitly...
         \n"
     );
+    println!("\n\n================================\n\n");
 
+    Ok(())
+}
+
+fn access_lesson_6() -> Result<(), Error>  {
+    use PType::*;
     msg(Desc, "6. Using conditional expressions");
     derive_conditional_expression(3, 4);
     msg(Desc,
@@ -88,21 +211,51 @@ fn main() -> Result<(), Error> {
     msg(Desc, "a is not greater than b\n");
 
     msg(Desc, "6. Using statements\n");
+    println!("\n\n================================\n\n");
 
+    Ok(())
+}
+
+fn access_lesson_7() -> Result<(), Error>  {
+    use PType::*;
     msg(Desc, "7. Using multiple conditionals");
     derive_wrap_around_conditional(10);
     msg(Desc, "Handling multiple conditionals with if-else.\n");
+    println!("\n\n================================\n\n");
 
+    Ok(())
+}
+
+fn access_lesson_8() -> Result<(), Error>  {
+    use PType::*;
     msg(Desc, "8. Using if let");
     msg(Res, &derive_if_let(1));
+    println!("\n\n================================\n\n");
 
+    Ok(())
+}
+
+fn access_lesson_9() -> Result<(), Error> {
+    use PType::*;
     msg(Desc, "9. Using conditional loop");
     msg(Res, &derive_conditional_loop_count(5));
     msg(Desc, "REMEMBER: While loops are great counters or countdowns. Not for collections though...");
     msg(Desc, "Also, even for countdowns or counters, a for loop might be a better option since it sets clear boundaries...");
+    println!("\n\n================================\n\n");
 
+    Ok(())
+}
+
+fn access_lesson_10() -> Result<(), Error>  {
+    use PType::*;
     msg(Desc, "10. Where do literal strings go (TBD)?\n");
+    println!("\n\n================================\n\n");
 
+    Ok(())
+}
+
+fn access_lesson_11() -> Result<(), Error>  {
+    use PType::*;
     msg(Desc, "11. Examples of ownership in functions");
     let mut s = String::from("this string");
     msg(Desc, "We create a String:");
@@ -126,14 +279,26 @@ fn main() -> Result<(), Error> {
     msg(Desc, "Now we have this for x and y:\n");
     msg(Res, &x);
     msg(Res, &y);
+    println!("\n\n================================\n\n");
 
+    Ok(())
+}
+
+fn access_lesson_12() -> Result<(), Error>  {
+    use PType::*;
     msg(Desc, "12. Giving ownership from a function");
     let give_me = give_ownership();
 
     msg(Desc, "We call 'gives_ownership' and it gives us a string:\n");
     msg(Data, &give_me);
     msg(Res, &give_me);
+    println!("\n\n================================\n\n");
 
+    Ok(())
+}
+
+fn access_lesson_13() -> Result<(), Error>  {
+    use PType::*;
     msg(Desc, "13. Mutable references"); 
     let mut my_string = String::from("Before we had this...");
     msg(Data, &my_string);
@@ -145,9 +310,21 @@ fn main() -> Result<(), Error> {
         \n"
     );
     msg(Res, &my_string);
+    println!("\n\n================================\n\n");
 
+    Ok(())
+}
+
+fn access_lesson_14() -> Result<(), Error>  {
+    use PType::*;
     msg(Desc, "14. Dangling references (TBD)...\n");
+    println!("\n\n================================\n\n");
 
+    Ok(())
+}
+
+fn access_lesson_15() -> Result<(), Error>  {
+    use PType::*;
     msg(Desc, "15. String slices");
     let my_words = String::from("This is it");
     msg(Data, &my_words);
@@ -155,7 +332,13 @@ fn main() -> Result<(), Error> {
     msg(Res, &slice);
     let another_slice = &my_words[0..7];
     msg(Res, &another_slice);
+    println!("\n\n================================\n\n");
 
+    Ok(())
+}
+
+fn access_lesson_16() -> Result<(), Error>  {
+    use PType::*;
     msg(Desc, "16. Better control flow with \"it let\"");
     let mut data = TData::new();
     let input = (DataAction::Write, Some("Adding this block."));
@@ -170,7 +353,13 @@ fn main() -> Result<(), Error> {
     let input = (DataAction::Read, None);
     let result = take_verbose_control_flow_string(&mut data, input);
     msg(Res, &result);
+    println!("\n\n================================\n\n");
 
+    Ok(())
+}
+
+fn access_lesson_17() -> Result<(), Error>  {
+    use PType::*;
     msg(Desc, "17. Handling collections\n");
 
     msg(Desc, "Creating a vector.");
@@ -210,7 +399,13 @@ fn main() -> Result<(), Error> {
     try_mutate_hashmap(&mut hashmap, entry);
     msg(Res, &hashmap);
     msg(Desc, "Does not mutate because key and value already populated.\n");
+    println!("\n\n================================\n\n");
 
+    Ok(())
+}
+
+fn access_lesson_18() -> Result<(), Error>  {
+    use PType::*;
     msg(Desc, "18. Error handling\n");
     msg(Desc, "Trying panic.");
     let real_panic = false;
@@ -224,7 +419,13 @@ fn main() -> Result<(), Error> {
     };
     msg(Impl, "mock_program_panic()\n");
     msg(Res, did_real_panic.is_ok());
+    println!("\n\n================================\n\n");
 
+    Ok(())
+}
+
+fn access_lesson_19() -> Result<(), Error> {
+    use PType::*;
     msg(Desc, "19. Generics\n");
     msg(Desc, "Finding largest value in collection with generic function.");
     msg(Impl, "access_largest(&[T])");
@@ -247,65 +448,32 @@ fn main() -> Result<(), Error> {
     msg(Data, &g_impl);
     msg(Impl, "g_impl.give_pair()");
     let result = g_impl.give_pair(_data.0, _data.1);
-    msg(Res, &result);
+    msg(Res, result);
+
+    msg(Desc, "Now using trait for news reader.");
+    msg(Impl, "NewsReader::give()");
+    let mut news_reader = NewsReader::give();
+    msg(Data, &news_reader);
+    msg(Desc, "Adding news article.");
+    msg(Impl, "NewsReader::take_add_article(article: NewsArticle)");
+    let article = NewsArticle {
+        headline: String::from("Global Stuff Happening!"),
+        location: String::from("Island Newspaper"),
+        author: String::from("John Snow"),
+        content: String::from("lorem ipsum..."),
+    };
+    msg(Data, &article);
+    news_reader.take_add_article(article)?;
+    msg(Res, &news_reader);
+    msg(Desc, "Accessing article");
+    msg(Impl, "NewsReader::access_article(idx: usize)");
+    let article = news_reader.access_article(None);
+    msg(Res, &article);
+    msg(Desc, "Accessing summarized article.");
+    msg(Impl, "NewsReader::access_summary(idx: usize)");
+    let summary = news_reader.access_summary(None);
+    msg(Res, &summary);
+    println!("\n\n================================\n\n");
 
     Ok(())
 }
-
-#[derive(Debug)]
-enum PType {
-    Stat,
-    Desc,
-    Impl,
-    Data,
-    Res,
-}
-
-fn msg<T: std::fmt::Debug>(t: PType, msg: T) {
-    // Message helpers
-    match t {
-        PType::Stat => println!("Runtime: {:#?}", msg),
-        PType::Desc => println!("Description: {:#?}", msg),
-        PType::Impl => println!(" | function: {:#?}", msg),
-        PType::Data => println!(" | data: {:#?}", msg),
-        PType::Res => println!(" | result: {:#?}", msg),
-    }
-}
-
-pub type EmptyString<'a> = &'a str;
-#[allow(unused)]
-const EMPTY_STR: EmptyString = "";
-
-pub type PrettyFormat<'a> = &'a str;
-#[allow(unused)]
-const FMT: PrettyFormat = "{:#?}"; 
-
-
-#[derive(Debug, PartialEq)]
-enum State {
-    Init,
-    Running,
-    Shutdown,
-    Error,
-}
-
-#[derive(Debug, PartialEq)]
-struct Config {
-
-}
-
-#[derive(Debug, PartialEq)]
-struct Runtime<T> {
-    state: State,
-    config: Option<T>,
-}
-
-impl<T> Runtime<T> {
-    fn give(cfg: T) -> Self {
-        Self { state: State::Init, config: Some(cfg) }
-    }
-
-    fn access_status(&self) -> &Self { self }
-}
-
-

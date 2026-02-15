@@ -356,6 +356,50 @@ impl<T, U> GImpl<T, U> {
     }
 }
 
+#[derive(Debug, PartialEq)]
+#[allow(unused)]
+pub struct NewsArticle {
+    pub headline: String,
+    pub location: String,
+    pub author: String,
+    pub content: String,
+}
+
+#[derive(Debug, PartialEq)]
+#[allow(unused)]
+pub struct NewsReader {
+    articles: Vec<NewsArticle>
+}
+
+pub trait Article {
+    fn give() -> Self;
+    fn take_add_article(&mut self, article: NewsArticle) -> Result<(), Error>;
+    fn access_article(&self, idx: Option<usize>) -> &NewsArticle;
+    fn access_summary(&self, _idx: Option<usize>) -> String;
+}
+
+impl Article for NewsReader {
+    fn give() -> Self {
+        Self { articles: vec![], }
+    }
+
+    fn take_add_article(&mut self, article: NewsArticle) -> Result<(), Error> {
+        self.articles.push(article);
+        Ok(())
+    }
+
+    fn access_article(&self, idx: Option<usize>) -> &NewsArticle {
+        match idx {
+            Some(article) => &self.articles[article],
+            None => &self.articles[0]
+        }
+    }
+
+    fn access_summary(&self, _idx: Option<usize>) -> String {
+        String::new()
+    }
+}
+
 #[cfg(test)]
 mod rust_main_tests {
     #[allow(unused)]
@@ -480,6 +524,66 @@ mod rust_main_tests {
         let g_impl = GImpl::give();
         let result = g_impl.give_pair(45, 'h');
         assert!(result == (45, 'h'));
+    }
+
+    #[test]
+    fn test_give_news_article() {
+        let reader = NewsReader::give();
+        assert!(reader == NewsReader { articles: vec![] });
+    }
+
+    #[test]
+    fn test_take_add_news_article() {
+        let mut reader = NewsReader::give();
+        let news_article = NewsArticle { 
+            headline: String::from("Global Stuff Happening!"),
+            location: String::from("Island Newspaper"),
+            author: String::from("John Snow"),
+            content: String::from("lorem ipsum..."),
+        }; 
+        let res = reader.take_add_article(news_article);
+        assert!(res.is_ok());
+        assert!(reader.articles[0] == NewsArticle { 
+            headline: String::from("Global Stuff Happening!"),
+            location: String::from("Island Newspaper"),
+            author: String::from("John Snow"),
+            content: String::from("lorem ipsum..."),
+        })
+    }
+
+    #[test]
+    fn test_access_news_article() {
+        let mut reader = NewsReader::give();
+        let news_article = NewsArticle { 
+            headline: String::from("Global Stuff Happening!"),
+            location: String::from("Island Newspaper"),
+            author: String::from("John Snow"),
+            content: String::from("lorem ipsum..."),
+        }; 
+        let res = reader.take_add_article(news_article);
+        assert!(res.is_ok());
+        let article = reader.access_article(None);
+        assert!(*article == NewsArticle { 
+            headline: String::from("Global Stuff Happening!"),
+            location: String::from("Island Newspaper"),
+            author: String::from("John Snow"),
+            content: String::from("lorem ipsum..."),
+        })
+    }
+
+    #[test]
+    fn test_access_news_summary() {
+        let mut reader = NewsReader::give();
+        let news_article = NewsArticle { 
+            headline: String::from("Global Stuff Happening!"),
+            location: String::from("Island Newspaper"),
+            author: String::from("John Snow"),
+            content: String::from("lorem ipsum..."),
+        }; 
+        let res = reader.take_add_article(news_article);
+        assert!(res.is_ok());
+        let summary = reader.access_summary(None);
+        assert!(*summary == String::new()); 
     }
 
 }
