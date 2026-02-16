@@ -72,6 +72,7 @@ fn main() -> Result<(), Error> {
                 if let Err(e) = result {
                     msg(PType::Res, format!("lesson failed: {}", e));
                     runtime.mutate_state(ProgramState::ErrorState); 
+                    return Err(Error::other("Exit."));
                 }
             }
             None => {
@@ -86,7 +87,7 @@ fn main() -> Result<(), Error> {
                     runtime.t_exec,
                     if runtime.t_exec < 1.0 { "PASS" } else { "FAIL" },
                 ));
-                continue;
+                return Ok(());
             }
         }
     }
@@ -304,6 +305,7 @@ fn access_lesson_1() -> Result<(), Error> {
     println!("\n\n================================\n\n");
 
     Ok(())
+    // Err(Error::other("Test error."))
 }
 
 fn access_lesson_2() -> Result<(), Error> {
