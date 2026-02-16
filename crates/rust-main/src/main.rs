@@ -1,21 +1,29 @@
+// Data
+#[allow(unused)]
+use std::marker::PhantomData;
+
+// Errors
 use std::io::Error;
 // use std::fmt::Error;
 // use std::error::Error;
 // use core::error::Error;
 
+// Timing
+#[allow(unused)]
+use std::time::Instant;
+
+// Modules
 #[allow(unused)]
 use rust_main::*;
 
-#[allow(unused)]
-use std::marker::PhantomData;
 
 fn main() -> Result<(), Error> {
     use PType::*;
 
-    // Start
+    // Initalize 
     let config: Option<String> = None;
-    let lessons = give_lessons();
-    let end_condition = lessons.len()-1;
+    let thread_main = give_thread_1();
+    let end_condition = thread_main.len()-1;
     let mut runtime = Runtime::give(config);
     let mut cur = 0;
 
@@ -24,14 +32,26 @@ fn main() -> Result<(), Error> {
     println!("\n\n================================\n\n");
     msg(Cfg, runtime.access_config());
     msg(State, runtime.access_status());
+    msg(Threads, runtime.access_threads());
 
+    // Run engine
     runtime.mutate_state(ProgramState::Running);
     msg(State, runtime.access_status());
     loop {
         if let ProgramState::Running =  runtime.state {
             println!("\n--- Lesson {} ---\n", cur + 1);
 
-            let result = lessons[cur]();
+            let start = Instant::now();
+            let result = thread_main[cur]();
+            let dt = start.elapsed();
+            let ms = dt.as_secs_f64() * 1000.0;
+            runtime.mutate_sum_exec_time(ms);
+            msg(PType::Perf, format!(
+                "| executed: {} | t_elapsed: {:7>.3}ms | t_budget: {}", 
+                std::any::type_name_of_val(&thread_main[cur]),
+                ms,
+                if ms < 1.0 {"PASS"} else {"FAIL"},
+            ));
             match result {
                 Ok(()) => {
                     if cur == end_condition { 
@@ -45,7 +65,6 @@ fn main() -> Result<(), Error> {
                     runtime.mutate_state(ProgramState::ErrorState);
                 }
             }
-            cur = cur + 1;
         } else {
             break;
         }
@@ -53,6 +72,13 @@ fn main() -> Result<(), Error> {
 
     // Checking end condition
     msg(State, runtime.access_status());
+    msg(Cfg, runtime.access_config());
+    msg(Threads, runtime.access_threads());
+    msg(PType::Perf, format!(
+        "| t_runtime: {:7>.3}ms | t_budget: {}", 
+        runtime.t_exec,
+        if runtime.t_exec < 1.0 {"PASS"} else {"FAIL"},
+    ));
     match runtime.state {
         ProgramState::Shutdown => Ok(()),
         _ => Err(Error::other("Error occurred."))
@@ -73,23 +99,29 @@ const FMT: PrettyFormat = "{:#?}";
 enum PType {
     State,
     Cfg,
+    Threads,
     Desc,
     Impl,
     Data,
     Res,
+    Perf,
 }
 
 fn msg<T: std::fmt::Debug>(t: PType, msg: T) {
     // Message helpers
     match t {
-        PType::State => println!("Runtime state: {:#?}", msg),
+        PType::State => println!("\nRuntime state: {:#?}", msg),
         PType::Cfg => println!("Runtime config: {:#?}", msg),
+        PType::Threads => println!("Runtime threads: {:#?}", msg),
         PType::Desc => println!("Description: {:#?}", msg),
         PType::Impl => println!(" | function: {:#?}", msg),
         PType::Data => println!(" | data: {:#?}", msg),
         PType::Res => println!(" | result: {:#?}", msg),
+        PType::Perf => println!(" | perf: {:#?}", msg),
     }
 }
+
+const THREADS: usize = 1; 
 
 #[derive(Debug, PartialEq)]
 #[allow(unused)]
@@ -98,6 +130,11 @@ enum ProgramState {
     Running,
     Shutdown,
     ErrorState,
+}
+
+#[derive(Debug, PartialEq)]
+enum Thread {
+    Main,
 }
 
 #[derive(Debug, PartialEq)]
@@ -112,11 +149,19 @@ struct Runtime {
     state: ProgramState,
     config: Option<String>,
     default_config: String,
+    threads: [Thread; THREADS],
+    t_exec: f64,
 }
 
 impl Runtime {
     fn give(cfg: Option<String>) -> Self {
-        Self { state: ProgramState::Init, config: cfg, default_config: String::new() }
+        Self { 
+            state: ProgramState::Init, 
+            config: cfg, 
+            default_config: String::new(),
+            threads: [Thread::Main], 
+            t_exec: 0.,
+        }
     }
 
     fn mutate_state(&mut self, s: ProgramState) {
@@ -135,10 +180,21 @@ impl Runtime {
     fn access_status(&self) -> &ProgramState { 
         &self.state 
     }
+
+    #[allow(unused)]
+    fn access_threads(&self) -> &[Thread; THREADS] { 
+        &self.threads 
+    }
+
+    #[allow(unused)]
+    fn mutate_sum_exec_time(&mut self, t: f64) {
+        self.t_exec += t; 
+    } 
+
+
 }
 
-
-fn give_lessons() -> [fn() -> Result<(), Error>; 19] {
+fn give_thread_1() -> [fn() -> Result<(), Error>; 19] {
     [
             access_lesson_1, 
             access_lesson_2,
