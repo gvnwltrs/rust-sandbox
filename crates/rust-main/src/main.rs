@@ -22,150 +22,123 @@ fn main() -> Result<(), Error> {
 
     // Initalize 
     let config: Option<String> = None;
-    let thread_main = give_thread_1();
-    let end_condition = thread_main.len()-1;
-    let mut runtime = Runtime::give(config);
-    let mut cur = 0;
+    let mut runtime: Runtime<fn()-> Result<(), Error>> = Runtime::give(config);
 
-    msg(Desc, "Rust Main Starting...\n");
+    msg(Desc, "Rust Main Experimental Starting...\n");
     msg(Desc, "Running through Rust the Programming Language concepts.\n");
     println!("\n\n================================\n\n");
     msg(Cfg, runtime.access_config());
     msg(State, runtime.access_status());
     msg(Threads, runtime.access_threads());
 
-    // Run engine
+    /************************ 5. Engine **************************/
+
     runtime.mutate_state(ProgramState::Running);
     msg(State, runtime.access_status());
-    loop {
-        if let ProgramState::Running =  runtime.state {
-            println!("\n--- Lesson {} ---\n", cur + 1);
 
-            let start = Instant::now();
-            let result = thread_main[cur]();
-            let dt = start.elapsed();
-            let ms = dt.as_secs_f64() * 1000.0;
-            runtime.mutate_sum_exec_time(ms);
-            msg(PType::Perf, format!(
-                "| executed: {} | t_elapsed: {:7>.3}ms | t_budget: {}", 
-                std::any::type_name_of_val(&thread_main[cur]),
-                ms,
-                if ms < 1.0 {"PASS"} else {"FAIL"},
-            ));
-            match result {
-                Ok(()) => {
-                    if cur == end_condition { 
-                        runtime.mutate_state(ProgramState::Shutdown); 
-                    } else {
-                        cur += 1;
-                    }
-                } 
-                Err(e) => {
+    loop {
+        if runtime.state != ProgramState::Running {
+           return Ok(());
+        }
+
+        let thread = &mut runtime.access_threads()[0];
+
+        if let Thread::NoThread = thread {
+            runtime.mutate_state(ProgramState::Shutdown); 
+            return Ok(());
+        }
+
+        let task_num = thread.give_counter() + 1;
+
+        println!("\n--- Lesson {} ---\n", task_num);
+
+        let next_task = thread.give_next_task(); 
+        match next_task {
+            Some(task) => {
+                // Performance check
+                let start = Instant::now();
+                let result = task();
+                let dt = start.elapsed();
+                let ms = dt.as_secs_f64() * 1000.0;
+                runtime.mutate_sum_exec_time(ms);
+
+                msg(PType::Perf, format!(
+                    "| executed: {} | t_elapsed: {:7>.3}ms | t_budget: {}", 
+                    std::any::type_name_of_val(&task),
+                    ms,
+                    if ms < 1.0 {"PASS"} else {"FAIL"},
+                ));
+
+                if let Err(e) = result {
                     msg(PType::Res, format!("lesson failed: {}", e));
-                    runtime.mutate_state(ProgramState::ErrorState);
+                    runtime.mutate_state(ProgramState::ErrorState); 
                 }
             }
-        } else {
-            break;
+            None => {
+                runtime.mutate_state(ProgramState::Shutdown); 
+                runtime.mutate_thread_call(None);
+                 // End / summary
+                msg(State, runtime.access_status());
+                msg(Cfg, runtime.access_config());
+                msg(Threads, runtime.access_threads());
+                msg(PType::Perf, format!(
+                    "| t_runtime: {:7>.3}ms | t_budget: {}",
+                    runtime.t_exec,
+                    if runtime.t_exec < 1.0 { "PASS" } else { "FAIL" },
+                ));
+                continue;
+            }
         }
     }
 
-    // Checking end condition
-    msg(State, runtime.access_status());
-    msg(Cfg, runtime.access_config());
-    msg(Threads, runtime.access_threads());
-    msg(PType::Perf, format!(
-        "| t_runtime: {:7>.3}ms | t_budget: {}", 
-        runtime.t_exec,
-        if runtime.t_exec < 1.0 {"PASS"} else {"FAIL"},
-    ));
-    match runtime.state {
-        ProgramState::Shutdown => Ok(()),
-        _ => Err(Error::other("Error occurred."))
-    }
 }
 
-// Helpers 
+/*************************************  1. Data  *************************************************/
 
-pub type EmptyString<'a> = &'a str;
-#[allow(unused)]
-const EMPTY_STR: EmptyString = "";
-
-pub type PrettyFormat<'a> = &'a str;
-
-#[allow(unused)]
-const FMT: PrettyFormat = "{:#?}"; 
-#[derive(Debug)]
-enum PType {
-    State,
-    Cfg,
-    Threads,
-    Desc,
-    Impl,
-    Data,
-    Res,
-    Perf,
-}
-
-fn msg<T: std::fmt::Debug>(t: PType, msg: T) {
-    // Message helpers
-    match t {
-        PType::State => println!("\nRuntime state: {:#?}", msg),
-        PType::Cfg => println!("Runtime config: {:#?}", msg),
-        PType::Threads => println!("Runtime threads: {:#?}", msg),
-        PType::Desc => println!("Description: {:#?}", msg),
-        PType::Impl => println!(" | function: {:#?}", msg),
-        PType::Data => println!(" | data: {:#?}", msg),
-        PType::Res => println!(" | result: {:#?}", msg),
-        PType::Perf => println!(" | perf: {:#?}", msg),
-    }
-}
-
+// Constants 
 const THREADS: usize = 1; 
 
-#[derive(Debug, PartialEq)]
-#[allow(unused)]
-enum ProgramState {
-    Init,
-    Running,
-    Shutdown,
-    ErrorState,
-}
-
-#[derive(Debug, PartialEq)]
-enum Thread {
-    Main,
-}
-
+// Config
 #[derive(Debug, PartialEq)]
 #[allow(dead_code)]
-// TODO: Implment to convert fields into one string
 struct Config {
-    // TODO
+// TODO: Implment to convert fields into one string
 }
 
+// Rutime data + states 
 #[derive(Debug, PartialEq)]
-struct Runtime {
+struct Runtime <T> {
     state: ProgramState,
     config: Option<String>,
     default_config: String,
-    threads: [Thread; THREADS],
     t_exec: f64,
+    threads: [Thread; THREADS], 
+    prev_task: Option<T>,
+    task: Option<T>,
 }
 
-impl Runtime {
+impl<T> Runtime<T> {
     fn give(cfg: Option<String>) -> Self {
         Self { 
             state: ProgramState::Init, 
             config: cfg, 
             default_config: String::new(),
-            threads: [Thread::Main], 
             t_exec: 0.,
+            threads: [Thread::give()],
+            prev_task: None,
+            task: None, 
         }
     }
 
     fn mutate_state(&mut self, s: ProgramState) {
         self.state = s;
+    }
+
+    fn mutate_thread_call(&mut self, s: Option<Thread>) {
+        match s {
+            Some(opt) => { self.threads = [opt]; } 
+            None => { self.threads = [Thread::NoThread]; }
+        } 
     }
 
     #[allow(unused)]
@@ -182,8 +155,8 @@ impl Runtime {
     }
 
     #[allow(unused)]
-    fn access_threads(&self) -> &[Thread; THREADS] { 
-        &self.threads 
+    fn access_threads(&mut self) -> &mut [Thread] { 
+        &mut self.threads
     }
 
     #[allow(unused)]
@@ -194,6 +167,132 @@ impl Runtime {
 
 }
 
+// Custom types
+pub type EmptyString<'a> = &'a str;
+#[allow(unused)]
+const EMPTY_STR: EmptyString = "";
+
+pub type PrettyFormat<'a> = &'a str;
+
+#[allow(unused)]
+const FMT: PrettyFormat = "{:#?}"; 
+
+// Message types 
+#[derive(Debug)]
+enum PType {
+    State,
+    Cfg,
+    Threads,
+    Desc,
+    Impl,
+    Data,
+    Res,
+    Perf,
+}
+
+// Function type
+type Task = fn() -> Result<(), Error>;
+
+// Message handler 
+fn msg<T: std::fmt::Debug>(t: PType, msg: T) {
+    // Message helpers
+    match t {
+        PType::State => println!("\nRuntime state: {:#?}", msg),
+        PType::Cfg => println!("Runtime config: {:#?}", msg),
+        PType::Threads => println!("Runtime threads: {:#?}", msg),
+        PType::Desc => println!("Description: {:#?}", msg),
+        PType::Impl => println!(" | function: {:#?}", msg),
+        PType::Data => println!(" | data: {:#?}", msg),
+        PType::Res => println!(" | result: {:#?}", msg),
+        PType::Perf => println!(" | perf: {:#?}", msg),
+    }
+}
+
+/****************************  2. States ************************************/ 
+#[derive(Debug, PartialEq)]
+#[allow(unused)]
+enum ProgramState {
+    Init,
+    Running,
+    Shutdown,
+    ErrorState,
+}
+
+/****************************  3. Threads ************************************/ 
+const TASKS: usize = 19;
+
+#[derive(Debug, PartialEq)]
+enum Thread {
+    Main { 
+        counter: usize,
+        tasks: [fn() -> Result<(), Error>; TASKS],
+    },
+    // NOTE: main contains core tasks, but other threads might be one singular task...
+    NoThread,
+}
+
+impl Thread {
+    fn give() -> Self { 
+        // Self::Main { 
+        //     tasks: give_thread_1() 
+        // } 
+        Self::Main {
+            counter: 0,
+            tasks: [
+                access_lesson_1, 
+                access_lesson_2,
+                access_lesson_3,
+                access_lesson_4, 
+                access_lesson_5, 
+                access_lesson_6, 
+                access_lesson_7, 
+                access_lesson_8, 
+                access_lesson_9, 
+                access_lesson_10, 
+                access_lesson_11, 
+                access_lesson_12, 
+                access_lesson_13, 
+                access_lesson_14, 
+                access_lesson_15,
+                access_lesson_16, 
+                access_lesson_17, 
+                access_lesson_18, 
+                access_lesson_19, 
+            ]
+        }
+    }
+
+    fn give_counter(&self) -> usize {
+        match self {
+            Thread::Main { counter, .. } => *counter,
+            Thread::NoThread => 0,
+        }
+    }
+
+    fn give_next_task(&mut self) -> Option<Task> { 
+        match self {
+            Thread::Main { counter, tasks } => { 
+                if *counter >= TASKS { 
+                    return None;
+                } 
+                let f = tasks[*counter];
+                *counter += 1; 
+                Some(f)
+            },
+            Thread::NoThread => None 
+        }
+    }
+
+    #[allow(unused)]
+    fn access_execute_task(f: fn() -> Result<(), Error>) -> Result<(), Error> {
+        f()
+    }
+
+}
+
+/**************************** 4. Tasks ************************************/ 
+
+#[allow(unused)]
 fn give_thread_1() -> [fn() -> Result<(), Error>; 19] {
     [
             access_lesson_1, 
@@ -218,7 +317,11 @@ fn give_thread_1() -> [fn() -> Result<(), Error>; 19] {
         ]
 }
 
-// Lessons
+#[allow(unused)]
+fn give_exit() -> Result<(), Error> {
+    Ok(())
+}
+
 fn access_lesson_1() -> Result<(), Error> {
     use PType::*;
     msg(Desc, "1. Updating a variable");
