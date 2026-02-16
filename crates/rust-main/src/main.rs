@@ -233,9 +233,6 @@ enum Thread {
 
 impl Thread {
     fn give() -> Self { 
-        // Self::Main { 
-        //     tasks: give_thread_1() 
-        // } 
         Self::Main {
             counter: 0,
             tasks: [
@@ -291,36 +288,6 @@ impl Thread {
 }
 
 /**************************** 4. Tasks ************************************/ 
-
-#[allow(unused)]
-fn give_thread_1() -> [fn() -> Result<(), Error>; 19] {
-    [
-            access_lesson_1, 
-            access_lesson_2,
-            access_lesson_3,
-            access_lesson_4, 
-            access_lesson_5, 
-            access_lesson_6, 
-            access_lesson_7, 
-            access_lesson_8, 
-            access_lesson_9, 
-            access_lesson_10, 
-            access_lesson_11, 
-            access_lesson_12, 
-            access_lesson_13, 
-            access_lesson_14, 
-            access_lesson_15,
-            access_lesson_16, 
-            access_lesson_17, 
-            access_lesson_18, 
-            access_lesson_19, 
-        ]
-}
-
-#[allow(unused)]
-fn give_exit() -> Result<(), Error> {
-    Ok(())
-}
 
 fn access_lesson_1() -> Result<(), Error> {
     use PType::*;
