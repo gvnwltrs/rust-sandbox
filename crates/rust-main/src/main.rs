@@ -169,6 +169,7 @@ impl<T> Runtime<T> {
 
 // Custom types
 pub type EmptyString<'a> = &'a str;
+
 #[allow(unused)]
 const EMPTY_STR: EmptyString = "";
 

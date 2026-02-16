@@ -613,6 +613,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "rust-patterns"
+version = "0.1.0"
+
+[[package]]
 name = "rust-simulator"
 version = "0.1.0"
 dependencies = [
