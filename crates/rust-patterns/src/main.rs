@@ -34,18 +34,6 @@ use std::time::Instant;
 #[allow(unused)]
 use rust_patterns::*;
 
-fn main() -> Result<(), Error>{
-
-    let system = give_init();
-    println!("System status: {:#?}", system);
-
-    /* Engine */
-    loop {
-        break;
-    }
-
-    Ok(())
-}
 
 /*******************************************************************************
  *                      Linear Sequential Runtime System 
@@ -53,30 +41,29 @@ fn main() -> Result<(), Error>{
 
 /*******************************************************************************
  * 1. Data
+ * 
+ * Establish data endpoints. 
+ * Establish & confirm complete data. 
+ *
 ******************************************************************************/
 
+#[allow(unused)]
 const THREADS: usize = 1;
-const TASKS: usize = 1;
 
 #[allow(unused)]
-const EXECUTION_THRESHOLD: f64 = 1.;
+const BUFFER: usize = 1;
 
-#[derive(Debug, PartialEq)]
 #[allow(unused)]
-enum Stub {
-    TBD,
-    WIP,
-}
+const EXECUTION_THRESHOLD: f64 = 1.;  // Units in ms
 
 #[derive(Debug, PartialEq)]
 #[allow(unused)]
 struct Data {
+    data_1: u32,
     config: Option<String>,
     sys_perf: f64,
-    threads: [Stub; THREADS],
-    prev_task: Option<Stub>,
-    task: Option<Stub>,
-    payload: Option<Stub>,
+    payload: Option<String>,
+    state: State,
 }
 
 /*******************************************************************************
@@ -86,7 +73,8 @@ struct Data {
 #[derive(Debug, PartialEq)]
 #[allow(unused)]
 enum State {
-    Initialized,
+    Init,
+    Idle,
     Running,
     Failure,
     Degraded,
@@ -98,10 +86,10 @@ enum State {
 ******************************************************************************/
 #[derive(Debug, PartialEq)]
 #[allow(unused)]
-enum Thread {
+enum ProgramThread {
     Main {
         counter: usize,
-        tasks: [Stub; TASKS],
+        tasks: [Task; BUFFER],
     },
 }
 
@@ -109,8 +97,48 @@ enum Thread {
  * 4. Tasks 
 ******************************************************************************/
 
+// Helpers 
+
+#[derive(Debug, PartialEq)]
+struct TaskFn {
+    id: usize,
+    func: fn() -> Result<(), Error>,
+}
+
+#[derive(Debug, PartialEq)]
+enum Task {
+    NoArg(TaskFn),
+}
+
+impl Task {
+    fn execute(&self) -> Result <(), Error> {
+        match self {
+            Task::NoArg(f) => (f.func)(),
+        }
+
+    }
+}
+
 #[allow(unused)]
-fn give_task_1() -> Result<(), Error>{
+enum PerfTask {
+    StartTime,
+    EndTime,
+}
+
+#[allow(unused)]
+fn give_task_perf_time_elapse(p: PerfTask) -> Result<usize, Error>{
+    match p {
+        PerfTask::StartTime => Ok(0),
+        PerfTask::EndTime => Ok(0),
+    }
+}
+
+/* NOTE:
+ * Real task implmentations exist outside of main in modules, crates, or libraries. 
+ */
+
+fn access_mock_task() -> Result<(), Error> {
+    println!("\n===================Mock task executing=======================\n");
     Ok(())
 }
 
@@ -119,6 +147,63 @@ fn give_task_1() -> Result<(), Error>{
 ******************************************************************************/
 
 #[allow(unused)]
-fn give_init() -> Result<(), Error>{
+fn give_init() -> Result<Data, Error>{
+    Ok(Data {
+        data_1: 0,
+        config: None,
+        sys_perf: 0.,
+        payload: None,
+        state: State::Init,
+    })
+}
+
+fn main() -> Result<(), Error>{
+
+    /* Init */
+
+    // Context
+    let mut ctx = give_init()?;
+    println!("System status: {:#?}", ctx);
+
+    // Thread(s) + task load
+    let mut current_thread = ProgramThread::Main {
+        counter: 0,
+        tasks: [
+            Task::NoArg(TaskFn { id: 0, func: access_mock_task } ),
+        ],
+    };
+
+    ctx.state = State::Idle;
+
+    /* Running */
+    ctx.state = State::Running; 
+    loop {
+        /* NOTE: Should structure task handler here to avoid duplication of functions. Previously,
+         * I had been creating functions in main that call functions in implmentation. 
+         */
+
+        println!("Counter: {:#?}", current_thread);
+        match &mut current_thread { // FIXME: This is a bit clunky or sloppy. Might be a more
+                                 // idiomatic way to accomplish this...
+
+            ProgramThread::Main { counter, tasks } => { 
+                match (*counter < BUFFER, &ctx.state) {
+                    (true, State::Running) => {
+                        tasks[*counter].execute()?;
+                        *counter += 1;
+                    }
+                    _ => {
+                        ctx.state = State::Shutdown;
+                        println!("Report: {:#?}", ctx);
+                        break;
+                    }
+                }
+
+            }
+
+        }
+    }
+
     Ok(())
 }
+
