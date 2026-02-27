@@ -99,10 +99,16 @@ enum ProgramThread {
 
 // Helpers 
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug)]
 struct TaskFn {
     id: usize,
     func: fn() -> Result<(), Error>,
+}
+
+impl PartialEq for TaskFn {
+    fn eq(&self, other: &Self) -> bool {
+        self.id == other.id
+    }
 }
 
 #[derive(Debug, PartialEq)]
