@@ -61,8 +61,8 @@ const EXECUTION_THRESHOLD: f64 = 1.;  // Units in ms
 struct Data {
     data_1: u32,
     config: Option<String>,
-    sys_perf: f64,
-    payload: Option<String>,
+    perf: f64,
+    logs: Option<[String; 100]>,
     state: State,
 }
 
@@ -157,8 +157,8 @@ fn give_init() -> Result<Data, Error>{
     Ok(Data {
         data_1: 0,
         config: None,
-        sys_perf: 0.,
-        payload: None,
+        perf: 0.,
+        logs: None,
         state: State::Init,
     })
 }
@@ -194,10 +194,12 @@ fn main() -> Result<(), Error>{
 
             ProgramThread::Main { counter, tasks } => { 
                 match (*counter < BUFFER, &ctx.state) {
+
                     (true, State::Running) => {
                         tasks[*counter].execute()?;
                         *counter += 1;
                     }
+
                     _ => {
                         ctx.state = State::Shutdown;
                         println!("Report: {:#?}", ctx);
