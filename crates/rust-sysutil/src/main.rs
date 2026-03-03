@@ -38,7 +38,7 @@ fn main() -> Result<(), Error> {
 
     // 1. Data Context
     let mut ctx = Data::give_system_init();
-    println!("\nSystem status: {:#?}\n", ctx);
+    println!("\nBoot status: {:#?}\n", ctx);
 
     // 2. Thread(s) + task loading
     // NOTE: add tasks to execute in sequence here
@@ -50,15 +50,16 @@ fn main() -> Result<(), Error> {
             Cell { id: 2, task: TaskType::AccessReport },
             Cell { id: 3, task: TaskType::DisplayMsg },
             Cell { id: 4, task: TaskType::AccessReport },
+            Cell { id: 5, task: TaskType::CheckPerfomance },
         ],
         handoff: Default::default(),
     };
 
     ctx.state = State::Idle;
-    println!("\nSystem status: {:#?}\n", ctx);
+    println!("\nBoot status: {:#?}\n", ctx);
 
     ctx.state = State::Running; 
-    println!("\nSystem status: {:#?}\n", ctx);
+    println!("\nBoot status: {:#?}\n", ctx);
 
     /*  3. Run Engine */
 
@@ -68,15 +69,14 @@ fn main() -> Result<(), Error> {
 
             State::Running => {
                 current_thread.step(&mut ctx)?;
-                if ctx.state == State::Report {
-                    println!("\nReport: {:#?}\n", ctx);
-                    ctx.state = State::Running;
+                if ctx.debug_mode.is_some()  {
+                    println!("\nRuntime status: {:#?}\n", ctx);
                 }
             }
             
             _ => {
                 ctx.state = State::Shutdown;
-                println!("\nReport: {:#?}\n", ctx);
+                println!("\nShutdown status: {:#?}\n", ctx);
                 break;
             }
 

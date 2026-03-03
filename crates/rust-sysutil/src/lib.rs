@@ -21,7 +21,7 @@ use std::fmt::write;
 pub const THREADS: usize = 1;
 
 #[allow(unused)]
-pub const TASK_BUFFER: usize = 5;
+pub const TASK_BUFFER: usize = 6;
 
 #[allow(unused)]
 pub const EXECUTION_THRESHOLD: f64 = 1.;  // Units in ms
@@ -43,9 +43,10 @@ pub struct Data {
     pub read_io: Option<String>,        // (2) Running state: import data (e.g. file system or API call) 
     pub write_io: Option<String>,       // (2) Running state: export data (e.g. file system or API call)
     pub display_io: Option<String>,     // (2) Running state: utilizing system terminal output or display drivers
-    pub perf: Option<f64>,              // (3) Report  state: system information details 
-    pub logs: Option<[String; 100]>,    // (3, 4, 5, 6) Report, Failure, Degraded, Shutdown state: Logs for any event during running state  
+    pub perf: Option<String>,           // (2) Running state: system information details 
+    pub logs: Option<[String; 100]>,    // (2, 3, 4, 5) Running, Failure, Degraded, Shutdown state: Logs for any event during running state  
     pub prev_cell_id: usize,        // Access index: Current cell can access previous cell generated data
+    pub debug_mode: Option<String>,
     pub state: State,                   // System state
 }
 
@@ -59,6 +60,7 @@ impl Data {
             perf: None,
             logs: None,
             prev_cell_id: 0,
+            debug_mode: Some(String::from("Default")),
             state: State::Init,
         }
     }
@@ -73,6 +75,7 @@ impl Data {
             TaskOutput::None => { Ok(()) }
             TaskOutput::MutateState(next_state) => { self.state = next_state; Ok(()) }
             TaskOutput::MutateDisplayIO(data) => { self.display_io = Some(data); Ok(()) }
+            TaskOutput::MutatePerf(data) => { self.perf = Some(data); Ok(()) }
             _ => Ok(())
         }
     }
@@ -92,10 +95,9 @@ pub enum State {
     Init,       // (0)
     Idle,       // (1)
     Running,    // (2) 
-    Report,     // (3)
-    Failure,    // (4)
-    Degraded,   // (5)
-    Shutdown,   // (6)
+    Failure,    // (3)
+    Degraded,   // (4)
+    Shutdown,   // (5)
 }
 
 /*******************************************************************************
@@ -156,7 +158,7 @@ pub enum TaskOutput {
     MutateReadIO(),
     MutateWriteIO(),
     MutateDisplayIO(String),
-    MutatePerf(f64),
+    MutatePerf(String),
     MutateLogs(),
     MutateState(State),
 }
@@ -167,6 +169,7 @@ pub enum TaskType {
     AccessReport,
     CreateMsg,
     DisplayMsg,
+    CheckPerfomance,
 }
 
 impl TaskType {
@@ -175,19 +178,24 @@ impl TaskType {
 
             // NOTE: Just a dummy to smoke test
             TaskType::None => {
-                (CellData::None , Ok(TaskOutput::None))
+                ( CellData::None , Ok(TaskOutput::None) )
             }
 
             TaskType::AccessReport => {
-                (handoff, Ok(TaskOutput::MutateState(State::Report)))
+                ( handoff, Ok(TaskOutput::None) )
             }
 
             TaskType::CreateMsg => {
-                (CellData::String(format!("My string.")), Ok(TaskOutput::None))
+                ( CellData::String(format!("My string.")), Ok(TaskOutput::None) )
             }
 
             TaskType::DisplayMsg => {
-                (CellData::None, Ok(TaskOutput::MutateDisplayIO(format!("{:#?}", handoff))))
+                ( CellData::None, Ok(TaskOutput::MutateDisplayIO(format!("{:#?}", handoff))) )
+            }
+
+            TaskType::CheckPerfomance => {
+                let uptime = System::uptime();
+                ( CellData::None, Ok(TaskOutput::MutatePerf(format!("uptime: {}, TBD...", uptime))) )
             }
 
         }
