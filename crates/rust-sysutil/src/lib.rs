@@ -1,5 +1,13 @@
 use std::io::Error;
+
+#[allow(unused)]
 use sysinfo::System;
+
+#[allow(unused)]
+use std::time::SystemTime;
+
+#[allow(unused)]
+use std::fmt::write;
 
 /*******************************************************************************
  * 1. Data
@@ -13,30 +21,61 @@ use sysinfo::System;
 pub const THREADS: usize = 1;
 
 #[allow(unused)]
-pub const TASK_BUFFER: usize = 3;
+pub const TASK_BUFFER: usize = 5;
 
 #[allow(unused)]
 pub const EXECUTION_THRESHOLD: f64 = 1.;  // Units in ms
 
-#[derive(Debug, PartialEq)]
-pub enum Unit {
-    String(String),
-    U32(u32),
-    U64(u64),
-    State,
-}
-
+/* Apex Data:
+ * The primary goal of this data is to represent the state of the overall system. 
+ * The data here is only the essential data for which to affect the system with,
+ * or to provide the status & performance of the system. "Affecting the system" 
+ * means to produce data such that it produces a particular desired result in line
+ * with the purporse of the system. This could be graphical display, system device interaction,
+ * pure logging or data etc. By constraining the overall apex data to just these,
+ * we can essentially affect any part of the system while maintaining clarity for 
+ * what we are trying to do strictly within the constraints or scope of the design. 
+ */
 #[derive(Debug, PartialEq)]
 #[allow(unused)]
 pub struct Data {
-    pub data: Option<Unit>,
-    pub read_io: Option<String>,
-    pub write_io: Option<String>,
-    pub display_io: Option<String>,
-    pub config: Option<String>,
-    pub perf: Option<f64>,
-    pub logs: Option<[String; 100]>,
-    pub state: State,
+    pub config: Option<String>,         // (0) Init state: details for initalization & configuration of system behavior
+    pub read_io: Option<String>,        // (2) Running state: import data (e.g. file system or API call) 
+    pub write_io: Option<String>,       // (2) Running state: export data (e.g. file system or API call)
+    pub display_io: Option<String>,     // (2) Running state: utilizing system terminal output or display drivers
+    pub perf: Option<f64>,              // (3) Report  state: system information details 
+    pub logs: Option<[String; 100]>,    // (3, 4, 5, 6) Report, Failure, Degraded, Shutdown state: Logs for any event during running state  
+    pub prev_cell_id: usize,        // Access index: Current cell can access previous cell generated data
+    pub state: State,                   // System state
+}
+
+impl Data {
+    pub fn give_system_init() -> Self {
+        Self {
+            read_io: None,
+            write_io: None,
+            display_io: None,
+            config: None,
+            perf: None,
+            logs: None,
+            prev_cell_id: 0,
+            state: State::Init,
+        }
+    }
+
+    /* Micro-kernel space (Loop Engine privelage only):
+    * Apply returned outputs to ctx.
+    * This is the missing link that makes "returns" actually do something.
+    */
+    pub fn mutate_state(&mut self, _in: TaskOutput, id: usize) -> Result<(), Error> {
+        self.prev_cell_id = id;
+        match _in {
+            TaskOutput::None => { Ok(()) }
+            TaskOutput::MutateState(next_state) => { self.state = next_state; Ok(()) }
+            TaskOutput::MutateDisplayIO(data) => { self.display_io = Some(data); Ok(()) }
+            _ => Ok(())
+        }
+    }
 }
 
 // NOTE: Idea for future domain implementatoins:
@@ -50,13 +89,13 @@ pub struct Data {
 #[derive(Debug, PartialEq)]
 #[allow(unused)]
 pub enum State {
-    Init,
-    Idle,
-    Running,
-    Report,
-    Failure,
-    Degraded,
-    Shutdown,
+    Init,       // (0)
+    Idle,       // (1)
+    Running,    // (2) 
+    Report,     // (3)
+    Failure,    // (4)
+    Degraded,   // (5)
+    Shutdown,   // (6)
 }
 
 /*******************************************************************************
@@ -68,115 +107,129 @@ pub enum State {
 pub enum ProgramThread {
     Main {
         counter: usize,
-        tasks: [TaskFn; TASK_BUFFER],
+        tasks: [Cell; TASK_BUFFER],
+        handoff: CellData, 
     },
+}
+
+impl ProgramThread {
+    pub fn step(&mut self, ctx: &mut Data) -> Result<(), Error> { 
+        match self {
+
+            ProgramThread::Main { counter, tasks , handoff } => {
+
+                if *counter >= TASK_BUFFER {
+                    ctx.state = State::Shutdown;
+                    println!("\nReport: {:#?}\n", ctx);
+                    return Ok(());
+                }
+
+                // Literally handoff the data here and place default for the old owner.
+                let handoff_transfer = std::mem::take(handoff);
+                // Move the handoff to the new owner.
+                let out = tasks[*counter].execute(ctx, handoff_transfer);
+                // Update the handoff with the results from out.
+                *handoff = out.0;
+
+                ctx.mutate_state(out.1?, *counter)?;
+                *counter += 1;
+                return Ok(());
+            }
+
+        }
+    }
+
 }
 
 /*******************************************************************************
  * 4. Tasks 
 ******************************************************************************/
 
-/* Handlers */ 
-
-#[derive(Debug)]
-pub enum TaskInput {
-    None,
-    MutateData,
-    ReportState,
-    Text,
-    Uptime,
-    PerfMS,
-}
+/* Tasks 
+ * Description: Tasks help formulate cells. 
+ * Nature: Each task HAS-A type and operation/behavior.
+ */
 
 #[derive(Debug)]
 pub enum TaskOutput {
     None,
-    MutateData(Unit),
-    NextState(State),
-    Text(String),
-    PerfMs(f64),
+    MutateReadIO(),
+    MutateWriteIO(),
+    MutateDisplayIO(String),
+    MutatePerf(f64),
+    MutateLogs(),
+    MutateState(State),
 }
 
 #[derive(Debug)]
-pub struct TaskFn {
-    pub id: usize,
-    pub input: TaskInput,
-    pub func: fn(&mut Data, &TaskInput) -> Result<TaskOutput, Error>,
+pub enum TaskType {
+    None,
+    AccessReport,
+    CreateMsg,
+    DisplayMsg,
 }
 
-impl PartialEq for TaskFn {
+impl TaskType {
+    pub fn access_task(&self, _ctx: &mut Data, handoff: CellData) -> (CellData, Result<TaskOutput, Error>) {
+        match self {
+
+            // NOTE: Just a dummy to smoke test
+            TaskType::None => {
+                (CellData::None , Ok(TaskOutput::None))
+            }
+
+            TaskType::AccessReport => {
+                (handoff, Ok(TaskOutput::MutateState(State::Report)))
+            }
+
+            TaskType::CreateMsg => {
+                (CellData::String(format!("My string.")), Ok(TaskOutput::None))
+            }
+
+            TaskType::DisplayMsg => {
+                (CellData::None, Ok(TaskOutput::MutateDisplayIO(format!("{:#?}", handoff))))
+            }
+
+        }
+    }
+}
+
+/*******************************************************************************
+ * 5. Cell Data 
+******************************************************************************/
+
+/* Cells 
+ * Description: Each cell can get access to the system context or data, but it cannot modify the context. Only the engine has authority to modify state. 
+ * Nature: Each cell HAS-A task
+ */
+
+#[derive(Debug, PartialEq, Clone)]
+pub enum CellData {
+    None,
+    String(String),
+}
+
+impl Default for CellData {
+    fn default() -> Self {
+        CellData::None
+    }
+}
+
+#[derive(Debug)]
+pub struct Cell {
+    pub id: usize,
+    pub task: TaskType,
+}
+
+impl PartialEq for Cell {
     fn eq(&self, other: &Self) -> bool {
         self.id == other.id
     }
 
 }
 
-impl TaskFn {
-    pub fn execute(&self, d: &mut Data) -> Result<TaskOutput, Error> {
-       (self.func)(d, &self.input) 
-    }
-}
-
-/* Functions */
-
-pub fn give_init() -> Result<Data, Error>{
-    Ok(Data {
-        data: None,
-        read_io: None,
-        write_io: None,
-        display_io: None,
-        config: None,
-        perf: None,
-        logs: None,
-        state: State::Init,
-    })
-}
-
-pub fn take_task_input(_ctx: &mut Data, _in: &TaskInput) -> Result<TaskOutput, Error> {
-    match _in {
-
-        TaskInput::None => {
-            Ok(TaskOutput::None)
-        }
-
-        TaskInput::Text => {
-            Ok(TaskOutput::Text(format!("\n===================Mock task executing=======================\n")))
-        }
-
-        TaskInput::MutateData => {
-            Ok(TaskOutput::MutateData(Unit::String(format!("test data"))))
-        }
-
-        TaskInput::ReportState => {
-            Ok(TaskOutput::NextState(State::Report))
-        }
-
-        TaskInput::Uptime => {
-            Ok(TaskOutput::Text(format!("\nUptime: {:#?}\n", System::uptime())))
-        }
-
-        _ => {
-            Ok(TaskOutput::None)
-        }
-
-    }
-}
-
-// Apply returned outputs to ctx.
-// This is the missing link that makes "returns" actually do something.
-pub fn mutate_state(ctx: &mut Data, _in: TaskOutput) -> Result<(), Error> {
-    match _in {
-        TaskOutput::None => { Ok(()) }
-        TaskOutput::NextState(next_state) => { ctx.state = next_state; Ok(()) }
-        TaskOutput::MutateData(data) => { ctx.data = Some(data); Ok(()) }
-        TaskOutput::Text(s) => {
-            // your choice: display_io vs read_io vs logs, etc.
-            ctx.display_io = Some(s);
-            Ok(())
-        }
-        TaskOutput::PerfMs(ms) => {
-            ctx.perf = Some(ms);
-            Ok(())
-        }
+impl Cell {
+    pub fn execute(&mut self, context: &mut Data, handoff: CellData) -> (CellData, Result<TaskOutput, Error>) {
+       self.task.access_task(context, handoff) 
     }
 }

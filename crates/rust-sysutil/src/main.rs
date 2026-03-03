@@ -20,7 +20,7 @@ use std::marker::PhantomData;
 // Errors
 use std::io::Error;
 
-// Timing
+// Timing & performance
 #[allow(unused)]
 use std::time::Instant;
 
@@ -32,64 +32,57 @@ use rust_sysutil::*;
  * Runtime Engine 
 ******************************************************************************/
 
-fn main() -> Result<(), Error>{
+fn main() -> Result<(), Error> {
 
-    /* Init */
+    /* 0. Init */
 
-    // Context
-    let mut ctx = give_init()?;
+    // 1. Data Context
+    let mut ctx = Data::give_system_init();
     println!("\nSystem status: {:#?}\n", ctx);
 
-    // Thread(s) + task loading
+    // 2. Thread(s) + task loading
     // NOTE: add tasks to execute in sequence here
     let mut current_thread = ProgramThread::Main {
         counter: 0,
         tasks: [
-            TaskFn { id: 0, input: TaskInput::None, func: take_task_input },
-            TaskFn { id: 1, input: TaskInput::MutateData, func: take_task_input },
-            TaskFn { id: 2, input: TaskInput::ReportState, func: take_task_input },
+            Cell { id: 0, task: TaskType::AccessReport },
+            Cell { id: 1, task: TaskType::CreateMsg },
+            Cell { id: 2, task: TaskType::AccessReport },
+            Cell { id: 3, task: TaskType::DisplayMsg },
+            Cell { id: 4, task: TaskType::AccessReport },
         ],
+        handoff: Default::default(),
     };
 
     ctx.state = State::Idle;
     println!("\nSystem status: {:#?}\n", ctx);
+
     ctx.state = State::Running; 
     println!("\nSystem status: {:#?}\n", ctx);
 
+    /*  3. Run Engine */
+
     loop {
 
-        match &mut current_thread {
+        match ctx.state {
 
-            ProgramThread::Main { counter, tasks } => { 
-                if *counter >= TASK_BUFFER {
-                    ctx.state = State::Shutdown;
+            State::Running => {
+                current_thread.step(&mut ctx)?;
+                if ctx.state == State::Report {
                     println!("\nReport: {:#?}\n", ctx);
-                    break;
-                }
-
-                match ctx.state {
-                    
-                    State::Running => {
-                        let out = tasks[*counter].execute(&mut ctx)?;
-                        let _ = mutate_state(&mut ctx, out);
-                        *counter += 1;
-
-                        if ctx.state == State::Report {
-                            println!("\nCounter: {:#?}\n", *counter);
-                            println!("\nReport: {:#?}\n", ctx);
-                            ctx.state = State::Running;
-                        }
-                    }
-
-                    _ => {
-                        ctx.state = State::Shutdown;
-                        println!("\nReport: {:#?}\n", ctx);
-                        break;
-                    }
+                    ctx.state = State::Running;
                 }
             }
+            
+            _ => {
+                ctx.state = State::Shutdown;
+                println!("\nReport: {:#?}\n", ctx);
+                break;
+            }
+
         }
 
     }
+
     Ok(())
 }
