@@ -167,8 +167,8 @@ pub enum TaskOutput {
 pub enum TaskType {
     None,
     AccessReport,
-    CreateMsg,
-    DisplayMsg,
+    EmitData,
+    DisplayData,
     CheckPerfomance,
 }
 
@@ -185,11 +185,11 @@ impl TaskType {
                 ( handoff, Ok(TaskOutput::None) )
             }
 
-            TaskType::CreateMsg => {
+            TaskType::EmitData => {
                 ( CellData::String(format!("My string.")), Ok(TaskOutput::None) )
             }
 
-            TaskType::DisplayMsg => {
+            TaskType::DisplayData => {
                 ( CellData::None, Ok(TaskOutput::MutateDisplayIO(format!("{:#?}", handoff))) )
             }
 

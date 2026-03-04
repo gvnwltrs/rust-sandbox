@@ -46,9 +46,9 @@ fn main() -> Result<(), Error> {
         counter: 0,
         tasks: [
             Cell { id: 0, task: TaskType::AccessReport },
-            Cell { id: 1, task: TaskType::CreateMsg },
+            Cell { id: 1, task: TaskType::EmitData },
             Cell { id: 2, task: TaskType::AccessReport },
-            Cell { id: 3, task: TaskType::DisplayMsg },
+            Cell { id: 3, task: TaskType::DisplayData },
             Cell { id: 4, task: TaskType::AccessReport },
             Cell { id: 5, task: TaskType::CheckPerfomance },
         ],
