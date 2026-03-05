@@ -45,9 +45,8 @@ fn main() -> Result<(), Error> {
     let mut current_thread = ProgramThread::Main {
         counter: 0,
         tasks: [
-            Cell { id: 0, task: TaskType::EmitData },
-            Cell { id: 1, task: TaskType::DisplayData },
-            Cell { id: 2, task: TaskType::CheckPerformance },
+            Cell { id: 0, task: TaskType::DisplayData },
+            Cell { id: 1, task: TaskType::CheckPerformance },
         ],
         handoff: Default::default(),
     };

@@ -23,7 +23,7 @@ pub const THREADS: usize = 1;
 
 /* Status: MUTABLE */
 #[allow(unused)]
-pub const TASK_BUFFER: usize = 3;
+pub const TASK_BUFFER: usize = 2;
 
 /* Status: MUTABLE */
 #[allow(unused)]
@@ -50,8 +50,8 @@ pub struct Data {
     pub display_io: Option<String>,     // (2) Running state: utilizing system terminal output or display drivers
     pub perf: Option<String>,           // (2) Running state: system information details 
     pub logs: Option<[String; 100]>,    // (2, 3, 4, 5) Running, Failure, Degraded, Shutdown state: Logs for any event during running state  
-    pub cur_cell_id: usize,         // Introspection into current activity
-    pub prev_cell_id: usize,            // Access index: Current cell can access previous cell generated data
+    pub cur_cell_id: Option<usize>,         // Introspection into current activity
+    pub prev_cell_id: Option<usize>,            // Access index: Current cell can access previous cell generated data
     pub debug_mode: Option<String>,
     pub task_desc: Option<String>,
     pub state: State,                   // System state
@@ -67,8 +67,8 @@ impl Data {
             config: None,
             perf: None,
             logs: None,
-            cur_cell_id: 0,
-            prev_cell_id: 0,
+            cur_cell_id: Some(0),
+            prev_cell_id: Some(0),
             debug_mode: Some(String::from("Default")),
             task_desc: None,
             state: State::Init,
@@ -135,11 +135,14 @@ impl ProgramThread {
             ProgramThread::Main { counter, tasks , handoff } => {
 
                 if *counter >= TASK_BUFFER {
+                    ctx.cur_cell_id = None;
+                    ctx.prev_cell_id = None;
+                    ctx.task_desc = None;
                     ctx.state = State::Shutdown;
                     return Ok(());
                 }
 
-                ctx.prev_cell_id = *counter; 
+                ctx.cur_cell_id = Some(*counter); 
                 ctx.task_desc = Some(format!("{:#?}", tasks[*counter].task));
 
                 // Literally handoff the data here and replaces current value with default for the old owner.
@@ -153,7 +156,10 @@ impl ProgramThread {
 
                 ctx.mutate_state(out.1?, *counter)?;
                 *counter += 1;
-                ctx.cur_cell_id = *counter;
+
+                if ctx.cur_cell_id > Some(1) {
+                    ctx.prev_cell_id = Some(*counter - 1);
+                }
 
                 return Ok(());
             }
@@ -189,7 +195,6 @@ pub enum TaskOutput {
 #[derive(Debug)]
 pub enum TaskType {
     None,
-    EmitData,
     DisplayData,
     CheckPerformance,
 }
@@ -202,10 +207,6 @@ impl TaskType {
             // NOTE: Just a dummy to smoke test
             TaskType::None => {
                 ( CellData::None , Ok(TaskOutput::None) )
-            }
-
-            TaskType::EmitData => {
-                ( CellData::String(format!("My string.")), Ok(TaskOutput::None) )
             }
 
             TaskType::DisplayData => {
