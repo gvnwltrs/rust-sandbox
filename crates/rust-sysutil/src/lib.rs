@@ -17,12 +17,15 @@ use std::fmt::write;
  *
 ******************************************************************************/
 
+/* Status: MUTABLE */
 #[allow(unused)]
 pub const THREADS: usize = 1;
 
+/* Status: MUTABLE */
 #[allow(unused)]
-pub const TASK_BUFFER: usize = 6;
+pub const TASK_BUFFER: usize = 3;
 
+/* Status: MUTABLE */
 #[allow(unused)]
 pub const EXECUTION_THRESHOLD: f64 = 1.;  // Units in ms
 
@@ -36,6 +39,8 @@ pub const EXECUTION_THRESHOLD: f64 = 1.;  // Units in ms
  * we can essentially affect any part of the system while maintaining clarity for 
  * what we are trying to do strictly within the constraints or scope of the design. 
  */
+
+/* Status: FREEZE */
 #[derive(Debug, PartialEq)]
 #[allow(unused)]
 pub struct Data {
@@ -45,11 +50,14 @@ pub struct Data {
     pub display_io: Option<String>,     // (2) Running state: utilizing system terminal output or display drivers
     pub perf: Option<String>,           // (2) Running state: system information details 
     pub logs: Option<[String; 100]>,    // (2, 3, 4, 5) Running, Failure, Degraded, Shutdown state: Logs for any event during running state  
-    pub prev_cell_id: usize,        // Access index: Current cell can access previous cell generated data
+    pub cur_cell_id: usize,         // Introspection into current activity
+    pub prev_cell_id: usize,            // Access index: Current cell can access previous cell generated data
     pub debug_mode: Option<String>,
+    pub task_desc: Option<String>,
     pub state: State,                   // System state
 }
 
+/* Status: FREEZE */
 impl Data {
     pub fn give_system_init() -> Self {
         Self {
@@ -59,8 +67,10 @@ impl Data {
             config: None,
             perf: None,
             logs: None,
+            cur_cell_id: 0,
             prev_cell_id: 0,
             debug_mode: Some(String::from("Default")),
+            task_desc: None,
             state: State::Init,
         }
     }
@@ -69,8 +79,9 @@ impl Data {
     * Apply returned outputs to ctx.
     * This is the missing link that makes "returns" actually do something.
     */
+
+    /* Status: MUTABLE */
     pub fn mutate_state(&mut self, _in: TaskOutput, id: usize) -> Result<(), Error> {
-        self.prev_cell_id = id;
         match _in {
             TaskOutput::None => { Ok(()) }
             TaskOutput::MutateState(next_state) => { self.state = next_state; Ok(()) }
@@ -89,11 +100,12 @@ impl Data {
  * 2. States 
 ******************************************************************************/
 
+/* Status: FREEZE */
 #[derive(Debug, PartialEq)]
 #[allow(unused)]
 pub enum State {
     Init,       // (0)
-    Idle,       // (1)
+    Halt,       // (1)
     Running,    // (2) 
     Failure,    // (3)
     Degraded,   // (4)
@@ -104,6 +116,7 @@ pub enum State {
  * 3. Threads 
 ******************************************************************************/
 
+/* Status: FREEZE */
 #[derive(Debug, PartialEq)]
 #[allow(unused)]
 pub enum ProgramThread {
@@ -114,6 +127,7 @@ pub enum ProgramThread {
     },
 }
 
+/* Status: FREEZE */
 impl ProgramThread {
     pub fn step(&mut self, ctx: &mut Data) -> Result<(), Error> { 
         match self {
@@ -122,19 +136,25 @@ impl ProgramThread {
 
                 if *counter >= TASK_BUFFER {
                     ctx.state = State::Shutdown;
-                    println!("\nReport: {:#?}\n", ctx);
                     return Ok(());
                 }
 
-                // Literally handoff the data here and place default for the old owner.
-                let handoff_transfer = std::mem::take(handoff);
+                ctx.prev_cell_id = *counter; 
+                ctx.task_desc = Some(format!("{:#?}", tasks[*counter].task));
+
+                // Literally handoff the data here and replaces current value with default for the old owner.
+                let handoff_transfer: CellData = std::mem::take(handoff);
+
                 // Move the handoff to the new owner.
-                let out = tasks[*counter].execute(ctx, handoff_transfer);
-                // Update the handoff with the results from out.
+                let out: (CellData, Result<TaskOutput, Error>) = tasks[*counter].execute(ctx, handoff_transfer);
+
+                // Back to owning cell data. Update the handoff with the results from out.
                 *handoff = out.0;
 
                 ctx.mutate_state(out.1?, *counter)?;
                 *counter += 1;
+                ctx.cur_cell_id = *counter;
+
                 return Ok(());
             }
 
@@ -152,6 +172,8 @@ impl ProgramThread {
  * Nature: Each task HAS-A type and operation/behavior.
  */
 
+
+/* Status: FREEZE */
 #[derive(Debug)]
 pub enum TaskOutput {
     None,
@@ -163,15 +185,16 @@ pub enum TaskOutput {
     MutateState(State),
 }
 
+/* Status: MUTABLE */
 #[derive(Debug)]
 pub enum TaskType {
     None,
-    AccessReport,
     EmitData,
     DisplayData,
-    CheckPerfomance,
+    CheckPerformance,
 }
 
+/* Status: MUTABLE */
 impl TaskType {
     pub fn access_task(&self, _ctx: &mut Data, handoff: CellData) -> (CellData, Result<TaskOutput, Error>) {
         match self {
@@ -179,10 +202,6 @@ impl TaskType {
             // NOTE: Just a dummy to smoke test
             TaskType::None => {
                 ( CellData::None , Ok(TaskOutput::None) )
-            }
-
-            TaskType::AccessReport => {
-                ( handoff, Ok(TaskOutput::None) )
             }
 
             TaskType::EmitData => {
@@ -193,7 +212,7 @@ impl TaskType {
                 ( CellData::None, Ok(TaskOutput::MutateDisplayIO(format!("{:#?}", handoff))) )
             }
 
-            TaskType::CheckPerfomance => {
+            TaskType::CheckPerformance => {
                 let uptime = System::uptime();
                 ( CellData::None, Ok(TaskOutput::MutatePerf(format!("uptime: {}, TBD...", uptime))) )
             }
@@ -211,6 +230,7 @@ impl TaskType {
  * Nature: Each cell HAS-A task
  */
 
+/* Status: FREEZE */
 #[derive(Debug, PartialEq, Clone)]
 pub enum CellData {
     None,
@@ -223,12 +243,14 @@ impl Default for CellData {
     }
 }
 
+/* Status: FREEZE */
 #[derive(Debug)]
 pub struct Cell {
     pub id: usize,
     pub task: TaskType,
 }
 
+/* Status: FREEZE */
 impl PartialEq for Cell {
     fn eq(&self, other: &Self) -> bool {
         self.id == other.id
@@ -236,6 +258,7 @@ impl PartialEq for Cell {
 
 }
 
+/* Status: FREEZE */
 impl Cell {
     pub fn execute(&mut self, context: &mut Data, handoff: CellData) -> (CellData, Result<TaskOutput, Error>) {
        self.task.access_task(context, handoff) 

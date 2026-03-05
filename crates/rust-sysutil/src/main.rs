@@ -45,17 +45,14 @@ fn main() -> Result<(), Error> {
     let mut current_thread = ProgramThread::Main {
         counter: 0,
         tasks: [
-            Cell { id: 0, task: TaskType::AccessReport },
-            Cell { id: 1, task: TaskType::EmitData },
-            Cell { id: 2, task: TaskType::AccessReport },
-            Cell { id: 3, task: TaskType::DisplayData },
-            Cell { id: 4, task: TaskType::AccessReport },
-            Cell { id: 5, task: TaskType::CheckPerfomance },
+            Cell { id: 0, task: TaskType::EmitData },
+            Cell { id: 1, task: TaskType::DisplayData },
+            Cell { id: 2, task: TaskType::CheckPerformance },
         ],
         handoff: Default::default(),
     };
 
-    ctx.state = State::Idle;
+    ctx.state = State::Halt;
     println!("\nBoot status: {:#?}\n", ctx);
 
     ctx.state = State::Running; 
@@ -76,7 +73,6 @@ fn main() -> Result<(), Error> {
             
             _ => {
                 ctx.state = State::Shutdown;
-                println!("\nShutdown status: {:#?}\n", ctx);
                 break;
             }
 
