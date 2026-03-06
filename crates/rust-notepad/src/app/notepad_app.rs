@@ -47,3 +47,15 @@ impl eframe::App for NotepadApp {
         });
     }
 }
+
+#[cfg(test)]
+mod tests {
+
+    #[allow(unused)]
+    use super::*;
+
+    #[test]
+    fn smoke_test() {
+        assert!(true);
+    }
+} 

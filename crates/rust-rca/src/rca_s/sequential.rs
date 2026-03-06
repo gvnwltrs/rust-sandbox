@@ -279,3 +279,15 @@ impl Cell {
        self.task.access_task(context, handoff) 
     }
 }
+
+#[cfg(test)]
+mod tests {
+
+    #[allow(unused)]
+    use super::*;
+
+    #[test]
+    fn smoke_test() {
+        assert!(true);
+    }
+} 

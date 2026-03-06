@@ -5,3 +5,15 @@ pub struct DisplayModel {
     pub body: String,
     pub status: String,
 }
+
+#[cfg(test)]
+mod tests {
+
+    #[allow(unused)]
+    use super::*;
+
+    #[test]
+    fn smoke_test() {
+        assert!(true);
+    }
+} 
