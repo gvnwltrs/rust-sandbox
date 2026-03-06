@@ -185,13 +185,16 @@ impl ProgramThread {
  */
 
 
-/* Status: FREEZE */
+/* Status: 
+    - enum: FREEZE
+    - value: MUTABLE
+*/
 #[derive(Debug)]
 pub enum TaskOutput {
     None,
     MutateReadIO(),
     MutateWriteIO(),
-    MutateDisplayIO(eframe::Frame),
+    MutateDisplayIO(String),
     MutatePerf(String),
     MutateLogs(String),
     MutateState(State),
