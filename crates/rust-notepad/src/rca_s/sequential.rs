@@ -10,7 +10,10 @@ use std::time::SystemTime;
 use std::fmt::write;
 
 /* Project Dependencies */
-// use eframe::egui;
+#[allow(unused)]
+use eframe::egui;
+#[allow(unused)]
+use crate::display::DisplayModel;
 
 /*******************************************************************************
  * 1. Data
@@ -53,7 +56,7 @@ pub struct Data {
     pub config: Option<String>,         // (0) Init state: details for initalization & configuration of system behavior
     pub read_io: Option<String>,        // (2) Running state: import data (e.g. file system or API call) 
     pub write_io: Option<String>,       // (2) Running state: export data (e.g. file system or API call)
-    pub display_io: Option<String>,     // (2) Running state: utilizing system terminal output or display drivers
+    pub display_io: Option<DisplayModel>,     // (2) Running state: utilizing system terminal output or display drivers
     pub perf: Option<String>,           // (2) Running state: system information details 
     pub logs: Option<[String; 100]>,    // (2, 3, 4, 5) Running, Failure, Degraded, Shutdown state: Logs for any event during running state  
     pub cur_cell_id: Option<usize>,         // Introspection into current activity
@@ -87,13 +90,25 @@ impl Data {
     */
 
     /* Status: MUTABLE */
-    pub fn mutate_state(&mut self, _in: TaskOutput) -> Result<(), Error> {
+    pub fn mutate_state(&mut self, _in: (CellData, TaskOutput)) -> Result<Option<CellData>, Error> {
         match _in {
-            TaskOutput::None => { Ok(()) }
-            TaskOutput::MutateState(next_state) => { self.state = next_state; Ok(()) }
-            TaskOutput::MutateDisplayIO(data) => { self.display_io = Some(data); Ok(()) }
-            TaskOutput::MutatePerf(data) => { self.perf = Some(data); Ok(()) }
-            _ => Ok(())
+
+            ( CellData::DisplayData(data), TaskOutput::MutateDisplayIO ) => { 
+                self.display_io = Some(data); 
+                Ok(None) 
+            }
+
+            ( CellData::String(data), TaskOutput::MutatePerf )  => { 
+                self.perf = Some(data); 
+                Ok(None) 
+            }
+
+            ( any, TaskOutput::NextCell ) => { 
+
+                Ok(Some(any)) 
+            }
+
+            _ => Ok(None)
         }
     }
 }
@@ -158,9 +173,15 @@ impl ProgramThread {
                 let out: (CellData, Result<TaskOutput, Error>) = tasks[*counter].execute(ctx, handoff_transfer);
 
                 // Back to owning cell data. Update the handoff with the results from out.
-                *handoff = out.0;
+                let _handoff = out.0;
+                let task_output = out.1?;
 
-                ctx.mutate_state(out.1?)?;
+                let handover = ctx.mutate_state((_handoff, task_output))?;
+
+                *handoff = match handover { 
+                    Some(celldata) => celldata,
+                    None => CellData::None
+                };
                 *counter += 1;
 
                 if ctx.cur_cell_id > Some(1) {
@@ -192,12 +213,12 @@ impl ProgramThread {
 #[derive(Debug)]
 pub enum TaskOutput {
     None,
-    MutateReadIO(),
-    MutateWriteIO(),
-    MutateDisplayIO(String),
-    MutatePerf(String),
-    MutateLogs(String),
-    MutateState(State),
+    MutateReadIO,
+    MutateWriteIO,
+    MutateDisplayIO,
+    MutatePerf,
+    MutateLogs,
+    NextCell,
 }
 
 /* Status: MUTABLE */
@@ -219,12 +240,17 @@ impl TaskType {
             }
 
             TaskType::DisplayData => {
-                ( CellData::None, Ok(TaskOutput::MutateDisplayIO(format!("{:#?}", handoff))) )
+                let data = DisplayModel { 
+                        title: format!("Test"),
+                        body: format!("body text: {:#?}", handoff),
+                        status: format!("status: \n(system_uptime: {}), ", System::uptime()) 
+                };
+                ( CellData::DisplayData(data), Ok(TaskOutput::MutateDisplayIO) ) 
             }
 
             TaskType::CheckPerformance => {
                 let uptime = System::uptime();
-                ( CellData::None, Ok(TaskOutput::MutatePerf(format!("uptime: {}, TBD...", uptime))) )
+                ( CellData::String(format!("uptime: {}, TBD...", uptime)), Ok(TaskOutput::MutatePerf) )
             }
 
         }
@@ -240,7 +266,7 @@ impl TaskType {
  * Nature: Each cell HAS-A task
  */
 
-/* Status: FREEZE */
+/* Status: MUTABLE */
 #[derive(Debug, PartialEq, Clone)]
 pub enum CellData {
     None,
@@ -250,6 +276,7 @@ pub enum CellData {
     I32(i32),
     F32(f32),
     F64(f64),
+    DisplayData(DisplayModel),
 }
 
 impl Default for CellData {

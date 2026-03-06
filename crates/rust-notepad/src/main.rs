@@ -17,6 +17,7 @@
 use std::marker::PhantomData;
 
 // Errors
+#[allow(unused)]
 use std::io::Error;
 
 // Timing & performance
@@ -26,57 +27,26 @@ use std::time::Instant;
 // Modules
 #[allow(unused)]
 use rust_notepad::rca_s::*;
+#[allow(unused)]
+use rust_notepad::app::*;
+#[allow(unused)]
+use eframe::egui;
 
 /*******************************************************************************
  * Runtime Engine 
 ******************************************************************************/
 
-fn main() -> Result<(), Error> {
-
-    /* 0. Init */
-
-    // 1. Data Context
-    let mut ctx = Data::give_system_init();
-    println!("\nBoot status: {:#?}\n", ctx);
-
-    // 2. Thread(s) + task loading
-    // NOTE: add tasks to execute in sequence here
-    let mut current_thread = ProgramThread::Main {
-        counter: 0,
-        tasks: [
-            Cell { id: 0, task: TaskType::DisplayData },
-            Cell { id: 1, task: TaskType::CheckPerformance },
-        ],
-        handoff: Default::default(),
+fn main() -> eframe::Result {
+    let options = eframe::NativeOptions {
+        viewport: egui::ViewportBuilder::default()
+            .with_title("rust-notepad")
+            .with_inner_size([800.0, 600.0]),
+        ..Default::default()
     };
 
-    ctx.state = State::Halt;
-    println!("\nBoot status: {:#?}\n", ctx);
-
-    ctx.state = State::Running; 
-    println!("\nBoot status: {:#?}\n", ctx);
-
-    /*  3. Run Engine */
-
-    loop {
-
-        match ctx.state {
-
-            State::Running => {
-                current_thread.step(&mut ctx)?;
-                if ctx.debug_mode.is_some()  {
-                    println!("\nRuntime status: {:#?}\n", ctx);
-                }
-            }
-            
-            _ => {
-                ctx.state = State::Shutdown;
-                break;
-            }
-
-        }
-
-    }
-
-    Ok(())
+    eframe::run_native(
+        "rust-notepad",
+        options,
+        Box::new(|_cc| Ok(Box::new(NotepadApp::new()))),
+    )
 }
