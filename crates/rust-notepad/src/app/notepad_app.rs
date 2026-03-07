@@ -39,6 +39,41 @@ impl eframe::App for NotepadApp {
                 ui.heading(&display.title);
                 ui.separator();
 
+                ui.horizontal(|ui| {
+                    if self.ctx.write_io.is_none() {
+                        self.ctx.write_io = Some("note.txt".to_string())
+                    }
+
+                    if let Some(path) = self.ctx.write_io.as_mut() {
+                        ui.label("File:");
+                        ui.text_edit_singleline(path);
+                    }
+
+                    if ui.button("Save").clicked() {
+                        if let Some(path) = self.ctx.write_io.as_ref() {
+                            match std::fs::write(path, &display.body) {
+                                Ok(()) => {
+                                    display.status = format!(
+                                        "status:\nSaved to {}\n(chars: {})",
+                                        path,
+                                        display.body.chars().count()
+                                    );
+                                }
+                                Err(err) => {
+                                    display.status = format!("status:\nSave failed: {}", err);
+                                }
+                            }
+                        }
+                    }
+
+                    if ui.button("Clear").clicked() {
+                        display.body.clear();
+                        display.status = "status:\nCleared".to_string();
+                    }
+                });
+
+                ui.separator();
+
                 let response = ui.add(
                     egui::TextEdit::multiline(&mut display.body)
                         .desired_rows(20)
@@ -55,14 +90,13 @@ impl eframe::App for NotepadApp {
 
                 ui.separator();
                 ui.label(&display.status);
-            } else {
-                ui.heading("rust-notepad");
-                ui.label("No display yet.");
-            }
 
-            ctx.request_repaint();
+                // ctx.request_repaint();
+            }
         });
+
     }
+
 }
 
 #[cfg(test)]
