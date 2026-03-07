@@ -70,6 +70,25 @@ impl eframe::App for NotepadApp {
                         display.body.clear();
                         display.status = "status:\nCleared".to_string();
                     }
+
+                    if ui.button("Open").clicked() {
+                        if let Some(path) = self.ctx.write_io.as_ref() {
+                            match std::fs::read_to_string(path) {
+                                Ok(contents) => {
+                                    display.body = contents;
+                                    display.status = format!(
+                                        "status:\nOpened {}\n(chars: {})",
+                                        path,
+                                        display.body.chars().count()
+                                    );
+                                }
+                                Err(err) => {
+                                    display.status = format!("status:\nOpen failed: {}", err);
+                                }
+                            }
+                        }
+                    }        
+
                 });
 
                 ui.separator();
