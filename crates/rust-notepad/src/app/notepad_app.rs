@@ -1,5 +1,6 @@
 
 use crate::rca_s::{ Data, State, ProgramThread, TaskType, Cell };
+use sysinfo::System;
 use eframe::*;
 
 pub struct NotepadApp {
@@ -34,16 +35,32 @@ impl eframe::App for NotepadApp {
         }
 
         egui::CentralPanel::default().show(ctx, |ui| {
-            if let Some(display) = &self.ctx.display_io {
+            if let Some(display) = self.ctx.display_io.as_mut() {
                 ui.heading(&display.title);
                 ui.separator();
-                ui.label(&display.body);
+
+                let response = ui.add(
+                    egui::TextEdit::multiline(&mut display.body)
+                        .desired_rows(20)
+                        .desired_width(f32::INFINITY),
+                ); 
+
+                if response.changed() {
+                    display.status = format!(
+                        "status:\n(system uptime: {}\n(chars: {}",
+                        System::uptime(),
+                        display.body.chars().count() 
+                    );
+                }
+
                 ui.separator();
                 ui.label(&display.status);
             } else {
                 ui.heading("rust-notepad");
-                ui.label("No display data yet.");
+                ui.label("No display yet.");
             }
+
+            ctx.request_repaint();
         });
     }
 }
