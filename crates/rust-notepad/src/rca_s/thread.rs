@@ -33,7 +33,7 @@ pub const TASK_BUFFER: usize = 2;
 #[allow(unused)]
 pub const EXECUTION_THRESHOLD: f64 = 1.;  // Units in ms
 
-/* Status: FREEZE */
+/* Status: FREEZE Main / MUTABLE (additional threads) */
 #[derive(Debug, PartialEq)]
 #[allow(unused)]
 pub enum ProgramThread {
@@ -42,9 +42,10 @@ pub enum ProgramThread {
         tasks: [Cell; TASK_BUFFER],
         handoff: CellData, 
     },
+    GUI,
 }
 
-/* Status: FREEZE */
+/* Status: FREEZE Main / MUTABLE (additional threads) */
 impl ProgramThread {
 
     /* Desc: (1) call function execute, (2) update state */
@@ -91,6 +92,8 @@ impl ProgramThread {
 
                 return Ok(());
             }
+
+            ProgramThread::GUI => { return Ok(()); }
 
         }
     }

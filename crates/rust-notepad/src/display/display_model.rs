@@ -6,6 +6,14 @@ pub struct DisplayModel {
     pub status: String,
 }
 
+#[derive(Debug, Clone)]
+pub enum GuiInput {
+    SetBody(String),
+    SaveRequested,
+    OpenRequested,
+    ClearRequested,
+}
+
 #[cfg(test)]
 mod tests {
 
