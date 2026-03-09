@@ -2793,6 +2793,10 @@ name = "rust-generics"
 version = "0.1.0"
 
 [[package]]
+name = "rust-httpserver"
+version = "0.1.0"
+
+[[package]]
 name = "rust-iter"
 version = "0.1.0"
 
@@ -2849,7 +2853,21 @@ name = "rust-patterns"
 version = "0.1.0"
 
 [[package]]
-name = "rust-rca"
+name = "rust-rca-a"
+version = "0.1.0"
+dependencies = [
+ "sysinfo",
+]
+
+[[package]]
+name = "rust-rca-e"
+version = "0.1.0"
+dependencies = [
+ "sysinfo",
+]
+
+[[package]]
+name = "rust-rca-s"
 version = "0.1.0"
 dependencies = [
  "sysinfo",
