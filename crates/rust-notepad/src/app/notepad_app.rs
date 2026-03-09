@@ -31,17 +31,30 @@ impl eframe::App for NotepadApp {
             self.display = Some(display);
         }
 
+        egui::TopBottomPanel::top("menu_bar").show(ctx, |ui| {
+            egui::MenuBar::new().ui(ui, |ui| {
+                ui.menu_button("File", |ui| {
+                    if ui.button("Open").clicked() {
+                        let _ = self.input_tx.send(GuiInput::OpenRequested);
+                        ui.close();
+                    }
+
+                    if ui.button("Save").clicked() {
+                        let _ = self.input_tx.send(GuiInput::SaveRequested);
+                        ui.close();
+                    }
+
+                    if ui.button("Clear").clicked() {
+                        let _ = self.input_tx.send(GuiInput::ClearRequested);
+                        ui.close();
+                    }
+                });
+            });
+        });
+
         egui::CentralPanel::default().show(ctx, |ui| {
             if let Some(display) = self.display.as_mut() {
                 ui.heading(&display.title);
-                ui.separator();
-
-                ui.horizontal(|ui| {
-                    if ui.button("Clear").clicked() {
-                        let _ = self.input_tx.send(GuiInput::ClearRequested);
-                    }
-                });
-
                 ui.separator();
 
                 let response = ui.add(
@@ -67,6 +80,7 @@ impl eframe::App for NotepadApp {
         ctx.request_repaint();
     }
 }
+
 #[cfg(test)]
 mod tests {
 
