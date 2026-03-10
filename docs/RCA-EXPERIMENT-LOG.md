@@ -11,6 +11,10 @@ Below is the most useful progression I’d recommend. This sequence intentionall
 
 ## Experiment 1 - Notepad GUI Application 
 
+### Results 
+
+SUCCESS.
+
 Completed:
 
 * See: RCA-001-GUI-Framework-Test.md
@@ -54,6 +58,35 @@ RCA HTTP Echo Server
 ```
 
 Request → task pipeline → response.
+
+### Results 
+
+SUCCESS.
+
+Completed:
+
+* See: RCA-002-HTTP-Server.md
+
+### Next Steps
+
+Continue experimentation with additional domains to stress other aspects of the architecture.
+
+Potential next domains include:
+
+* CLI pipeline systems
+* message queue / pub-sub systems
+* file processing pipelines
+* embedded device control loops
+
+Additional experiments will help determine the boundaries and strengths of each RCA variant.
+
+---
+
+The **next interesting experiment (EXP-003)** is one that will stress RCA in a completely different way:
+
+**a streaming pipeline** (log processor or CLI pipe chain).
+
+It will reveal things about **state persistence, long-running flows, and throughput behavior** that neither the GUI nor HTTP experiments expose.
 
 ---
 
@@ -171,12 +204,12 @@ This is where RCA **likely shines**, so it serves as validation after earlier st
 # Visual Summary
 
 ```text
-EXP 1  GUI Framework         (completed)
-EXP 2  Network Service       (async events)
-EXP 3  Streaming Pipeline    (dataflow)
-EXP 4  Actor System          (message systems)
-EXP 5  Simulation Engine     (deterministic loop)
-EXP 6  Embedded Mock         (architecture home ground)
+SUCCESS  EXP 1  GUI Framework         (completed)
+SUCCESS  EXP 2  Network Service       (async events)
+AWAITING EXP 3  Streaming Pipeline    (dataflow)
+AWAITING EXP 4  Actor System          (message systems)
+AWAITING EXP 5  Simulation Engine     (deterministic loop)
+AWAITING EXP 6  Embedded Mock         (architecture home ground)
 ```
 
 ---
