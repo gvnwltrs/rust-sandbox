@@ -1,14 +1,5 @@
 use std::io::Error;
 
-#[allow(unused)]
-use sysinfo::System;
-
-#[allow(unused)]
-use std::time::SystemTime;
-
-#[allow(unused)]
-use std::fmt::write;
-
 /* Project Dependencies */
 #[allow(unused)]
 use crate::rca_e::{ State, TaskOutput, CellData, TASK_BUFFER };
@@ -111,20 +102,6 @@ pub struct DisplayModel {
     pub title: String,
     pub body: String,
     pub status: String,
-}
-
-#[derive(Debug, PartialEq, Clone)]
-pub struct RequestModel {
-    pub method:String,
-    pub path: String,
-    pub host: String,
-    pub raw: String,
-}
-
-#[derive(Debug, PartialEq, Clone)]
-pub struct ResponseModel {
-    pub status_line: String,
-    pub body: String,
 }
 
 // NOTE: Idea for future domain implementatoins:

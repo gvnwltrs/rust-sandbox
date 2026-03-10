@@ -1,8 +1,11 @@
 use std::io::Error;
 
+#[allow(unused)]
+use std::fmt::write;
+
 /* Project Dependencies */
 #[allow(unused)]
-use crate::rca_a::{ State, TaskOutput, CellData, TASK_BUFFER };
+use crate::rca_e::{ State, TaskOutput, CellData, TASK_BUFFER };
 
 /*******************************************************************************
  * (1) Data
@@ -72,13 +75,7 @@ impl Data {
     pub fn mutate_state(&mut self, _in: (CellData, TaskOutput)) -> Result<Option<CellData>, Error> {
         match _in {
 
-            ( CellData::DisplayData(data), TaskOutput::MutateDisplayIO ) => { 
-                self.display_io = Some(data); 
-                Ok(None) 
-            }
-
-            ( CellData::String(data), TaskOutput::MutatePerf )  => { 
-                self.perf = Some(data); 
+            ( CellData::None, TaskOutput::None ) => { 
                 Ok(None) 
             }
 
@@ -92,6 +89,7 @@ impl Data {
     }
 }
 
+
 /*******************************************************************************
  * (2) Add custom data models here 
 ******************************************************************************/
@@ -103,12 +101,18 @@ pub struct DisplayModel {
     pub status: String,
 }
 
-#[derive(Debug, Clone)]
-pub enum GuiInput {
-    SetBody(String),
-    SaveRequested,
-    OpenRequested,
-    ClearRequested,
+#[derive(Debug, PartialEq, Clone)]
+pub struct RequestModel {
+    pub method:String,
+    pub path: String,
+    pub host: String,
+    pub raw: String,
+}
+
+#[derive(Debug, PartialEq, Clone)]
+pub struct ResponseModel {
+    pub status_line: String,
+    pub body: String,
 }
 
 // NOTE: Idea for future domain implementatoins:

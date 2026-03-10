@@ -15,11 +15,7 @@
 // Data
 #[allow(unused)]
 use std::marker::PhantomData;
-
-// Errors
 use std::io::Error;
-
-// Timing & performance
 #[allow(unused)]
 use std::time::Instant;
 
@@ -33,19 +29,13 @@ use rust_rca_s::rca_s::*;
 
 fn main() -> Result<(), Error> {
 
-    /* 0. Init */
-
-    // 1. Data Context
     let mut ctx = Data::give_system_init();
     println!("\nBoot status: {:#?}\n", ctx);
 
-    // 2. Thread(s) + task loading
-    // NOTE: add tasks to execute in sequence here
     let mut current_thread = ProgramThread::build_tasks(
         None,
         Some([ 
-            Cell { id: 0, task: TaskType::DisplayData },
-            Cell { id: 1, task: TaskType::CheckPerformance },
+            Cell { id: 0, task: TaskType::None },
         ]),
         None,
     );
@@ -55,8 +45,6 @@ fn main() -> Result<(), Error> {
 
     ctx.state = State::Running; 
     println!("\nBoot status: {:#?}\n", ctx);
-
-    /*  3. Run Engine */
 
     loop {
 

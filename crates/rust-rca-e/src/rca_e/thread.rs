@@ -1,14 +1,5 @@
 use std::io::Error;
 
-#[allow(unused)]
-use sysinfo::System;
-
-#[allow(unused)]
-use std::time::SystemTime;
-
-#[allow(unused)]
-use std::fmt::write;
-
 /* Project Dependencies */
 #[allow(unused)]
 use crate::rca_e::{ Data, State, Events, TaskType, TaskOutput, Cell, CellData, DisplayModel };
@@ -23,7 +14,7 @@ pub const THREADS: usize = 1;
 
 /* Status: MUTABLE */
 #[allow(unused)]
-pub const TASK_BUFFER: usize = 2;
+pub const TASK_BUFFER: usize = 1;
 
 /* Status: MUTABLE */
 #[allow(unused)]
@@ -51,7 +42,6 @@ impl ProgramThread {
             } else {
                 [ 
                     Cell { id: 0, task: TaskType::None }, 
-                    Cell { id: 1, task: TaskType::None }, 
                 ]
             },
             handoff: if let Some(x) = ho {

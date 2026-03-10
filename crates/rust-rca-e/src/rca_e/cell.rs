@@ -1,17 +1,8 @@
 use std::io::Error;
 
-#[allow(unused)]
-use sysinfo::System;
-
-#[allow(unused)]
-use std::time::SystemTime;
-
-#[allow(unused)]
-use std::fmt::write;
-
 /* Project Dependencies */
 #[allow(unused)]
-use crate::rca_e::{ Data, DisplayModel, RequestModel, ResponseModel };
+use crate::rca_e::{ Data, DisplayModel };
 
 /*******************************************************************************
  * (1) Cell Data 
@@ -33,9 +24,6 @@ pub enum CellData {
     F32(f32),
     F64(f64),
     DisplayData(DisplayModel),
-    RawRequest(String),
-    Request(RequestModel),
-    Response(ResponseModel),
 }
 
 impl Default for CellData {
@@ -109,92 +97,7 @@ impl TaskType {
                 ( CellData::None , Ok(TaskOutput::None) )
             }
 
-            TaskType::AcceptConnection => {
-                ( CellData::None , Ok(TaskOutput::None) )
-            }
-
-            TaskType::ReadRequest => {
-                ( CellData::None , Ok(TaskOutput::None) )
-            }
-
-            TaskType::ParseRequest => {
-                match _handoff {
-                    CellData::RawRequest(raw) => {
-                        let mut lines = raw.lines();
-
-                        let request_line = lines.next().unwrap_or_default();
-                        let mut parts = request_line.split_whitespace();
-
-                        let method = parts.next().unwrap_or_default().to_string();
-                        let path = parts.next().unwrap_or_default().to_string();
-
-                        let mut host = String::new();
-                        for line in lines {
-                            if let Some(value) = line.strip_prefix("Host: ") {
-                                host = value.trim().to_string();
-                                break;
-                            }
-                        }
-
-                        let request = RequestModel {
-                            method,
-                            path,
-                            host,
-                            raw,
-                        };
-
-                        (CellData::Request(request), Ok(TaskOutput::NextCell))
-                    }
-
-                    _ => (
-                        CellData::None,
-                        Err(Error::new(
-                            std::io::ErrorKind::InvalidInput,
-                            "expected raw request",
-                        )),
-                    ),
-                }
-            }
-
-            TaskType::BuildResponse => {
-                match _handoff {
-                    CellData::Request(req) => {
-                        let response = if req.method == "GET" && req.path == "/" {
-                            let body = format!(
-                                "Method: {}\nPath: {}\nHost: {}\n",
-                                req.method, req.path, req.host
-                            );
-
-                            ResponseModel {
-                                status_line: "HTTP/1.1 200 OK".to_string(),
-                                body,
-                            }
-                        } else {
-                            let body = format!(
-                                "Not Found\n\nMethod: {}\nPath: {}\nHost: {}\n",
-                                req.method, req.path, req.host
-                            );
-
-                            ResponseModel {
-                                status_line: "HTTP/1.1 404 Not Found".to_string(),
-                                body,
-                            }
-                        };
-
-                        (CellData::Response(response), Ok(TaskOutput::NextCell))
-                    }
-
-                    _ => (
-                        CellData::None,
-                        Err(Error::new(
-                            std::io::ErrorKind::InvalidInput,
-                            "expected parsed request",
-                        )),
-                    ),
-                }
-            }
-
-            TaskType::WriteResponse => {
+            _ => {
                 ( CellData::None , Ok(TaskOutput::None) )
             }
 
@@ -213,18 +116,4 @@ mod tests {
         assert!(true);
     }
 
-    #[test]
-    fn test_accept_connection() {
-        // mock connection request
-        let request = RequestModel {
-            method: String::from("GET"),
-            path: String::from("/"),
-            host: String::from("localhost:7878"),
-            raw: String::from("GET / HTTP/1.1\r\nHost: localhost:7878\r\n\r\n"),
-        };
-        let mut context = Data::give_system_init();
-        let _handoff = CellData::Request(request);
-        let connection = TaskType::access_task(&TaskType::AcceptConnection, &mut context, _handoff);
-        assert!(connection.1.is_ok());
-    }
 } 

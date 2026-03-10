@@ -12,14 +12,23 @@
  * 
 ******************************************************************************/
 
+// Data
 #[allow(unused)]
 use std::marker::PhantomData;
+
+// Errors
+#[allow(unused)]
+use std::io::{ Error, Read, Write };
+
+// Timing & performance
 #[allow(unused)]
 use std::time::Instant;
-#[allow(unused)]
-use rust_rca_e::rca_e::*;
 
-/* Dependencies */
+// Modules
+#[allow(unused)]
+use rust_logprocessor::rca_e::*;
+
+// Dependencies
 
 /*******************************************************************************
  * Runtime Engine 
