@@ -15,7 +15,7 @@ use std::fmt::write;
 use crate::rca_a::{ State, TaskOutput, CellData, TASK_BUFFER };
 
 /*******************************************************************************
- * 1. Data
+ * (1) Data
  * 
  * Establish data endpoints. 
  * Establish & confirm complete data. 
@@ -102,11 +102,23 @@ impl Data {
     }
 }
 
+/*******************************************************************************
+ * (2) Add custom data models here 
+******************************************************************************/
+
 #[derive(Debug, PartialEq, Clone, Default)]
 pub struct DisplayModel {
     pub title: String,
     pub body: String,
     pub status: String,
+}
+
+#[derive(Debug, Clone)]
+pub enum GuiInput {
+    SetBody(String),
+    SaveRequested,
+    OpenRequested,
+    ClearRequested,
 }
 
 // NOTE: Idea for future domain implementatoins:

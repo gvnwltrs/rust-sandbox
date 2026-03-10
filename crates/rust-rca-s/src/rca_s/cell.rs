@@ -11,11 +11,10 @@ use std::time::SystemTime;
 use std::fmt::write;
 
 /* Project Dependencies */
-#[allow(unused)]
-use crate::rca_s::{ Data, TaskOutput, TaskType, DisplayModel};
+use crate::rca_s::{ Data, DisplayModel };
 
 /*******************************************************************************
- * 5. Cell Data 
+ * (1) Cell Data 
 ******************************************************************************/
 
 /* Cells 
@@ -75,3 +74,60 @@ mod tests {
         assert!(true);
     }
 } 
+
+/*******************************************************************************
+ * (2) Tasks 
+******************************************************************************/
+
+/* Tasks 
+ * Description: Tasks help formulate cells. 
+ * Nature: Each task HAS-A type and operation/behavior.
+ */
+
+/* Status: MUTABLE */ 
+#[derive(Debug)]
+pub enum TaskOutput {
+    None,
+    MutateReadIO,
+    MutateWriteIO,
+    MutateDisplayIO,
+    MutatePerf,
+    MutateLogs,
+    NextCell,
+}
+
+/* Status: MUTABLE */
+#[derive(Debug)]
+pub enum TaskType {
+    None,
+    DisplayData,
+    CheckPerformance,
+}
+
+/* Status: MUTABLE */
+impl TaskType {
+    pub fn access_task(&self, _ctx: &mut Data, handoff: CellData) -> (CellData, Result<TaskOutput, Error>) {
+        match self {
+
+            // NOTE: Just a dummy to smoke test
+            TaskType::None => {
+                ( CellData::None , Ok(TaskOutput::None) )
+            }
+
+            TaskType::DisplayData => {
+                let data = DisplayModel { 
+                        title: format!("Test"),
+                        body: String::new(),
+                        status: format!("status: \n(system_uptime: {}), ", System::uptime()) 
+                };
+                ( CellData::DisplayData(data), Ok(TaskOutput::MutateDisplayIO) ) 
+            }
+
+            TaskType::CheckPerformance => {
+                let uptime = System::uptime();
+                ( CellData::String(format!("uptime: {}, TBD...", uptime)), Ok(TaskOutput::MutatePerf) )
+            }
+
+        }
+    }
+}

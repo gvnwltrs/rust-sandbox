@@ -41,14 +41,14 @@ fn main() -> Result<(), Error> {
 
     // 2. Thread(s) + task loading
     // NOTE: add tasks to execute in sequence here
-    let mut current_thread = ProgramThread::Main {
-        counter: 0,
-        tasks: [
+    let mut current_thread = ProgramThread::build_tasks(
+        None,
+        Some([ 
             Cell { id: 0, task: TaskType::DisplayData },
             Cell { id: 1, task: TaskType::CheckPerformance },
-        ],
-        handoff: Default::default(),
-    };
+        ]),
+        None,
+    );
 
     ctx.state = State::Halt;
     println!("\nBoot status: {:#?}\n", ctx);

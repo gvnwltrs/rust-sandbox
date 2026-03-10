@@ -1,4 +1,3 @@
-
 use std::io::Error;
 
 #[allow(unused)]
@@ -11,10 +10,11 @@ use std::time::SystemTime;
 use std::fmt::write;
 
 /* Project Dependencies */
-use crate::rca_a::{ Data, State, TaskOutput, Cell, CellData };
+#[allow(unused)]
+use crate::rca_a::{ Data, State, Events, TaskType, TaskOutput, Cell, CellData, DisplayModel };
 
 /*******************************************************************************
- * 3. Threads 
+ * (1) Threads 
 ******************************************************************************/
 
 /* Status: MUTABLE */
@@ -42,6 +42,26 @@ pub enum ProgramThread {
 
 /* Status: FREEZE Main / MUTABLE (additional threads) */
 impl ProgramThread {
+
+    pub fn build_tasks(ctr: Option<usize>, tsks: Option<[Cell; TASK_BUFFER]>, ho: Option<CellData>) -> Self {
+        ProgramThread::Main {
+            counter: if let Some(x) = ctr { x } else { 0 },
+            tasks: if let Some(x) = tsks {
+                x
+            } else {
+                [ 
+                    Cell { id: 0, task: TaskType::None }, 
+                    Cell { id: 1, task: TaskType::None }, 
+                ]
+            },
+            handoff: if let Some(x) = ho {
+                x    
+            } else {
+                Default::default()
+            },
+        }
+        
+    }
 
     /* Desc: (1) call function execute, (2) update state */
     pub fn step(&mut self, ctx: &mut Data) -> Result<(), Error> { 
@@ -88,6 +108,18 @@ impl ProgramThread {
                 return Ok(());
             }
 
+        }
+    }
+
+    pub fn is_finished(&self) -> bool {
+        match self {
+            ProgramThread::Main { counter, tasks, .. } => *counter >= tasks.len(),
+        }
+    }
+
+    pub fn take_handoff(&mut self) -> CellData {
+        match self {
+            ProgramThread::Main { handoff, .. } => std::mem::take(handoff),
         }
     }
 

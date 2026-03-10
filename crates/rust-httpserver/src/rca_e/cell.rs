@@ -157,31 +157,6 @@ impl TaskType {
                 }
             }
 
-            // TaskType::BuildResponse => {
-            //     match _handoff {
-            //         CellData::Request(req) => {
-            //             let body = format!(
-            //                 "Method: {}\nPath: {}\nHost: {}\n",
-            //                 req.method, req.path, req.host
-            //             );
-
-            //             let response = ResponseModel {
-            //                 status_line: "HTTP/1.1 200 OK".to_string(),
-            //                 body,
-            //             };
-
-            //             (CellData::Response(response), Ok(TaskOutput::NextCell))
-            //         }
-
-            //         _ => (
-            //             CellData::None,
-            //             Err(Error::new(
-            //                 std::io::ErrorKind::InvalidInput,
-            //                 "expected parsed request",
-            //             )),
-            //         ),
-            //     }
-            // }
             TaskType::BuildResponse => {
                 match _handoff {
                     CellData::Request(req) => {

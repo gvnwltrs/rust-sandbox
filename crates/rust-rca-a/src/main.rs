@@ -8,7 +8,7 @@
  * 
  * 
  * Workflow:
- * Data -> States -> Threads -> Tasks -> Engine
+ * Data -> States -> Threads -> Cells -> Engine
  * 
 ******************************************************************************/
 
@@ -17,6 +17,7 @@
 use std::marker::PhantomData;
 
 // Errors
+#[allow(unused)]
 use std::io::Error;
 
 // Timing & performance
@@ -27,56 +28,27 @@ use std::time::Instant;
 #[allow(unused)]
 use rust_rca_a::rca_a::*;
 
+// Dependencies
+use eframe::*;
+use std::thread;
+#[allow(unused)]
+use std::sync::mpsc::{Receiver, Sender};
+use std::sync::mpsc;
+
 /*******************************************************************************
  * Runtime Engine 
 ******************************************************************************/
 
-fn main() -> Result<(), Error> {
+fn main() -> Result<(), eframe::Error> {
+    let (display_tx, display_rx) = mpsc::channel::<DisplayModel>();
+    let (input_tx, input_rx) = mpsc::channel::<GuiInput>();
 
-    /* 0. Init */
+     thread::spawn(move || {
+        run_rca_engine(display_tx, input_rx);
+    });
 
-    // 1. Data Context
-    let mut ctx = Data::give_system_init();
-    println!("\nBoot status: {:#?}\n", ctx);
-
-    // 2. Thread(s) + task loading
-    // NOTE: add tasks to execute in sequence here
-    let mut current_thread = ProgramThread::Main {
-        counter: 0,
-        tasks: [
-            Cell { id: 0, task: TaskType::DisplayData },
-            Cell { id: 1, task: TaskType::CheckPerformance },
-        ],
-        handoff: Default::default(),
-    };
-
-    ctx.state = State::Halt;
-    println!("\nBoot status: {:#?}\n", ctx);
-
-    ctx.state = State::Running; 
-    println!("\nBoot status: {:#?}\n", ctx);
-
-    /*  3. Run Engine */
-
-    loop {
-
-        match ctx.state {
-
-            State::Running => {
-                current_thread.step(&mut ctx)?;
-                if ctx.debug_mode.is_some()  {
-                    println!("\nRuntime status: {:#?}\n", ctx);
-                }
-            }
-            
-            _ => {
-                ctx.state = State::Shutdown;
-                break;
-            }
-
-        }
-
-    }
+    start_gui(display_rx, input_tx);
 
     Ok(())
+
 }

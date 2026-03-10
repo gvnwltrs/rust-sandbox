@@ -17,69 +17,45 @@
 use std::marker::PhantomData;
 
 // Errors
-use std::io::Error;
+use std::io::{ Error, Read, Write };
 
 // Timing & performance
 #[allow(unused)]
 use std::time::Instant;
 
 // Modules
-#[allow(unused)]
-// use rust_rca::rca_s::*;
-#[allow(unused)]
-// use rust_rca::rca_a::*;
-#[allow(unused)]
 use rust_rca_e::rca_e::*;
+
+// Dependencies
+#[allow(unused)]
+use std::net::TcpListener;
 
 /*******************************************************************************
  * Runtime Engine 
 ******************************************************************************/
 
-fn main() -> Result<(), Error> {
+fn main() -> std::io::Result<()> {
+    let listener = TcpListener::bind("127.0.0.1:7878")?;
+    println!("Listening on http://127.0.0.1:7878");
 
-    /* 0. Init */
+    for stream in listener.incoming() {
+        let mut stream = stream?;
+        let mut buffer = [0u8; 2048];
 
-    // 1. Data Context
-    let mut ctx = Data::give_system_init();
-    println!("\nBoot status: {:#?}\n", ctx);
+        let bytes_read = stream.read(&mut buffer)?;
+        let raw_request = String::from_utf8_lossy(&buffer[..bytes_read]).to_string();
 
-    // 2. Thread(s) + task loading
-    // NOTE: add tasks to execute in sequence here
-    let mut current_thread = ProgramThread::Main {
-        counter: 0,
-        tasks: [
-            Cell { id: 0, task: TaskType::DisplayData },
-            Cell { id: 1, task: TaskType::CheckPerformance },
-        ],
-        handoff: Default::default(),
-    };
+        let response_model = run_rca_event_flow(raw_request)?;
 
-    ctx.state = State::Halt;
-    println!("\nBoot status: {:#?}\n", ctx);
+        let response = format!(
+            "{}\r\nContent-Type: text/plain\r\nContent-Length: {}\r\n\r\n{}",
+            response_model.status_line,
+            response_model.body.len(),
+            response_model.body
+        );
 
-    ctx.state = State::Running; 
-    println!("\nBoot status: {:#?}\n", ctx);
-
-    /*  3. Run Engine */
-
-    loop {
-
-        match ctx.state {
-
-            State::Running => {
-                current_thread.step(&mut ctx)?;
-                if ctx.debug_mode.is_some()  {
-                    println!("\nRuntime status: {:#?}\n", ctx);
-                }
-            }
-            
-            _ => {
-                ctx.state = State::Shutdown;
-                break;
-            }
-
-        }
-
+        stream.write_all(response.as_bytes())?;
+        stream.flush()?;
     }
 
     Ok(())

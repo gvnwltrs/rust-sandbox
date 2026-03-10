@@ -8,11 +8,9 @@ use std::time::SystemTime;
 use std::fmt::write;
 
 /* Project Dependencies */
-#[allow(unused)]
-use crate::rca_s::DisplayModel;
 
 /*******************************************************************************
- * 2. States 
+ * (1) States 
 ******************************************************************************/
 
 /* Status: FREEZE */
@@ -25,4 +23,13 @@ pub enum State {
     Failure,    // (3)
     Degraded,   // (4)
     Shutdown,   // (5)
+}
+
+/*******************************************************************************
+ * (2) Events 
+******************************************************************************/
+pub enum Events {
+    ConnectionAccepted,
+    RequestReceived(String),
+    ResponseReady(String),
 }

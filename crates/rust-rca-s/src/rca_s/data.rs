@@ -11,11 +11,10 @@ use std::time::SystemTime;
 use std::fmt::write;
 
 /* Project Dependencies */
-#[allow(unused)]
 use crate::rca_s::{ State, TaskOutput, CellData, TASK_BUFFER };
 
 /*******************************************************************************
- * 1. Data
+ * (1) Data
  * 
  * Establish data endpoints. 
  * Establish & confirm complete data. 
@@ -101,6 +100,10 @@ impl Data {
         }
     }
 }
+
+/*******************************************************************************
+ * (2) Add custom data models here 
+******************************************************************************/
 
 #[derive(Debug, PartialEq, Clone, Default)]
 pub struct DisplayModel {
