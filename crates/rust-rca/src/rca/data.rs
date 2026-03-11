@@ -1,6 +1,6 @@
 
 /* Project Dependencies */
-use crate::rca_s::{ State, TASK_BUFFER };
+use crate::rca::{ State, TASK_BUFFER };
 
 /*******************************************************************************
  * (1) Data
@@ -15,7 +15,7 @@ use crate::rca_s::{ State, TASK_BUFFER };
  * The data here is only the essential data for which to affect the system with,
  * or to provide the status & performance of the system. "Affecting the system" 
  * means to produce data such that it produces a particular desired result in line
- * with the purporse of the system. This could be graphical display, system device interaction,
+ * with thercaorse of the system. This could be graphical display, system device interaction,
  * pure logging or data etc. By constraining the overall apex data to just these,
  * we can essentially affect any part of the system while maintaining clarity for 
  * what we are trying to do strictly within the constraints or scope of the design. 

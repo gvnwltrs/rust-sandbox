@@ -1,7 +1,18 @@
+
 use std::io::Error;
 
+#[allow(unused)]
+use sysinfo::System;
+
+#[allow(unused)]
+use std::time::SystemTime;
+
+#[allow(unused)]
+use std::fmt::write;
+
 /* Project Dependencies */
-use crate::rca_s::{ Data, DisplayModel, TASK_BUFFER };
+#[allow(unused)]
+use crate::rca::{ Data, DisplayModel, TASK_BUFFER };
 
 /*******************************************************************************
  * (1) Cell Data 
@@ -74,23 +85,20 @@ impl Cell {
 #[derive(Debug)]
 pub enum TaskOutput {
     None,
-    MutateReadIO,
-    MutateWriteIO,
-    MutateDisplayIO,
-    MutatePerf,
-    MutateLogs,
     NextCell,
+    CommitEvent,
 }
 
 /* Status: MUTABLE */
 #[derive(Debug)]
 pub enum TaskType {
     None,
+    PassData,
 }
 
 /* Status: MUTABLE */
 impl TaskType {
-    pub fn access_task(&self, _ctx: &mut Data, _handoff: CellData) -> (CellData, Result<TaskOutput, Error>) {
+    pub fn access_task(&self, _ctx: &mut Data, handoff: CellData) -> (CellData, Result<TaskOutput, Error>) {
         match self {
 
             // NOTE: Just a dummy to smoke test
@@ -98,9 +106,15 @@ impl TaskType {
                 ( CellData::None , Ok(TaskOutput::None) )
             }
 
+            TaskType::PassData => {
+                ( handoff, Ok(TaskOutput::NextCell) )
+            }
+
         }
+
     }
 }
+
 
 #[cfg(test)]
 mod tests {
@@ -112,4 +126,5 @@ mod tests {
     fn smoke_test() {
         assert!(true);
     }
+
 } 

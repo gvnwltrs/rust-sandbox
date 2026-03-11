@@ -1,7 +1,7 @@
 use std::io::Error;
 
 /* Project Dependencies */
-use crate::rca_s::{ Data, State, TaskOutput, Cell, CellData };
+use crate::rca::{ Data, State, TaskOutput, Cell, CellData };
 
 /*******************************************************************************
  * (1) Threads 
@@ -15,7 +15,7 @@ pub const THREADS: usize = 1;
 #[allow(unused)]
 pub const TASK_BUFFER: usize = 1;
 
-/* Status: MUTABLE */
+/* Status: rcaLE */
 #[allow(unused)]
 pub const EXECUTION_THRESHOLD: f64 = 1.;  // Units in ms
 

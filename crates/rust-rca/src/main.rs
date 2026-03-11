@@ -21,7 +21,7 @@ use std::time::Instant;
 
 // Modules
 #[allow(unused)]
-use rust_rca_s::rca_s::*;
+use rust_rca::rca::*;
 
 /*******************************************************************************
  * Runtime Engine 

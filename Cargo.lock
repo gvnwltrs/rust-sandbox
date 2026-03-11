@@ -2867,22 +2867,7 @@ name = "rust-patterns"
 version = "0.1.0"
 
 [[package]]
-name = "rust-rca-a"
-version = "0.1.0"
-dependencies = [
- "eframe",
- "sysinfo",
-]
-
-[[package]]
-name = "rust-rca-e"
-version = "0.1.0"
-dependencies = [
- "sysinfo",
-]
-
-[[package]]
-name = "rust-rca-s"
+name = "rust-rca"
 version = "0.1.0"
 dependencies = [
  "sysinfo",
