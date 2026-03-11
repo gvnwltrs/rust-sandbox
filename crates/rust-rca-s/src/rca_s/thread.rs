@@ -1,7 +1,7 @@
 use std::io::Error;
 
 /* Project Dependencies */
-use crate::rca_s::{ Data, State, TaskOutput, TaskType, Cell, CellData };
+use crate::rca_s::{ Data, State, TaskOutput, Cell, CellData };
 
 /*******************************************************************************
  * (1) Threads 
@@ -35,16 +35,14 @@ impl ProgramThread {
 
     pub fn build_tasks(ctr: Option<usize>, tsks: Option<[Cell; TASK_BUFFER]>, ho: Option<CellData>) -> Self {
         ProgramThread::Main {
-            counter: if let Some(x) = ctr { x } else { 0 },
-            tasks: if let Some(x) = tsks {
-                x
+            counter: if let Some(count) = ctr { count } else { 0 },
+            tasks: if let Some(inner_tasks) = tsks {
+                inner_tasks 
             } else {
-                [ 
-                    Cell { id: 0, task: TaskType::None }, 
-                ]
+                Cell::default()
             },
-            handoff: if let Some(x) = ho {
-                x    
+            handoff: if let Some(inner_data) = ho {
+                inner_data    
             } else {
                 Default::default()
             },

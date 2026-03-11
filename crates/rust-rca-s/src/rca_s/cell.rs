@@ -1,8 +1,7 @@
 use std::io::Error;
-use sysinfo::System;
 
 /* Project Dependencies */
-use crate::rca_s::{ Data, DisplayModel };
+use crate::rca_s::{ Data, DisplayModel, TASK_BUFFER };
 
 /*******************************************************************************
  * (1) Cell Data 
@@ -49,22 +48,18 @@ impl PartialEq for Cell {
 
 /* Status: FREEZE */
 impl Cell {
+    pub fn default() -> [Self; TASK_BUFFER] {
+        let tasks: [Self; TASK_BUFFER] = core::array::from_fn(|i| Cell {
+            id: i,
+            task: TaskType::None,
+        });
+        tasks
+    }
+
     pub fn execute(&mut self, context: &mut Data, handoff: CellData) -> (CellData, Result<TaskOutput, Error>) {
        self.task.access_task(context, handoff) 
     }
 }
-
-#[cfg(test)]
-mod tests {
-
-    #[allow(unused)]
-    use super::*;
-
-    #[test]
-    fn smoke_test() {
-        assert!(true);
-    }
-} 
 
 /*******************************************************************************
  * (2) Tasks 
@@ -91,13 +86,11 @@ pub enum TaskOutput {
 #[derive(Debug)]
 pub enum TaskType {
     None,
-    DisplayData,
-    CheckPerformance,
 }
 
 /* Status: MUTABLE */
 impl TaskType {
-    pub fn access_task(&self, _ctx: &mut Data, handoff: CellData) -> (CellData, Result<TaskOutput, Error>) {
+    pub fn access_task(&self, _ctx: &mut Data, _handoff: CellData) -> (CellData, Result<TaskOutput, Error>) {
         match self {
 
             // NOTE: Just a dummy to smoke test
@@ -105,20 +98,18 @@ impl TaskType {
                 ( CellData::None , Ok(TaskOutput::None) )
             }
 
-            TaskType::DisplayData => {
-                let data = DisplayModel { 
-                        title: format!("Test"),
-                        body: String::new(),
-                        status: format!("status: \n(system_uptime: {}), ", System::uptime()) 
-                };
-                ( CellData::DisplayData(data), Ok(TaskOutput::MutateDisplayIO) ) 
-            }
-
-            TaskType::CheckPerformance => {
-                let uptime = System::uptime();
-                ( CellData::String(format!("uptime: {}, TBD...", uptime)), Ok(TaskOutput::MutatePerf) )
-            }
-
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+
+    #[allow(unused)]
+    use super::*;
+
+    #[test]
+    fn smoke_test() {
+        assert!(true);
+    }
+} 

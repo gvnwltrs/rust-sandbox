@@ -3,7 +3,7 @@ use sysinfo::System;
 
 /* Project Dependencies */
 #[allow(unused)]
-use crate::rca_a::{ Data, DisplayModel };
+use crate::rca_a::{ Data, DisplayModel, TASK_BUFFER };
 
 /*******************************************************************************
  * (1) Cell Data 
@@ -50,6 +50,14 @@ impl PartialEq for Cell {
 
 /* Status: FREEZE */
 impl Cell {
+    pub fn default() -> [Self; TASK_BUFFER] {
+        let tasks: [Self; TASK_BUFFER] = core::array::from_fn(|i| Cell {
+            id: i,
+            task: TaskType::None,
+        });
+        tasks
+    }
+
     pub fn execute(&mut self, context: &mut Data, handoff: CellData) -> (CellData, Result<TaskOutput, Error>) {
        self.task.access_task(context, handoff) 
     }

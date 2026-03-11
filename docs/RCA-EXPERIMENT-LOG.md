@@ -749,6 +749,125 @@ If you want, I can next turn this into a **thread-ready experiment spec** with:
 
 ---
 
+Pick **Experiment 5 — Simulation Engine** next.
+
+Why this should come before Actor / Message System:
+
+You just finished strengthening RCA-E in a streaming/event domain. The biggest value now is **contrast**, not more of the same. A simulation engine pressures very different properties:
+
+* deterministic stepping
+* repeated cycle execution
+* explicit update order
+* centralized progression
+* persistent evolving state
+
+That makes it the best next experiment to test whether RCA also fits a more **sequential, loop-owned runtime**, which is where your architecture seems to want to go, especially with the newer flow:
+
+```text
+Data → Constraints → Cells → Threads → Engine
+```
+
+Actor/message systems are valuable, but they introduce multiple hard variables at once:
+
+* decentralization
+* async delivery
+* mailbox semantics
+* scheduling policy
+* possible concurrency pressure
+
+If you do that next, it becomes harder to tell whether friction comes from RCA itself or just from the domain being much more chaotic.
+
+Simulation gives you a cleaner read.
+
+## Best experiment order now
+
+I’d reorder the next three like this:
+
+```text
+Experiment 4 — Simulation Engine
+Experiment 5 — Actor / Message System
+Experiment 6 — Embedded Hardware Mock
+```
+
+That sequence is stronger because:
+
+* **Simulation** tests RCA-S style deterministic looping
+* **Actor system** then stress-tests distribution and decentralized execution
+* **Embedded mock** becomes the validation pass where RCA should feel most natural
+
+## What Simulation will reveal
+
+The key question becomes:
+
+> Can RCA naturally support deterministic cyclical execution where the engine owns progression and cells represent update stages?
+
+That is a very important counterweight to what you already learned from RCA-E.
+
+It will help answer:
+
+* does RCA really want engine-owned loop control?
+* are cells natural as update stages?
+* do threads make sense as ordered update pipelines?
+* does the architecture stay clear under repeated timestep execution?
+
+## Minimal simulation domain to use
+
+Keep it tiny.
+
+A good small system would be:
+
+```text
+Entity position update → velocity application → bounds check → display snapshot
+```
+
+Example state:
+
+* one or two entities
+* `x`, `y`
+* `vx`, `vy`
+
+Example cycle:
+
+```text
+Tick 1
+  ApplyVelocity
+  ClampBounds
+  RenderSnapshot
+
+Tick 2
+  ApplyVelocity
+  ClampBounds
+  RenderSnapshot
+```
+
+That is enough to test:
+
+* repeated stepping
+* persistent state across iterations
+* deterministic ordering
+* engine-controlled progression
+
+## Variant recommendation
+
+Use **RCA-S** for this one.
+
+That gives you the cleanest contrast with the RCA-E log processor.
+
+## Decision
+
+So the next experiment should be:
+
+# Experiment 4 — Simulation Engine (RCA-S)
+
+Then after that:
+
+# Experiment 5 — Actor / Message System
+
+If you want, I’ll lay out the minimal Experiment 4 implementation plan next in the same style as the log processor.
+
+---
+
+
 # Insights 
 
 2026-03-11:
