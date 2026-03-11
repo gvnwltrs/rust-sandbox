@@ -21,10 +21,17 @@ pub enum State {
  * (2) Events 
 ******************************************************************************/
 
-pub enum Events {}
+#[derive(Debug, PartialEq)]
+#[allow(unused)]
+pub enum Event {}
 
 /*******************************************************************************
  * (3) Modes 
 ******************************************************************************/
 
-pub enum Modes {}
+#[derive(Debug, PartialEq)]
+#[allow(unused)]
+pub enum Mode {
+    None,
+    Debug,
+}

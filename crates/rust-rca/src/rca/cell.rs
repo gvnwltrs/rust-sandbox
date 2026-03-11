@@ -12,7 +12,7 @@ use std::fmt::write;
 
 /* Project Dependencies */
 #[allow(unused)]
-use crate::rca::{ Data, DisplayModel, TASK_BUFFER };
+use crate::rca::{ Data, DisplayData, TASK_BUFFER };
 
 /*******************************************************************************
  * (1) Cell Data 
@@ -27,13 +27,6 @@ use crate::rca::{ Data, DisplayModel, TASK_BUFFER };
 #[derive(Debug, PartialEq, Clone)]
 pub enum CellData {
     None,
-    String(String),
-    U8(u8),
-    U32(u32),
-    I32(i32),
-    F32(f32),
-    F64(f64),
-    DisplayData(DisplayModel),
 }
 
 impl Default for CellData {
@@ -67,7 +60,7 @@ impl Cell {
         tasks
     }
 
-    pub fn execute(&mut self, context: &mut Data, handoff: CellData) -> (CellData, Result<TaskOutput, Error>) {
+    pub fn execute(&mut self, context: &mut Data, handoff: CellData) -> Result<CellData, Error> {
        self.task.access_task(context, handoff) 
     }
 }
@@ -81,14 +74,6 @@ impl Cell {
  * Nature: Each task HAS-A type and operation/behavior.
  */
 
-/* Status: MUTABLE */ 
-#[derive(Debug)]
-pub enum TaskOutput {
-    None,
-    NextCell,
-    CommitEvent,
-}
-
 /* Status: MUTABLE */
 #[derive(Debug)]
 pub enum TaskType {
@@ -98,16 +83,15 @@ pub enum TaskType {
 
 /* Status: MUTABLE */
 impl TaskType {
-    pub fn access_task(&self, _ctx: &mut Data, handoff: CellData) -> (CellData, Result<TaskOutput, Error>) {
+    pub fn access_task(&self, _ctx: &mut Data, handoff: CellData) ->  Result<CellData, Error> {
         match self {
 
-            // NOTE: Just a dummy to smoke test
             TaskType::None => {
-                ( CellData::None , Ok(TaskOutput::None) )
+                Ok(handoff)
             }
 
             TaskType::PassData => {
-                ( handoff, Ok(TaskOutput::NextCell) )
+                Ok(handoff)
             }
 
         }

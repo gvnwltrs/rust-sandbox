@@ -1,6 +1,6 @@
 
 /* Project Dependencies */
-use crate::rca::{ State, TASK_BUFFER };
+use crate::rca::{ State, Mode, TASK_BUFFER };
 
 /*******************************************************************************
  * (1) Data
@@ -28,17 +28,15 @@ use crate::rca::{ State, TASK_BUFFER };
 #[derive(Debug, PartialEq)]
 #[allow(unused)]
 pub struct Data {
-    pub config: Option<String>,         // (0) Init state: details for initalization & configuration of system behavior
-    pub read_io: Option<String>,        // (2) Running state: import data (e.g. file system or API call) 
-    pub write_io: Option<String>,       // (2) Running state: export data (e.g. file system or API call)
-    pub display_io: Option<DisplayModel>,     // (2) Running state: utilizing system terminal output or display drivers
-    pub perf: Option<String>,           // (2) Running state: system information details 
-    pub logs: Option<[String; 100]>,    // (2, 3, 4, 5) Running, Failure, Degraded, Shutdown state: Logs for any event during running state  
-    pub cur_cell_id: Option<usize>,         // Introspection into current activity
-    pub prev_cell_id: Option<usize>,            // Access index: Current cell can access previous cell generated data
-    pub debug_mode: Option<String>,
+    pub config: ConfigData,         // (0) Init state: details for initalization & configuration of system behavior
+    pub read_io: ReadData,        // (2) Running state: import data (e.g. file system or API call) 
+    pub write_io: WriteData,       // (2) Running state: export data (e.g. file system or API call)
+    pub display_io: DisplayData,     // (2) Running state: utilizing system terminal output or display drivers
+    pub perf: PerfData,           // (2) Running state: system information details 
+    pub logs: LogData,    // (2, 3, 4, 5) Running, Failure, Degraded, Shutdown state: Logs for any event during running state  
     pub task_buffer: usize,
-    pub task_desc: Option<String>,
+    pub task_desc: String,
+    pub mode: Mode,
     pub state: State,                   // System state
 }
 
@@ -46,17 +44,15 @@ pub struct Data {
 impl Default for Data {
     fn default() -> Self {
         Self {
-            read_io: None,
-            write_io: None,
-            display_io: None,
-            config: None,
-            perf: None,
-            logs: None,
-            cur_cell_id: Some(0),
-            prev_cell_id: Some(0),
-            debug_mode: Some(String::from("Default")),
+            config: ConfigData::None,
+            read_io: ReadData::None,
+            write_io: WriteData::None,
+            display_io: DisplayData::default(),
+            perf: PerfData::None,
+            logs: LogData::None,
             task_buffer: TASK_BUFFER,
-            task_desc: None,
+            task_desc: Default::default(),
+            mode: Mode::Debug,
             state: State::Init,
         }
     }
@@ -72,10 +68,40 @@ impl Default for Data {
 ******************************************************************************/
 
 #[derive(Debug, PartialEq, Clone, Default)]
-pub struct DisplayModel {
+pub struct DisplayData {
     pub title: String,
     pub body: String,
     pub status: String,
 }
+
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct SystemData {}
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum ConfigData {
+    None,
+} 
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum WriteData {
+    None,
+} 
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum ReadData {
+    None,
+} 
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum PerfData {
+    None,
+} 
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum LogData {
+    None,
+    Session {
+        entry: String,
+        date: String,
+    }
+} 

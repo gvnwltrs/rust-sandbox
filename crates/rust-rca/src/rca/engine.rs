@@ -1,7 +1,7 @@
 use std::io::Error;
 
 #[allow(unused)]
-use crate::rca::{ Data, SystemData, ProgramThread, TaskType, Cell, CellData, State };
+use crate::rca::{ Data, SystemData, ProgramThread, TaskType, Cell, CellData, State, Mode };
 
 /*******************************************************************************
  * (1) Default 
@@ -27,7 +27,7 @@ impl PrimaryRunner for Engine {
     }
 
     fn try_run_engine(&mut self) -> Result<(), Error> {
-        println!("\nBoot status: {:#?}\n", self.ctx);
+        println!("\nStage Change: {:#?}\n", self.ctx);
 
         let mut current_thread = ProgramThread::build_tasks(
             None,
@@ -38,32 +38,34 @@ impl PrimaryRunner for Engine {
         );
 
         self.ctx.state = State::Halt;
-        println!("\nBoot status: {:#?}\n", self.ctx);
+        println!("\nState Change: {:#?}\n", self.ctx);
 
         self.ctx.state = State::Running; 
-        println!("\nBoot status: {:#?}\n", self.ctx);
+        println!("\nState Change: {:#?}\n", self.ctx);
 
         loop {
 
             match self.ctx.state {
-
                 State::Running => {
                     current_thread.step(&mut self.ctx)?;
-                    if self.ctx.debug_mode.is_some()  {
+
+                    if let Mode::Debug =  self.ctx.mode {
                         println!("\nRuntime status: {:#?}\n", self.ctx);
                     }
+
+                    if current_thread.is_finished() {
+                        self.ctx.state = State::Shutdown;
+                        return Ok(());
+                    }
+
                 }
-                
-                _ => {
-                    self.ctx.state = State::Shutdown;
-                    break;
-                }
+
+                _ => { self.ctx.state = State::Shutdown; return Ok(()); }
 
             }
 
         }
 
-        Ok(())
     }
 }
 
