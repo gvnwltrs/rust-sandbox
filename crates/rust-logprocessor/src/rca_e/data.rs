@@ -79,10 +79,22 @@ impl Data {
                 Ok(None) 
             }
 
+            /* Add Tasks here */
+
+            ( any, TaskOutput::UpdateSummary ) => {
+                Ok(Some(any))
+            }
+
+            ( any, TaskOutput::RaiseAlert(_msg) ) => {
+                Ok(Some(any))
+            }
+
             ( any, TaskOutput::NextCell ) => { 
 
                 Ok(Some(any)) 
             }
+
+            /* End of tasks */
 
             _ => Ok(None)
         }
@@ -101,18 +113,48 @@ pub struct DisplayModel {
     pub status: String,
 }
 
-#[derive(Debug, PartialEq, Clone)]
-pub struct RequestModel {
-    pub method:String,
-    pub path: String,
-    pub host: String,
-    pub raw: String,
+#[derive(Debug, Clone, PartialEq)]
+pub enum LogLevel {
+    Info,
+    Warn,
+    Error,
+    Unknown,
 }
 
-#[derive(Debug, PartialEq, Clone)]
-pub struct ResponseModel {
-    pub status_line: String,
-    pub body: String,
+#[derive(Debug, Clone)]
+pub struct RawLine {
+    pub text: String,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LogRecord {
+    pub level: LogLevel,
+    pub message: String,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct ClassifiedLog {
+    pub level: LogLevel,
+    pub message: String,
+    pub is_alert: bool,
+}
+
+#[derive(Debug, Clone, Default)]
+pub struct SummaryState {
+    pub total: u32,
+    pub info_count: u32,
+    pub warn_count: u32,
+    pub error_count: u32,
+    pub unknown_count: u32,
+    pub last_error: Option<String>,
+}
+
+#[derive(Debug, Clone, Default)]
+pub struct SystemData {
+    pub raw_line: Option<RawLine>,
+    pub record: Option<LogRecord>,
+    pub classified: Option<ClassifiedLog>,
+    pub summary: SummaryState,
 }
 
 // NOTE: Idea for future domain implementatoins:

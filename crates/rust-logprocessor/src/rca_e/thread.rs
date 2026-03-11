@@ -14,7 +14,7 @@ pub const THREADS: usize = 1;
 
 /* Status: MUTABLE */
 #[allow(unused)]
-pub const TASK_BUFFER: usize = 1;
+pub const TASK_BUFFER: usize = 3;
 
 /* Status: MUTABLE */
 #[allow(unused)]
@@ -31,21 +31,20 @@ pub enum ProgramThread {
     },
 }
 
+                    // Cell { id: 0, task: TaskType::None }, 
 /* Status: FREEZE Main / MUTABLE (additional threads) */
 impl ProgramThread {
 
     pub fn build_tasks(ctr: Option<usize>, tsks: Option<[Cell; TASK_BUFFER]>, ho: Option<CellData>) -> Self {
         ProgramThread::Main {
-            counter: if let Some(x) = ctr { x } else { 0 },
-            tasks: if let Some(x) = tsks {
-                x
+            counter: if let Some(count) = ctr { count } else { 0 },
+            tasks: if let Some(inner_tasks) = tsks {
+                inner_tasks
             } else {
-                [ 
-                    Cell { id: 0, task: TaskType::None }, 
-                ]
+                Cell::default()
             },
-            handoff: if let Some(x) = ho {
-                x    
+            handoff: if let Some(inner_data) = ho {
+                inner_data    
             } else {
                 Default::default()
             },
@@ -112,5 +111,12 @@ impl ProgramThread {
             ProgramThread::Main { handoff, .. } => std::mem::take(handoff),
         }
     }
+
+    pub fn access_handoff(&self) -> &CellData {
+        match self {
+            ProgramThread::Main { handoff, .. } => handoff,
+        }
+    }
+
 
 }

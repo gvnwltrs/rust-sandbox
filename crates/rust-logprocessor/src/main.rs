@@ -8,7 +8,7 @@
  * 
  * 
  * Workflow:
- * Data -> States -> Threads -> Tasks -> Engine
+ * Data -> States -> Cells -> Threads -> Engine
  * 
 ******************************************************************************/
 
@@ -35,6 +35,21 @@ use rust_logprocessor::rca_e::*;
 ******************************************************************************/
 
 fn main() -> std::io::Result<()> {
+    let mut engine = Engine::give_default();
+
+    let inputs = [
+        "INFO Boot complete",
+        "WARN Temperature rising",
+        "ERROR Sensor timeout",
+        "INFO Retry started",
+        "ERROR Sensor timeout",
+        "TRACE Something odd happened",
+    ];
+
+    for line in inputs {
+        let out = engine.access_line(line)?;
+        println!("{out}\n");
+    }
 
     Ok(())
 }

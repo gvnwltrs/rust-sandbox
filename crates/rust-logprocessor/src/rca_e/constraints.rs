@@ -8,18 +8,15 @@
 #[allow(unused)]
 pub enum State {
     Init,       // (0)
-    Halt,       // (1)
-    Running,    // (2) 
-    Failure,    // (3)
-    Degraded,   // (4)
-    Shutdown,   // (5)
+    Idle,       // (1)
+    Halt,       // (2)
+    Running,    // (3) 
+    Failure,    // (4)
+    Degraded,   // (5)
+    Shutdown,   // (6)
 }
 
 /*******************************************************************************
  * (2) Events 
 ******************************************************************************/
-pub enum Events {
-    ConnectionAccepted,
-    RequestReceived(String),
-    ResponseReady(String),
-}
+pub enum Events {}
