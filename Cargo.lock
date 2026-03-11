@@ -2768,6 +2768,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "rust-embeddedmock"
+version = "0.1.0"
+
+[[package]]
 name = "rust-errors"
 version = "0.1.0"
 
