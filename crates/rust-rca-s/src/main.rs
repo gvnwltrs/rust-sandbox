@@ -28,43 +28,7 @@ use rust_rca_s::rca_s::*;
 ******************************************************************************/
 
 fn main() -> Result<(), Error> {
-
-    let mut ctx = Data::give_system_init();
-    println!("\nBoot status: {:#?}\n", ctx);
-
-    let mut current_thread = ProgramThread::build_tasks(
-        None,
-        Some([ 
-            Cell { id: 0, task: TaskType::None },
-        ]),
-        None,
-    );
-
-    ctx.state = State::Halt;
-    println!("\nBoot status: {:#?}\n", ctx);
-
-    ctx.state = State::Running; 
-    println!("\nBoot status: {:#?}\n", ctx);
-
-    loop {
-
-        match ctx.state {
-
-            State::Running => {
-                current_thread.step(&mut ctx)?;
-                if ctx.debug_mode.is_some()  {
-                    println!("\nRuntime status: {:#?}\n", ctx);
-                }
-            }
-            
-            _ => {
-                ctx.state = State::Shutdown;
-                break;
-            }
-
-        }
-
-    }
-
+    let mut engine = <Engine as PrimaryRunner>::give_default();
+    engine.try_run_engine()?;
     Ok(())
 }

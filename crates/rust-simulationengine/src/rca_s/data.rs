@@ -61,33 +61,6 @@ impl Default for Data {
             state: State::Init,
         }
     }
-
-    /* Micro-kernel space (Loop Engine privelage only):
-    * Apply returned outputs to ctx.
-    * This is the missing link that makes "returns" actually do something.
-    */
-
-    /* Status: MUTABLE */
-    // pub fn mutate_state(&mut self, _in: (CellData, TaskOutput)) -> Result<Option<CellData>, Error> {
-    //     match _in {
-
-    //         ( CellData::DisplayData(data), TaskOutput::MutateDisplayIO ) => { 
-    //             self.display_io = Some(data); 
-    //             Ok(None) 
-    //         }
-
-    //         ( CellData::String(data), TaskOutput::MutatePerf )  => { 
-    //             self.perf = Some(data); 
-    //             Ok(None) 
-    //         }
-
-    //         ( any, TaskOutput::CommitTick ) => { Ok(Some(any)) }
-
-    //         ( any, TaskOutput::NextCell ) => { Ok(Some(any)) }
-
-    //         _ => Ok(None)
-    //     }
-    // }
 }
 
 /*******************************************************************************

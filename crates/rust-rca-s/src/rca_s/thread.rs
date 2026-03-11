@@ -78,21 +78,20 @@ impl ProgramThread {
                 let _handoff = out.0;
                 let task_output = out.1?;
 
-
-                // (2) Modify state (optional)
-                let handover = ctx.mutate_state((_handoff, task_output))?;
-
-                *handoff = match handover { 
-                    Some(celldata) => celldata,
-                    None => CellData::None
+                // Thread owns continuation policy
+                *handoff = match task_output {
+                    TaskOutput::None => CellData::None,
+                    _ => CellData::None,
+                    // ADD HERE
                 };
+
                 *counter += 1;
 
-                if ctx.cur_cell_id > Some(1) {
+                if *counter > 0 {
                     ctx.prev_cell_id = Some(*counter - 1);
                 }
 
-                return Ok(());
+                Ok(())
             }
 
         }
@@ -107,6 +106,12 @@ impl ProgramThread {
     pub fn take_handoff(&mut self) -> CellData {
         match self {
             ProgramThread::Main { handoff, .. } => std::mem::take(handoff),
+        }
+    }
+
+    pub fn access_handoff(&self) -> &CellData {
+        match self {
+            ProgramThread::Main { handoff, .. } => handoff,
         }
     }
 
