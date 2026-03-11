@@ -10,6 +10,7 @@
 #[allow(unused)]
 pub enum State {
     Init,       // (0)
+    Idle,
     Halt,       // (1)
     Running,    // (2) 
     Failure,    // (3)
@@ -21,8 +22,10 @@ pub enum State {
  * (2) Events 
 ******************************************************************************/
 
-pub enum Events {
-    ConnectionAccepted,
-    RequestReceived(String),
-    ResponseReady(String),
-}
+pub enum Events {}
+
+/*******************************************************************************
+ * (3) Modes 
+******************************************************************************/
+
+pub enum Modes {}

@@ -1,5 +1,4 @@
 use std::io::Error;
-use sysinfo::System;
 
 /* Project Dependencies */
 #[allow(unused)]
@@ -88,11 +87,6 @@ mod tests {
 #[derive(Debug)]
 pub enum TaskOutput {
     None,
-    MutateReadIO,
-    MutateWriteIO,
-    MutateDisplayIO,
-    MutatePerf,
-    MutateLogs,
     NextCell,
 }
 
@@ -100,8 +94,7 @@ pub enum TaskOutput {
 #[derive(Debug)]
 pub enum TaskType {
     None,
-    DisplayData,
-    CheckPerformance,
+    PassData,
 }
 
 /* Status: MUTABLE */
@@ -114,18 +107,8 @@ impl TaskType {
                 ( CellData::None , Ok(TaskOutput::None) )
             }
 
-            TaskType::DisplayData => {
-                let data = DisplayModel { 
-                        title: format!("Test"),
-                        body: String::new(),
-                        status: format!("status: \n(system_uptime: {}), ", System::uptime()) 
-                };
-                ( CellData::DisplayData(data), Ok(TaskOutput::MutateDisplayIO) ) 
-            }
-
-            TaskType::CheckPerformance => {
-                let uptime = System::uptime();
-                ( CellData::String(format!("uptime: {}, TBD...", uptime)), Ok(TaskOutput::MutatePerf) )
+            TaskType::PassData => {
+                ( handoff, Ok(TaskOutput::NextCell) )
             }
 
         }

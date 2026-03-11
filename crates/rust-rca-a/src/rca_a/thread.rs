@@ -81,14 +81,13 @@ impl ProgramThread {
                 let _handoff = out.0;
                 let task_output = out.1?;
 
-
-                // (2) Modify state (optional)
-                let handover = ctx.mutate_state((_handoff, task_output))?;
-
-                *handoff = match handover { 
-                    Some(celldata) => celldata,
-                    None => CellData::None
+                // Thread owns continuation policy
+                *handoff = match task_output {
+                    TaskOutput::None => CellData::None,
+                    TaskOutput::NextCell => _handoff,
+                    // ADD HERE
                 };
+
                 *counter += 1;
 
                 if ctx.cur_cell_id > Some(1) {

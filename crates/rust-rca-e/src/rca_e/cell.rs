@@ -76,11 +76,6 @@ impl Cell {
 #[derive(Debug)]
 pub enum TaskOutput {
     None,
-    MutateReadIO,
-    MutateWriteIO,
-    MutateDisplayIO,
-    MutatePerf,
-    MutateLogs,
     NextCell,
 }
 
@@ -88,16 +83,12 @@ pub enum TaskOutput {
 #[derive(Debug)]
 pub enum TaskType {
     None,
-    AcceptConnection,
-    ReadRequest,
-    ParseRequest,
-    BuildResponse,
-    WriteResponse,
+    PassData,
 }
 
 /* Status: MUTABLE */
 impl TaskType {
-    pub fn access_task(&self, _ctx: &mut Data, _handoff: CellData) -> (CellData, Result<TaskOutput, Error>) {
+    pub fn access_task(&self, _ctx: &mut Data, handoff: CellData) -> (CellData, Result<TaskOutput, Error>) {
         match self {
 
             // NOTE: Just a dummy to smoke test
@@ -105,8 +96,8 @@ impl TaskType {
                 ( CellData::None , Ok(TaskOutput::None) )
             }
 
-            _ => {
-                ( CellData::None , Ok(TaskOutput::None) )
+            TaskType::PassData => {
+                ( handoff, Ok(TaskOutput::NextCell) )
             }
 
         }

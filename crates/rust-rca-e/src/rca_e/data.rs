@@ -1,4 +1,3 @@
-use std::io::Error;
 
 /* Project Dependencies */
 #[allow(unused)]
@@ -45,8 +44,8 @@ pub struct Data {
 }
 
 /* Status: FREEZE */
-impl Data {
-    pub fn give_system_init() -> Self {
+impl Default for Data {
+    fn default() -> Self {
         Self {
             read_io: None,
             write_io: None,
@@ -67,29 +66,6 @@ impl Data {
     * Apply returned outputs to ctx.
     * This is the missing link that makes "returns" actually do something.
     */
-
-    /* Status: MUTABLE */
-    pub fn mutate_state(&mut self, _in: (CellData, TaskOutput)) -> Result<Option<CellData>, Error> {
-        match _in {
-
-            ( CellData::DisplayData(data), TaskOutput::MutateDisplayIO ) => { 
-                self.display_io = Some(data); 
-                Ok(None) 
-            }
-
-            ( CellData::String(data), TaskOutput::MutatePerf )  => { 
-                self.perf = Some(data); 
-                Ok(None) 
-            }
-
-            ( any, TaskOutput::NextCell ) => { 
-
-                Ok(Some(any)) 
-            }
-
-            _ => Ok(None)
-        }
-    }
 }
 
 
@@ -104,6 +80,5 @@ pub struct DisplayModel {
     pub status: String,
 }
 
-// NOTE: Idea for future domain implementatoins:
-// - MCU projects:
-//  - Data contains GPIO, I2C, SPI, UART, Registers, Memory Addresses, etc.
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct SystemData {}
