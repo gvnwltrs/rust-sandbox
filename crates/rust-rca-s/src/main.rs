@@ -8,7 +8,7 @@
  * 
  * 
  * Workflow:
- * Data -> States -> Threads -> Tasks -> Engine
+ * Data -> Constraints -> Cells -> Threads -> Engine
  * 
 ******************************************************************************/
 
