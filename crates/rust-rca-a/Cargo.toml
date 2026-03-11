@@ -1,8 +1,0 @@
-[package]
-name = "rust-rca-a"
-version = "0.1.0"
-edition = "2024"
-
-[dependencies]
-eframe = "0.33.3"
-sysinfo = "0.38.3"

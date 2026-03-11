@@ -1,7 +1,0 @@
-[package]
-name = "rust-rca-e"
-version = "0.1.0"
-edition = "2024"
-
-[dependencies]
-sysinfo = "0.38.3"
