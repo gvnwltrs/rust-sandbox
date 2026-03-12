@@ -31,10 +31,9 @@ impl Default for ControlPlane {
 pub enum State {
     Init,
     Idle,
-    Halt,
     Running,
+    Halt,
     Failure,
-    Degraded,
     Shutdown,
 }
 
