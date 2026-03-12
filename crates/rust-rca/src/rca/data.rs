@@ -111,12 +111,11 @@ pub struct DisplayInfo {
     pub body: String,
     pub status: String,
 }
-
-/*******************************************************************************
- * Add custom data models here 
-******************************************************************************/
-
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct SystemData {
     pub description: String,
 }
+
+/*******************************************************************************
+ * Add custom data models here 
+******************************************************************************/
