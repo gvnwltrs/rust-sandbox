@@ -1,9 +1,6 @@
 
-/* Project Dependencies */
-use crate::rca::{ State, Mode, TASK_BUFFER };
-
 /*******************************************************************************
- * (1) Data
+ * Data plane
  * 
  * Establish data endpoints. 
  * Establish & confirm complete data. 
@@ -21,64 +18,48 @@ use crate::rca::{ State, Mode, TASK_BUFFER };
  * what we are trying to do strictly within the constraints or scope of the design. 
  */
 
-/* Status: 
-    - fields: FREEZE 
-    - values: MUTABLE
-*/
+/* Status: FREEZE */
 #[derive(Debug, PartialEq)]
 #[allow(unused)]
-pub struct Data {
-    pub config: ConfigData,         // (0) Init state: details for initalization & configuration of system behavior
-    pub read_io: ReadData,        // (2) Running state: import data (e.g. file system or API call) 
-    pub write_io: WriteData,       // (2) Running state: export data (e.g. file system or API call)
-    pub display_io: DisplayData,     // (2) Running state: utilizing system terminal output or display drivers
-    pub perf: PerfData,           // (2) Running state: system information details 
-    pub logs: LogData,    // (2, 3, 4, 5) Running, Failure, Degraded, Shutdown state: Logs for any event during running state  
-    pub task_buffer: usize,
-    pub task_desc: String,
-    pub mode: Mode,
-    pub state: State,                   // System state
+pub struct DataPlane {
+    pub config: ConfigData,       // Init state: details for initalization & configuration of system behavior
+    pub read_io: ReadData,        // Running state: import data (e.g. file system or API call) 
+    pub write_io: WriteData,      // Running state: export data (e.g. file system or API call)
+    pub perf: PerfData,           // Running state: system information details 
+    pub logs: LogData,            // Running, Failure, Degraded, Shutdown state: Logs for any event during running state  
+    pub cells: CellInfo,          // Running state: Contains cell count and possibly other metadata for cells.
+    pub activity: ActivityInfo,   // Running state: Contains current task details.
+    pub display: DisplayInfo,     // Running state: utilizing system terminal output or display drivers
 }
 
 /* Status: FREEZE */
-impl Default for Data {
+impl Default for DataPlane {
     fn default() -> Self {
         Self {
             config: ConfigData::None,
             read_io: ReadData::None,
             write_io: WriteData::None,
-            display_io: DisplayData::default(),
             perf: PerfData::None,
             logs: LogData::None,
-            task_buffer: TASK_BUFFER,
-            task_desc: Default::default(),
-            mode: Mode::Debug,
-            state: State::Init,
+            cells: CellInfo::default(),
+            activity: ActivityInfo::default(),
+            display: DisplayInfo::default(),
         }
     }
 
-    /* Micro-kernel space (Loop Engine privelage only):
-    * Apply returned outputs to ctx.
-    * This is the missing link that makes "returns" actually do something.
-    */
 }
 
 /*******************************************************************************
- * (2) Add custom data models here 
+ * Apex data models 
 ******************************************************************************/
-
-#[derive(Debug, PartialEq, Clone, Default)]
-pub struct DisplayData {
-    pub title: String,
-    pub body: String,
-    pub status: String,
-}
-
-#[derive(Debug, Clone, PartialEq, Default)]
-pub struct SystemData {}
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum ConfigData {
+    None,
+} 
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum ReadData {
     None,
 } 
 
@@ -87,10 +68,6 @@ pub enum WriteData {
     None,
 } 
 
-#[derive(Debug, Clone, PartialEq)]
-pub enum ReadData {
-    None,
-} 
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum PerfData {
@@ -105,3 +82,41 @@ pub enum LogData {
         date: String,
     }
 } 
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct CellInfo {
+    pub count: usize,
+} 
+
+impl Default for CellInfo {
+    fn default() -> Self {
+        Self { count: 0 }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct ActivityInfo {
+    pub description: String,
+} 
+
+impl Default for ActivityInfo {
+    fn default() -> Self {
+        Self { description: Default::default() } 
+    }
+}
+
+#[derive(Debug, PartialEq, Clone, Default)]
+pub struct DisplayInfo {
+    pub title: String,
+    pub body: String,
+    pub status: String,
+}
+
+/*******************************************************************************
+ * Add custom data models here 
+******************************************************************************/
+
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct SystemData {
+    pub description: String,
+}

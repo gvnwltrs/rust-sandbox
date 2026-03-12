@@ -1,7 +1,23 @@
+/* Micro-kernel space (Loop Engine privelage only):
+* Apply returned outputs to ctx.
+* This is the missing link that makes "returns" actually do something.
+*/
 use std::io::Error;
 
 #[allow(unused)]
-use crate::rca::{ Data, SystemData, ProgramThread, TaskType, Cell, CellData, State, Mode };
+use crate::rca::{ 
+    DataPlane, 
+    SystemData, 
+    ControlPlane,
+    State, 
+    Mode,
+    Event,
+    Cell, 
+    CellData, 
+    Task, 
+    ProgramThread, 
+    Effect,
+};
 
 /*******************************************************************************
  * (1) Default 
@@ -9,58 +25,74 @@ use crate::rca::{ Data, SystemData, ProgramThread, TaskType, Cell, CellData, Sta
 
 #[derive(Debug)]
 pub struct Engine {
-    pub ctx: Data,
+    pub ctx: DataPlane,
+    pub ctl: ControlPlane,
     pub sys: SystemData,
 }
 
 pub trait PrimaryRunner {
     fn give_default() -> Self;
+    fn access_status(&self);
     fn try_run_engine(&mut self) -> Result<(), Error>;
 }
 
 impl PrimaryRunner for Engine {
      fn give_default() -> Self {
         Self {
-            ctx: Data::default(),
+            ctx: DataPlane::default(),
+            ctl: ControlPlane::default(),
             sys: SystemData::default(),
         }
     }
 
+    fn access_status(&self) {
+        println!("\nData: {:#?} | Control: {:#?}\n", self.ctx, self.ctl);
+    }
+
     fn try_run_engine(&mut self) -> Result<(), Error> {
-        println!("\nStage Change: {:#?}\n", self.ctx);
+        self.access_status();
 
         let mut current_thread = ProgramThread::build_tasks(
             None,
             Some([ 
-                Cell { id: 0, task: TaskType::None },
+                Cell { id: 0, task: Task::Default },
             ]),
             None,
         );
 
-        self.ctx.state = State::Halt;
-        println!("\nState Change: {:#?}\n", self.ctx);
+        self.ctl.state = State::Halt;
+        self.access_status();
 
-        self.ctx.state = State::Running; 
-        println!("\nState Change: {:#?}\n", self.ctx);
+        self.ctl.state = State::Idle;
+        self.access_status();
+
+        self.ctl.state = State::Running; 
+        self.access_status();
 
         loop {
 
-            match self.ctx.state {
+            match self.ctl.state {
                 State::Running => {
-                    current_thread.step(&mut self.ctx)?;
+                    let effect = current_thread.step(&self.ctx)?;
+                    self.ctx.activity = effect.activity;
 
-                    if let Mode::Debug =  self.ctx.mode {
-                        println!("\nRuntime status: {:#?}\n", self.ctx);
+                    if let Mode::Debug =  self.ctl.mode {
+                        self.access_status();
                     }
 
-                    if current_thread.is_finished() {
-                        self.ctx.state = State::Shutdown;
+                    if effect.finished {
+                        self.ctl.state = State::Shutdown;
+                        self.access_status();
                         return Ok(());
                     }
 
                 }
 
-                _ => { self.ctx.state = State::Shutdown; return Ok(()); }
+                _ => { 
+                    self.ctl.state = State::Shutdown; 
+                    self.access_status();
+                    return Ok(()); 
+                }
 
             }
 
@@ -72,3 +104,14 @@ impl PrimaryRunner for Engine {
 /*******************************************************************************
  * (2) Add custom engine here  
 ******************************************************************************/
+
+/* Example:
+trait MyAppRunner {
+    fn foo();
+    fn bar();
+}
+
+impl MyAppRunner for Engine {
+    ...
+}
+*/

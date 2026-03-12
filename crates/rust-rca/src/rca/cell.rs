@@ -11,8 +11,13 @@ use std::time::SystemTime;
 use std::fmt::write;
 
 /* Project Dependencies */
+use crate::rca::{ 
+    DataPlane, 
+};
+
+/* Status: MUTABLE */
 #[allow(unused)]
-use crate::rca::{ Data, DisplayData, TASK_BUFFER };
+pub const CELLS: usize = 1;
 
 /*******************************************************************************
  * (1) Cell Data 
@@ -27,6 +32,7 @@ use crate::rca::{ Data, DisplayData, TASK_BUFFER };
 #[derive(Debug, PartialEq, Clone)]
 pub enum CellData {
     None,
+    // Add cell data types here
 }
 
 impl Default for CellData {
@@ -39,7 +45,7 @@ impl Default for CellData {
 #[derive(Debug)]
 pub struct Cell {
     pub id: usize,
-    pub task: TaskType,
+    pub task: Task,
 }
 
 /* Status: FREEZE */
@@ -52,15 +58,15 @@ impl PartialEq for Cell {
 
 /* Status: FREEZE */
 impl Cell {
-    pub fn default() -> [Self; TASK_BUFFER] {
-        let tasks: [Self; TASK_BUFFER] = core::array::from_fn(|i| Cell {
+    pub fn default() -> [Self; CELLS] {
+        let tasks: [Self; CELLS] = core::array::from_fn(|i| Cell {
             id: i,
-            task: TaskType::None,
+            task: Task::Default,
         });
         tasks
     }
 
-    pub fn execute(&mut self, context: &mut Data, handoff: CellData) -> Result<CellData, Error> {
+    pub fn execute(&mut self, context: &DataPlane, handoff: CellData) -> Result<CellData, Error> {
        self.task.access_task(context, handoff) 
     }
 }
@@ -76,29 +82,26 @@ impl Cell {
 
 /* Status: MUTABLE */
 #[derive(Debug)]
-pub enum TaskType {
-    None,
-    PassData,
+pub enum Task {
+    Default,
+    // Add tasks here
 }
 
 /* Status: MUTABLE */
-impl TaskType {
-    pub fn access_task(&self, _ctx: &mut Data, handoff: CellData) ->  Result<CellData, Error> {
+impl Task {
+    pub fn access_task(&self, _ctx: &DataPlane, handoff: CellData) ->  Result<CellData, Error> {
         match self {
 
-            TaskType::None => {
+            Task::Default => {
                 Ok(handoff)
             }
 
-            TaskType::PassData => {
-                Ok(handoff)
-            }
+            // Add task procedures here
 
         }
 
     }
 }
-
 
 #[cfg(test)]
 mod tests {
