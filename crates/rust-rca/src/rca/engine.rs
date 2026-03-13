@@ -33,6 +33,7 @@ pub struct Engine {
 pub trait PrimaryRunner {
     fn give_default() -> Self;
     fn access_status(&self);
+    fn access_effect(&self, efx: &CellData);
     fn try_run_engine(&mut self) -> Result<(), Error>;
 }
 
@@ -47,6 +48,10 @@ impl PrimaryRunner for Engine {
 
     fn access_status(&self) {
         println!("\nData: {:#?} | Control: {:#?}\n", self.ctx, self.ctl);
+    }
+
+    fn access_effect(&self, efx: &CellData) {
+        println!("\nEffect: {:#?}", efx);
     }
 
     fn try_run_engine(&mut self) -> Result<(), Error> {
@@ -78,6 +83,7 @@ impl PrimaryRunner for Engine {
 
                     if let Mode::Debug =  self.ctl.mode {
                         self.access_status();
+                        self.access_effect(effect.handoff);
                     }
 
                     if effect.finished {

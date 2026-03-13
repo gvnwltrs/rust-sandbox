@@ -32,6 +32,7 @@ pub const CELLS: usize = 1;
 #[derive(Debug, PartialEq, Clone)]
 pub enum CellData {
     None,
+    Byte(u8), 
     // Add cell data types here
 }
 
@@ -89,11 +90,12 @@ pub enum Task {
 
 /* Status: MUTABLE */
 impl Task {
-    pub fn access_task(&self, _ctx: &DataPlane, handoff: CellData) ->  Result<CellData, Error> {
+    pub fn access_task(&self, _ctx: &DataPlane, _handoff: CellData) ->  Result<CellData, Error> {
         match self {
 
             Task::Default => {
-                Ok(handoff)
+                let transition = CellData::Byte(0x2A);
+                Ok(transition)
             }
 
             // Add task procedures here
