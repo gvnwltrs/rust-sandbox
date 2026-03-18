@@ -17,7 +17,7 @@ use crate::rca::{
 
 /* Status: MUTABLE */
 #[allow(unused)]
-pub const CELLS: usize = 1;
+pub const CELLS: usize = 2;
 
 /*******************************************************************************
  * (1) Cell Data 
@@ -85,6 +85,7 @@ impl Cell {
 #[derive(Debug)]
 pub enum Task {
     Default,
+    DoubleValue,
     // Add tasks here
 }
 
@@ -94,8 +95,22 @@ impl Task {
         match self {
 
             Task::Default => {
-                let transition = CellData::Byte(0x2A);
-                Ok(transition)
+                let transform = CellData::Byte(0x2A); // 42
+                Ok(transform)
+            }
+
+            Task::DoubleValue => {
+                match _handoff {
+                    CellData::Byte(x) => {
+                        let result = x + x;
+                        let transform = CellData::Byte(result);
+                        Ok(transform)
+                    }
+
+                    _ => {
+                        Ok(_handoff)
+                    }
+                }
             }
 
             // Add task procedures here

@@ -32,23 +32,6 @@ pub struct DataPlane {
     pub display: DisplayInfo,     // Running state: utilizing system terminal output or display drivers
 }
 
-/* Status: FREEZE */
-impl Default for DataPlane {
-    fn default() -> Self {
-        Self {
-            config: ConfigData::None,
-            read_io: ReadData::None,
-            write_io: WriteData::None,
-            perf: PerfData::None,
-            logs: LogData::None,
-            cells: CellInfo::default(),
-            activity: ActivityInfo::default(),
-            display: DisplayInfo::default(),
-        }
-    }
-
-}
-
 /*******************************************************************************
  * Apex data models 
 ******************************************************************************/

@@ -7,11 +7,20 @@ use std::io::Error;
 #[allow(unused)]
 use crate::rca::{ 
     DataPlane, 
+    ConfigData,
+    ReadData,
+    WriteData,
+    PerfData,
+    LogData,
+    CellInfo,
+    ActivityInfo,
+    DisplayInfo,
     SystemData, 
     ControlPlane,
     State, 
     Mode,
     Event,
+    CELLS,
     Cell, 
     CellData, 
     Task, 
@@ -40,7 +49,17 @@ pub trait PrimaryRunner {
 impl PrimaryRunner for Engine {
      fn give_default() -> Self {
         Self {
-            ctx: DataPlane::default(),
+            // ctx: DataPlane::default(),
+            ctx: DataPlane {
+                config: ConfigData::None,
+                read_io: ReadData::None,
+                write_io: WriteData::None,
+                perf: PerfData::None,
+                logs: LogData::None,
+                cells: CellInfo { count: CELLS },
+                activity: ActivityInfo::default(),
+                display: DisplayInfo::default(),
+            },
             ctl: ControlPlane::default(),
             sys: SystemData::default(),
         }
@@ -58,9 +77,10 @@ impl PrimaryRunner for Engine {
         self.access_status();
 
         let mut current_thread = ProgramThread::build_tasks(
-            None,
+            Some(CELLS),
             Some([ 
                 Cell { id: 0, task: Task::Default },
+                Cell { id: 1, task: Task::DoubleValue },
             ]),
             None,
         );
@@ -73,6 +93,8 @@ impl PrimaryRunner for Engine {
 
         self.ctl.state = State::Running; 
         self.access_status();
+
+        // let effect.finished = false;
 
         loop {
 
@@ -89,8 +111,10 @@ impl PrimaryRunner for Engine {
                     if effect.finished {
                         self.ctl.state = State::Shutdown;
                         self.access_status();
+                        self.access_effect(effect.handoff);
                         return Ok(());
                     }
+
 
                 }
 

@@ -67,13 +67,6 @@ impl ProgramThread {
 
     /* Desc: (1) call function execute, (2) update state */
     pub fn step(&mut self, ctx: &DataPlane) -> Result<Effect<'_>, Error> { 
-        if self.is_finished() { 
-            return Ok(Effect {
-                activity: Default::default(),
-                handoff: self.access_handoff(),
-                finished: true,
-            });
-        }
 
         match self {
 
@@ -82,17 +75,19 @@ impl ProgramThread {
                     description: format!("{:#?}", tasks[*counter].task),
                 };
 
-                // Literally handoff the data here and replaces current value with default for the old owner.
+                // Literally handoff the data here from the previous cell to giver ownership to the new cell since thread owns the data.
                 let handoff_transfer: CellData = std::mem::take(handoff);
 
                 // Move the handoff to the new owner then back to owning cell data. Update the handoff with the results from out.
                 *handoff = tasks[*counter].execute(ctx, handoff_transfer)?;
                 *counter += 1;
 
+                let finished = self.is_finished(); 
+
                 return Ok(Effect {
                     activity, 
-                    handoff: self.access_handoff(),
-                    finished: true,
+                    handoff: self.access_handoff(finished),
+                    finished: finished,
                 });
             }
 
@@ -111,9 +106,13 @@ impl ProgramThread {
         }
     }
 
-    pub fn access_handoff(&self) -> &CellData {
-        match self {
-            ProgramThread::Main { handoff, .. } => handoff,
+    pub fn access_handoff(&self, finished: bool) -> &CellData {
+        if finished {
+            match self {
+                ProgramThread::Main { handoff, .. } => handoff,
+            }
+        } else {
+            &CellData::None
         }
     }
 
