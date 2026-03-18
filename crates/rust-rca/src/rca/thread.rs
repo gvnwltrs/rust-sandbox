@@ -65,12 +65,24 @@ impl ProgramThread {
         
     }
 
-    /* Desc: (1) call function execute, (2) update state */
+    /* Desc: (1) call function execute, (2) update state handled by engine */
     pub fn step(&mut self, ctx: &DataPlane) -> Result<Effect<'_>, Error> { 
 
         match self {
 
             ProgramThread::Main { counter, tasks , handoff } => {
+                // if *counter >= tasks.len() {
+                //     let activity = ActivityInfo {
+                //         description: String::new(),
+                //     };
+
+                //     return Ok(Effect {
+                //         activity,
+                //         handoff,
+                //         finished: true,
+                //     });
+                // }
+
                 let activity = ActivityInfo {
                     description: format!("{:#?}", tasks[*counter].task),
                 };
@@ -106,14 +118,16 @@ impl ProgramThread {
         }
     }
 
-    pub fn access_handoff(&self, finished: bool) -> &CellData {
-        if finished {
-            match self {
-                ProgramThread::Main { handoff, .. } => handoff,
-            }
-        } else {
-            &CellData::None
+    pub fn access_handoff(&self, _finished: bool) -> &CellData {
+        // if finished {
+        //     match self {
+        //         ProgramThread::Main { handoff, .. } => handoff,
+        //     }
+        // } else {
+        //     &CellData::None
+        // }
+        match self {
+            ProgramThread::Main { handoff, .. } => handoff,
         }
     }
-
 }

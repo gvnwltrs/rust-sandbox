@@ -41,8 +41,9 @@ pub struct Engine {
 
 pub trait PrimaryRunner {
     fn give_default() -> Self;
-    fn access_status(&self);
-    fn access_effect(&self, efx: &CellData);
+    fn access_initializing_status(&self);
+    fn access_running_status(&self, efx: &CellData);
+    fn access_shutdown_status(&self);
     fn try_run_engine(&mut self) -> Result<(), Error>;
 }
 
@@ -65,19 +66,25 @@ impl PrimaryRunner for Engine {
         }
     }
 
-    fn access_status(&self) {
-        println!("\nData: {:#?} | Control: {:#?}\n", self.ctx, self.ctl);
+
+    fn access_initializing_status(&self) {
+        println!("\n>>>\nControl: {:#?}\n\nData: {:#?}\n", self.ctl, self.ctx);
     }
 
-    fn access_effect(&self, efx: &CellData) {
-        println!("\nEffect: {:#?}", efx);
+    fn access_running_status(&self, efx: &CellData) {
+        println!("\n>>>\nControl: {:#?}\n\nEffect: {:#?}\n\nData: {:#?}\n<<<\n", self.ctl, efx, self.ctx);
+    }
+
+    // TODO: Modify to be more relevant to shutdown details. 
+    fn access_shutdown_status(&self) {
+        println!("\n>>>\nControl: {:#?}\n\nData: {:#?}\n", self.ctl, self.ctx);
     }
 
     fn try_run_engine(&mut self) -> Result<(), Error> {
-        self.access_status();
+        self.access_initializing_status();
 
         let mut current_thread = ProgramThread::build_tasks(
-            Some(CELLS),
+            None,
             Some([ 
                 Cell { id: 0, task: Task::Default },
                 Cell { id: 1, task: Task::DoubleValue },
@@ -86,15 +93,13 @@ impl PrimaryRunner for Engine {
         );
 
         self.ctl.state = State::Halt;
-        self.access_status();
+        self.access_initializing_status();
 
         self.ctl.state = State::Idle;
-        self.access_status();
+        self.access_initializing_status();
 
         self.ctl.state = State::Running; 
-        self.access_status();
-
-        // let effect.finished = false;
+        self.access_initializing_status();
 
         loop {
 
@@ -104,23 +109,21 @@ impl PrimaryRunner for Engine {
                     self.ctx.activity = effect.activity;
 
                     if let Mode::Debug =  self.ctl.mode {
-                        self.access_status();
-                        self.access_effect(effect.handoff);
+                        self.access_running_status(effect.handoff);
                     }
 
                     if effect.finished {
                         self.ctl.state = State::Shutdown;
-                        self.access_status();
-                        self.access_effect(effect.handoff);
+                        self.ctx.activity = ActivityInfo::default();
+                        self.access_shutdown_status();
                         return Ok(());
                     }
-
 
                 }
 
                 _ => { 
                     self.ctl.state = State::Shutdown; 
-                    self.access_status();
+                    self.access_shutdown_status();
                     return Ok(()); 
                 }
 

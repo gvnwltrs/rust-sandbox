@@ -103,7 +103,7 @@ impl Task {
                 match _handoff {
                     CellData::Byte(x) => {
                         let result = x + x;
-                        let transform = CellData::Byte(result);
+                        let transform = CellData::Byte(result); // 84
                         Ok(transform)
                     }
 
